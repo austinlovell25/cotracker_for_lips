@@ -7,9 +7,9 @@ import numpy as np
 from cotracker.utils.visualizer import Visualizer, read_video_from_path
 from cotracker.predictor import CoTrackerPredictor
 
-trial = "D"
+trial = "E"
 many_or_one = "one"
-vid_name = "GX010001_crop"
+vid_name = "apple"
 video_file = f'assets/{vid_name}.mp4'
 
 frames = iio.imread(video_file, plugin="FFMPEG")  # plugin="pyav"
