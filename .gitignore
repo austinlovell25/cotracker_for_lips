@@ -1,0 +1,17 @@
+*.mp4
+*.MP4
+*.png
+*.jpg
+*.gif
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+.Python
+.env
+.venv
+env/
+venv/
+
+checkpoints/
