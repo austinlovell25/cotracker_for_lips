@@ -6,8 +6,8 @@ fname2 = sys.argv[2]
 df1 = pd.read_csv(fname1, header=0)
 df2 = pd.read_csv(fname2, header=0)
 
-crop_left = 400
-crop_up = 550
+crop_left = 300
+crop_up = 510
 
 f1_x1_mean = df1["x1"].mean() - crop_left
 f1_y1_mean = df1["y1"].mean() - crop_up
