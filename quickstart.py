@@ -23,8 +23,9 @@ cotracker = torch.hub.load("facebookresearch/co-tracker", "cotracker2_online").t
 
 # Get points to track.
 pts = []
-pts.append([0., float(df["x1_mean"][video_num]), float(df["y1_mean"][video_num])])
-pts.append([0., float(df["x2_mean"][video_num]), float(df["y2_mean"][video_num])])
+pts.append([0., float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num])])
+pts.append([0., float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num])])
+print(pts)
 
 # Initialize Model
 model = CoTrackerPredictor(checkpoint=os.path.join('./checkpoints/cotracker2.pth'))
@@ -52,7 +53,7 @@ for ind in range(0, video.shape[1] - cotracker.step, cotracker.step):
 
 # Visualize
 vis = Visualizer(save_dir=f'./videos/pipeline/vid{video_num}', linewidth=3, mode='cool', tracks_leave_trace=-1)
-vis.visualize(video=video, tracks=pred_tracks, visibility=pred_visibility, filename=f'{video_num}_queries_trace')
+vis.visualize(video=video, tracks=pred_tracks, visibility=pred_visibility, filename=f'{video_num}_queries_trace', video_num=video_num)
 
 vis2 = Visualizer(save_dir=f'./videos/pipeline/vid{video_num}', pad_value=120, linewidth=3)
-vis2.visualize(video, pred_tracks, pred_visibility, filename=f'{video_num}_queries_notrace')
+vis2.visualize(video, pred_tracks, pred_visibility, filename=f'{video_num}_queries_notrace', video_num=video_num)

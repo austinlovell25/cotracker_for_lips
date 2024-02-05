@@ -23,13 +23,17 @@ pts=($(python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv | tr -d '[]
 
 # Crop video using offset based on lip points
 echo "Cropping video 1..."
-ffmpeg -i "$fname1" -y -nostats -loglevel 0 -filter:v "crop=800:800:${pts[0]}:${pts[1]}" vid1_crop.mp4
+ffmpeg -i "$fname1" -y -nostats -loglevel 0 -filter:v "crop=700:500:${pts[0]}:${pts[1]}" vid1_crop.mp4
 
 echo "Cropping video 2..."
-ffmpeg -i "$fname2" -y -nostats -loglevel 0 -filter:v "crop=800:800:${pts[2]}:${pts[3]}" vid2_crop.mp4
+ffmpeg -i "$fname2" -y -nostats -loglevel 0 -filter:v "crop=700:500:${pts[2]}:${pts[3]}" vid2_crop.mp4
 
 # Run cotracker on first video
 echo "Running cotracker on video 1..."
 deactivate
 source venv/bin/activate
 python quickstart.py vid1_crop.mp4 0
+
+# Run cotracker on second video
+echo "Running cotracker on video 2..."
+python quickstart.py vid2_crop.mp4 1

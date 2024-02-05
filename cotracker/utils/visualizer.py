@@ -95,6 +95,7 @@ class Visualizer:
         query_frame: int = 0,
         save_video: bool = True,
         compensate_for_camera_motion: bool = False,
+        video_num: int = 42
     ):
         if compensate_for_camera_motion:
             assert segm_mask is not None
@@ -123,6 +124,7 @@ class Visualizer:
             gt_tracks=gt_tracks,
             query_frame=query_frame,
             compensate_for_camera_motion=compensate_for_camera_motion,
+            video_num=video_num
         )
         if save_video:
             self.save_video(res_video, filename=filename, writer=writer, step=step)
@@ -164,6 +166,7 @@ class Visualizer:
         gt_tracks=None,
         query_frame: int = 0,
         compensate_for_camera_motion=False,
+        video_num: int = 42
     ):
         B, T, C, H, W = video.shape
         _, _, N, D = tracks.shape
@@ -287,36 +290,39 @@ class Visualizer:
 
             res_video[t] = np.array(img)
 
-        x_diff = np.zeros(T)
-        y_diff = np.zeros(T)
-        x_diff = upper_pts[0] - lower_pts[0]
-        y_diff = upper_pts[1] - lower_pts[1]
-        x = np.arange(T)
+        # x_diff = np.zeros(T)
+        # y_diff = np.zeros(T)
+        # x_diff = upper_pts[0] - lower_pts[0]
+        # y_diff = upper_pts[1] - lower_pts[1]
+        # x = np.arange(T)
+        #
+        # trial = "F"
+        # many_vs_one = "one"
 
-        trial = "F"
-        many_vs_one = "one"
-
-        fig, ax = plt.subplots()
-        ax.plot(x, y_diff, linewidth=2.0, c='r', label="y diff")
-        legend = ax.legend(loc='lower right', shadow=True, fontsize='x-large')
-        ax.set_xlabel('frames')
-        ax.set_ylabel('y diff')
-        ax.set_title('Difference between upper lip and lower lip point estimation')
-        plt.savefig("/home/kwangkim/Projects/cotracker_new/test1")
-        print("Saving image to /home/kwangkim/Projects/cotracker_new/test1")
-
-        fig, ax = plt.subplots()
-        ax.plot(x[0:120], upper_pts[1][0:120], linewidth=2.0, c='r', label="upper y")
+        # fig, ax = plt.subplots()
+        # ax.plot(x, y_diff, linewidth=2.0, c='r', label="y diff")
+        # legend = ax.legend(loc='lower right', shadow=True, fontsize='x-large')
+        # ax.set_xlabel('frames')
+        # ax.set_ylabel('y diff')
+        # ax.set_title('Difference between upper lip and lower lip point estimation')
+        # plt.savefig("/home/kwangkim/Projects/cotracker_new/test1")
+        # print("Saving image to /home/kwangkim/Projects/cotracker_new/test1")
+        #
+        # fig, ax = plt.subplots()
+        # ax.plot(x[0:120], upper_pts[1][0:120], linewidth=2.0, c='r', label="upper y")
         # ax.plot(x, lower_pts[1], linewidth=2.0, c='r', label="lower y")
-        legend = ax.legend(loc='lower right', shadow=True, fontsize='x-large')
-        ax.set_xlabel('frames')
-        ax.set_ylabel('y')
-        ax.set_title('Variation in y value by frame on upper and lower pts')
-        plt.savefig("/home/kwangkim/Projects/cotracker_new/test2")
-        print("Saving image to /home/kwangkim/Projects/cotracker_new/test2")
+        # legend = ax.legend(loc='lower right', shadow=True, fontsize='x-large')
+        # ax.set_xlabel('frames')
+        # ax.set_ylabel('y')
+        # ax.set_title('Variation in y value by frame on upper and lower pts')
+        # plt.savefig("/home/kwangkim/Projects/cotracker_new/test2")
+        # print("Saving image to /home/kwangkim/Projects/cotracker_new/test2")
 
-        with open(f"/home/kwangkim/Projects/cotracker_new/videos/many_vs_one/{trial}/{many_vs_one}Upper.csv", "wb") as f:
+        with open(f"/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid{video_num}/upper_pts.csv", "wb") as f:
             np.savetxt(f, upper_pts, delimiter=",")
+        with open(f"/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid{video_num}/lower_pts.csv", "wb") as f:
+            np.savetxt(f, lower_pts, delimiter=",")
+
 
 
 
