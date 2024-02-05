@@ -1,7 +1,5 @@
 import os
 import sys
-
-import pandas as pd
 import torch
 import cv2
 import imageio.v3 as iio
@@ -9,10 +7,10 @@ import numpy as np
 from cotracker.utils.visualizer import Visualizer, read_video_from_path
 from cotracker.predictor import CoTrackerPredictor
 
-
-df = pd.read_csv("first_5_avg.csv")
-video_file = sys.argv[1]
-video_num = int(sys.argv[2])
+trial = "Z"
+many_or_one = "one"
+vid_name = "apple"
+video_file = f'assets/{vid_name}.mp4'
 
 frames = iio.imread(video_file, plugin="FFMPEG")  # plugin="pyav"
 device = 'cuda'
@@ -23,8 +21,28 @@ cotracker = torch.hub.load("facebookresearch/co-tracker", "cotracker2_online").t
 
 # Get points to track.
 pts = []
-pts.append([0., float(df["x1_mean"][video_num]), float(df["y1_mean"][video_num])])
-pts.append([0., float(df["x2_mean"][video_num]), float(df["y2_mean"][video_num])])
+def Capture_Event(event, x, y, flags, params):
+    # If the left mouse button is pressed
+    if event == cv2.EVENT_LBUTTONDOWN:
+        # Print the coordinate of the
+        # clicked point
+        pts.append([0., float(x), float(y)])
+        print(f"({x}, {y})")
+
+def getFirstFrame(videofile):
+    vidcap = cv2.VideoCapture(videofile)
+    success, image = vidcap.read()
+    if success:
+        cv2.imwrite("/home/kwangkim/Projects/cotracker/first_frame.jpeg", image)  # save frame as JPEG file
+
+getFirstFrame(video_file)
+img = cv2.imread("/home/kwangkim/Projects/cotracker/first_frame.jpeg", 1)
+cv2.imshow('image', img)
+cv2.setMouseCallback('image', Capture_Event)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+pts.append([0., 474.23432, 150.972])
+pts.append([0., 451.5232323, 328.182])
 
 # Initialize Model
 model = CoTrackerPredictor(checkpoint=os.path.join('./checkpoints/cotracker2.pth'))
@@ -51,8 +69,8 @@ for ind in range(0, video.shape[1] - cotracker.step, cotracker.step):
     )  # B T N 2,  B T N 1
 
 # Visualize
-vis = Visualizer(save_dir=f'./videos/pipeline/vid{video_num}', linewidth=3, mode='cool', tracks_leave_trace=-1)
-vis.visualize(video=video, tracks=pred_tracks, visibility=pred_visibility, filename=f'{video_num}_queries_trace')
+vis = Visualizer(save_dir=f'./videos/many_vs_one/{trial}/{vid_name}', linewidth=3, mode='cool', tracks_leave_trace=-1)
+vis.visualize(video=video, tracks=pred_tracks, visibility=pred_visibility, filename=f'{many_or_one}_queries_trace')
 
-vis2 = Visualizer(save_dir=f'./videos/pipeline/vid{video_num}', pad_value=120, linewidth=3)
-vis2.visualize(video, pred_tracks, pred_visibility, filename=f'{video_num}_queries_notrace')
+vis2 = Visualizer(save_dir=f"./videos/many_vs_one/{trial}/{vid_name}", pad_value=120, linewidth=3)
+vis2.visualize(video, pred_tracks, pred_visibility, filename=f"{many_or_one}_queries_notrace")

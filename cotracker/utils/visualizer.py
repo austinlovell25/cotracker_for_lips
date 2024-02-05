@@ -7,6 +7,7 @@ import os
 import numpy as np
 import imageio
 import torch
+import tqdm
 
 from matplotlib import cm
 import torch.nn.functional as F
@@ -170,6 +171,7 @@ class Visualizer:
         assert D == 2
         assert C == 3
         video = video[0].permute(0, 2, 3, 1).byte().detach().cpu().numpy()  # S, H, W, C
+        double_tracks = tracks[0].double().detach().cpu().numpy()
         tracks = tracks[0].long().detach().cpu().numpy()  # S, N, 2
         if gt_tracks is not None:
             gt_tracks = gt_tracks[0].detach().cpu().numpy()
@@ -250,11 +252,15 @@ class Visualizer:
                 if gt_tracks is not None:
                     res_video[t] = self._draw_gt_tracks(res_video[t], gt_tracks[first_ind : t + 1])
 
+        # T = Total number frames, t = index of frame, i = index of point
+        upper_pts = np.zeros((2, T))
+        lower_pts = np.zeros((2, T))
         #  draw points
         for t in range(query_frame, T):
             img = Image.fromarray(np.uint8(res_video[t]))
             for i in range(N):
                 coord = (tracks[t, i, 0], tracks[t, i, 1])
+                double_coord = (double_tracks[t, i, 0], double_tracks[t, i, 1])
                 visibile = True
                 if visibility is not None:
                     visibile = visibility[0, t, i]
@@ -264,110 +270,54 @@ class Visualizer:
                     ):
                         img = draw_circle(
                             img,
-                            coord=coord,
+                            coord=double_coord,
                             radius=int(self.linewidth * 2),
                             color=vector_colors[t, i].astype(int),
                             visible=visibile,
                         )
+                    # double_coord = (double_tracks[t, i, 0], double_tracks[t, i, 1])
+                    if i == 0:
+                        upper_pts[0, t] = double_coord[0]
+                        upper_pts[1, t] = double_coord[1]
+                    elif i == 1:
+                        lower_pts[0, t] = double_coord[0]
+                        lower_pts[1, t] = double_coord[1]
+                    # print(f"{coord=}")
+                    # print(f"{double_coord=}")
+
             res_video[t] = np.array(img)
 
-        x_low_pts = np.zeros(num_imgs)
-        x_high_pts = np.zeros(num_imgs)
-        y_low_pts = np.zeros(num_imgs)
-        y_high_pts = np.zeros(num_imgs)
-        for i in tqdm(range(num_imgs)):
+        x_diff = np.zeros(T)
+        y_diff = np.zeros(T)
+        x_diff = upper_pts[0] - lower_pts[0]
+        y_diff = upper_pts[1] - lower_pts[1]
+        x = np.arange(T)
 
-            kpts = kpts_foreground - np.median(kpts_background - kpts_background[i], axis=1, keepdims=True)
+        trial = "F"
+        many_vs_one = "one"
 
-            img_curr = images[i]
+        fig, ax = plt.subplots()
+        ax.plot(x, y_diff, linewidth=2.0, c='r', label="y diff")
+        legend = ax.legend(loc='lower right', shadow=True, fontsize='x-large')
+        ax.set_xlabel('frames')
+        ax.set_ylabel('y diff')
+        ax.set_title('Difference between upper lip and lower lip point estimation')
+        plt.savefig("/home/kwangkim/Projects/cotracker_new/test1")
+        print("Saving image to /home/kwangkim/Projects/cotracker_new/test1")
 
-            for t in range(i):
+        fig, ax = plt.subplots()
+        ax.plot(x[0:120], upper_pts[1][0:120], linewidth=2.0, c='r', label="upper y")
+        # ax.plot(x, lower_pts[1], linewidth=2.0, c='r', label="lower y")
+        legend = ax.legend(loc='lower right', shadow=True, fontsize='x-large')
+        ax.set_xlabel('frames')
+        ax.set_ylabel('y')
+        ax.set_title('Variation in y value by frame on upper and lower pts')
+        plt.savefig("/home/kwangkim/Projects/cotracker_new/test2")
+        print("Saving image to /home/kwangkim/Projects/cotracker_new/test2")
 
-                img1 = img_curr.copy()
-                # changing opacity
-                alpha = max(1 - 0.9 * ((i - t) / ((i + 1) * .99)), 0.1)
+        with open(f"/home/kwangkim/Projects/cotracker_new/videos/many_vs_one/{trial}/{many_vs_one}Upper.csv", "wb") as f:
+            np.savetxt(f, upper_pts, delimiter=",")
 
-                for j in range(num_pts):
-                    if compare_points and j != low_pt and j != high_pt:
-                        continue
-                    color = np.array(color_map(j / max(1, float(num_pts - 1)))[:3]) * 255
-
-                    color_alpha = 1
-
-                    hsv = colorsys.rgb_to_hsv(color[0], color[1], color[2])
-                    color = colorsys.hsv_to_rgb(hsv[0], hsv[1] * color_alpha, hsv[2])
-
-                    pt1 = kpts[t, j]
-                    pt2 = kpts[t + 1, j]
-                    print(f"{pt1=} {pt2=}")
-                    p1 = (int(round(pt1[0])), int(round(pt1[1])))
-                    p2 = (int(round(pt2[0])), int(round(pt2[1])))
-
-                    cv2.line(img1, p1, p2, color, thickness=1, lineType=16)
-
-                img_curr = cv2.addWeighted(img1, alpha, img_curr, 1 - alpha, 0)
-
-            for j in range(num_pts):
-                if compare_points and j != low_pt and j != high_pt:
-                    continue
-                color = np.array(color_map(j / max(1, float(num_pts - 1)))[:3]) * 255
-                pt1 = kpts[i, j]
-                p1 = (int(round(pt1[0])), int(round(pt1[1])))
-                cv2.circle(img_curr, p1, 2, color, -1, lineType=16)
-                # cv2.putText(img_curr, f"{j}", p1, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA, True)
-                # print(f"{j=} --- {pt1[0]=} --- {pt1[1]=}")
-                if j == low_pt:
-                    x_low_pts[i] = pt1[0]
-                    y_low_pts[i] = pt1[1]
-                elif j == high_pt:
-                    x_high_pts[i] = pt1[0]
-                    y_high_pts[i] = pt1[1]
-
-            frames.append(img_curr)
-
-        imageio.mimwrite(save_path, frames, quality=8, fps=fps)
-        if compare_points:
-            print(num_imgs)
-            x = np.arange(0, num_imgs, 1)
-            x_diff = np.zeros(num_imgs)
-            y_diff = np.zeros(num_imgs)
-            for i in range(num_imgs):
-                x_diff[i] = x_high_pts[i] - x_low_pts[i]
-                y_diff[i] = y_high_pts[i] - y_low_pts[i]
-
-            fig, ax = plt.subplots()
-            ax.plot(x, y_diff, linewidth=2.0, c='r', label="y diff")
-            ax.plot(x, x_diff, linewidth=2.0, c='b', label="x diff")
-            ax.set(ylim=(1.5 * np.min(x_diff), 1.5 * np.max(y_diff)))
-            legend = ax.legend(loc='upper center', shadow=True, fontsize='x-large')
-            ax.set_xlabel('frames')
-            ax.set_ylabel('x and y pixel diff')
-            ax.set_title('Difference between upper lip and lower lip point estimation')
-            plt.savefig("viz_both_diff")
-
-            fig, ax = plt.subplots()
-            ax.plot(x, y_diff, linewidth=2.0, c='r', label="y diff")
-            ax.set(ylim=(np.min(y_diff) - 5, 5 + np.max(y_diff)))
-            ax.set_xlabel('frames')
-            ax.set_ylabel('x and y pixel diff')
-            ax.set_title('Difference between upper lip and lower lip point estimation')
-            plt.savefig("viz_y_diff")
-
-            end_frame = 170
-            fig, ax = plt.subplots()
-            crop_y = y_diff[0:end_frame]
-            ax.plot(x[0:end_frame], crop_y, linewidth=2.0, c='r', label="y diff")
-            # ax.plot(x, x_diff, linewidth=2.0, c='b', label="x diff")
-            ax.set(ylim=(np.min(crop_y) - 2, 2 + np.max(crop_y)))
-            ax.set_xlabel('frames')
-            ax.set_ylabel('y pixel diff')
-            ax.set_title('Difference between upper lip and lower lip point estimation')
-            plt.savefig("viz_section_y_diff")
-
-            with open("120_crop_gopro_out/120_crop_ydiff_6_30.npy", "wb") as f:
-                np.save(f, y_diff)
-            with open("120_crop_gopro_out/120_crop_xdiff_6_30.npy", "wb") as f:
-                np.save(f, x_diff)
 
 
 
