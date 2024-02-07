@@ -41,3 +41,5 @@ python quickstart.py vid2_crop.mp4 1
 # Correct points to full size coordinates and save
 echo "Correcting points to full size..."
 python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv revert
+
+echo "Finished."
