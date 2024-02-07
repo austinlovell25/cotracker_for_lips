@@ -25,16 +25,31 @@ cotracker = torch.hub.load("facebookresearch/co-tracker", "cotracker2_online").t
 pts = []
 pts.append([0., float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num])])
 pts.append([0., float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num])])
-print(pts)
+
+def griddify(x, y):
+    pts.append([0., x + 2, y + 2])
+    pts.append([0., x + 2, y - 2])
+    pts.append([0., x - 2, y + 2])
+    pts.append([0., x - 2, y - 2])
+
+    for i in range(5, 35, 10):
+        for z in range(5, 35, 10):
+            pts.append([0., x + i, y + z])
+            pts.append([0., x + i, y - z])
+            pts.append([0., x - i, y + z])
+            pts.append([0., x - i, y - z])
+griddify(float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num]))
+griddify(float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num]))
+
 
 # Initialize Model
 model = CoTrackerPredictor(checkpoint=os.path.join('./checkpoints/cotracker2.pth'))
 if torch.cuda.is_available():
     model = model.cuda()
     video = video.cuda()
-print(f"{torch.cuda.is_available()=}")
-print(f"{torch.cuda.device_count()=}")
-print(f"{torch.cuda.current_device()=}")
+# print(f"{torch.cuda.is_available()=}")
+# print(f"{torch.cuda.device_count()=}")
+# print(f"{torch.cuda.current_device()=}")
 print(f"{torch.cuda.get_device_name(torch.cuda.current_device())=}")
 
 queries = torch.tensor(pts)

@@ -16,10 +16,10 @@ cd SPIGA/spiga/demo
 python app_2d.py -i "$fname2" -d 300wprivate
 mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_R.csv
 
-# Create csv average of first 5 points
+# Create csv average of first 5 points and find cropped points
 echo "Creating csv average..."
 cd ~/Projects/cotracker_new/
-pts=($(python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv | tr -d '[],'))
+pts=($(python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv reduce | tr -d '[],'))
 
 # Crop video using offset based on lip points
 echo "Cropping video 1..."
@@ -37,3 +37,7 @@ python quickstart.py vid1_crop.mp4 0
 # Run cotracker on second video
 echo "Running cotracker on video 2..."
 python quickstart.py vid2_crop.mp4 1
+
+# Correct points to full size coordinates and save
+echo "Correcting points to full size..."
+python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv revert
