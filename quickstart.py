@@ -26,18 +26,22 @@ pts = []
 pts.append([0., float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num])])
 pts.append([0., float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num])])
 
-def griddify(x, y):
-    pts.append([0., x + 2, y + 2])
-    pts.append([0., x + 2, y - 2])
-    pts.append([0., x - 2, y + 2])
-    pts.append([0., x - 2, y - 2])
+def grid_loop(x, y, start1, stop1, end1, start2, stop2, end2):
+    for i in range(start1, stop1, end1):
+        for z in range(start2, stop2, end2):
+            pts.append([0., x + i, y])
+            pts.append([0., x - i, y])
+            pts.append([0., x, y + z])
+            pts.append([0., x, y - z])
 
-    for i in range(5, 35, 10):
-        for z in range(5, 35, 10):
             pts.append([0., x + i, y + z])
             pts.append([0., x + i, y - z])
             pts.append([0., x - i, y + z])
             pts.append([0., x - i, y - z])
+def griddify(x, y):
+    grid_loop(x, y, 1, 3, 1, 1, 3, 1)
+    grid_loop(x, y, 5, 50, 5, 5, 40, 5)
+
 griddify(float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num]))
 griddify(float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num]))
 

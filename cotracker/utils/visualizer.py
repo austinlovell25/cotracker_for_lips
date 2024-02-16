@@ -271,13 +271,14 @@ class Visualizer:
                     if not compensate_for_camera_motion or (
                         compensate_for_camera_motion and segm_mask[i] > 0
                     ):
-                        img = draw_circle(
-                            img,
-                            coord=double_coord,
-                            radius=int(self.linewidth * 2),
-                            color=vector_colors[t, i].astype(int),
-                            visible=visibile,
-                        )
+                        if i == 0 or i == 1:
+                            img = draw_circle(
+                                img,
+                                coord=double_coord,
+                                radius=int(self.linewidth * 2),
+                                color=vector_colors[t, i].astype(int),
+                                visible=visibile,
+                            )
                     # double_coord = (double_tracks[t, i, 0], double_tracks[t, i, 1])
                     if i == 1:
                         upper_pts[0, t] = double_coord[0]

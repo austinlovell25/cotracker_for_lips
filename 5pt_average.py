@@ -48,16 +48,17 @@ elif sys.argv[3] == "revert":
     f2_upper_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid1/upper_pts.csv", delimiter=",")
 
     # min_length =
+    end_frame = 350
 
     out_df = pd.DataFrame(
-        {"f1_lower_x": f1_lower_pts[0][0:1200] + f1_x1_mean_offset,
-         "f1_lower_y": f1_lower_pts[1][0:1200] + f1_y1_mean_offset,
-         "f1_upper_x": f1_upper_pts[0][0:1200] + f1_x1_mean_offset,
-         "f1_upper_y": f1_upper_pts[1][0:1200] + f1_y1_mean_offset,
-         "f2_lower_x": f2_lower_pts[0][0:1200] + f2_x1_mean_offset,
-         "f2_lower_y": f2_lower_pts[1][0:1200] + f2_y1_mean_offset,
-         "f2_upper_x": f2_upper_pts[0][0:1200] + f2_x1_mean_offset,
-         "f2_upper_y": f2_upper_pts[1][0:1200] + f2_y1_mean_offset
+        {"f1_lower_x": f1_lower_pts[0][0:end_frame] + f1_x1_mean_offset,
+         "f1_lower_y": f1_lower_pts[1][0:end_frame] + f1_y1_mean_offset,
+         "f1_upper_x": f1_upper_pts[0][0:end_frame] + f1_x1_mean_offset,
+         "f1_upper_y": f1_upper_pts[1][0:end_frame] + f1_y1_mean_offset,
+         "f2_lower_x": f2_lower_pts[0][0:end_frame] + f2_x1_mean_offset,
+         "f2_lower_y": f2_lower_pts[1][0:end_frame] + f2_y1_mean_offset,
+         "f2_upper_x": f2_upper_pts[0][0:end_frame] + f2_x1_mean_offset,
+         "f2_upper_y": f2_upper_pts[1][0:end_frame] + f2_y1_mean_offset
          }
     )
     out_df.to_csv("cotracker_pts.csv")
