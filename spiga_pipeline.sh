@@ -1,3 +1,4 @@
+# First video should be Left Camera
 fname1="$1"
 fname2="$2"
 
