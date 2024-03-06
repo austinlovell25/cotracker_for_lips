@@ -47,8 +47,9 @@ elif sys.argv[3] == "revert":
     f2_lower_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid1/lower_pts.csv", delimiter=",")
     f2_upper_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid1/upper_pts.csv", delimiter=",")
 
-    # min_length =
     end_frame = 350
+    if len(sys.argv) > 4:
+        end_frame = int(sys.argv[4])
 
     out_df = pd.DataFrame(
         {"f1_lower_x": f1_lower_pts[0][0:end_frame] + f1_x1_mean_offset,
