@@ -1,0 +1,11 @@
+{
+  "global_grid": true,
+  "local_grid": true,
+  "dense_local": false,
+  "x1": 0,
+  "x2": 30,
+  "x3": 10,
+  "y1": 0,
+  "y2": 30,
+  "y3": 10
+}
