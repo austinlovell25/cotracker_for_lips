@@ -29,6 +29,9 @@ def read_video_from_path(path):
 
 
 def draw_circle(rgb, coord, radius, color=(255, 0, 0), visible=True):
+    # color = (204, 121, 167)
+    # color = (213, 94, 0)
+    # color = (230, 159, 0)
     # Create a draw object
     draw = ImageDraw.Draw(rgb)
     # Calculate the bounding box of the circle
@@ -44,6 +47,9 @@ def draw_circle(rgb, coord, radius, color=(255, 0, 0), visible=True):
 
 
 def draw_line(rgb, coord_y, coord_x, color, linewidth):
+    # color = (204, 121, 167)
+    # color = (213, 94, 0)
+    # color = (230, 159, 0)
     draw = ImageDraw.Draw(rgb)
     draw.line(
         (coord_y[0], coord_y[1], coord_x[0], coord_x[1]),

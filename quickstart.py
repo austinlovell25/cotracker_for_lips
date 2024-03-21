@@ -65,13 +65,30 @@ def griddify(x, y):
 
 def contour_grid(x, y, isUpper):
     if isUpper:
-        for i in range(1, 10, 1):
+        for i in range(1, 8, 1):
             pts.append([0, x + 5*i, y-2*i])
             pts.append([0, x - 5*i, y-2*i])
+        # for i in range(1, 5, 1):
+        #     pts.append([0, x + 5*i, y-5*i])
+        #     pts.append([0, x - 5*i, y-5*i])
+        for i in range(0, 30, 5):
+            for z in range(5, 30, 5):
+                pts.append([0., x - i, y - z])
+                pts.append([0., x + i, y - z])
+
+
+
     elif not isUpper:
-        for i in range(1, 10, 1):
+        for i in range(1, 8, 1):
             pts.append([0, x + 5*i, y+2*i])
             pts.append([0, x - 5*i, y+2*i])
+        # for i in range(1, 5, 1):
+        #     pts.append([0, x + 5*i, y+5*i])
+        #     pts.append([0, x - 5*i, y+5*i])
+        for i in range(0, 30, 5):
+            for z in range(5, 30, 5):
+                pts.append([0., x - i, y + z])
+                pts.append([0., x + i, y + z])
 
 
 
@@ -81,8 +98,10 @@ if data["global_grid"]:
 if data["local_grid"]:
     griddify(float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num]))
     griddify(float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num]))
+
+if "lip_contour" not in data:
+    data["lip_contour"] = False
 if data["lip_contour"]:
-    print("Lip Contour is true-----------------------------------")
     contour_grid(float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num]), isUpper=True)
     contour_grid(float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num]), isUpper=False)
 
@@ -95,7 +114,7 @@ if torch.cuda.is_available():
 # print(f"{torch.cuda.is_available()=}")
 # print(f"{torch.cuda.device_count()=}")
 # print(f"{torch.cuda.current_device()=}")
-print(f"{torch.cuda.get_device_name(torch.cuda.current_device())=}")
+# print(f"{torch.cuda.get_device_name(torch.cuda.current_device())=}")
 
 queries = torch.tensor(pts)
 if torch.cuda.is_available():

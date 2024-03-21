@@ -47,9 +47,8 @@ elif sys.argv[3] == "revert":
     f2_lower_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid1/lower_pts.csv", delimiter=",")
     f2_upper_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid1/upper_pts.csv", delimiter=",")
 
-    end_frame = 350
-    if len(sys.argv) > 4:
-        end_frame = int(sys.argv[4])
+    end_frame = np.shape(f1_upper_pts)[1]
+    # print(f"{end_frame=}")
 
     out_df = pd.DataFrame(
         {"f1_lower_x": f1_lower_pts[0][0:end_frame] + f1_x1_mean_offset,
@@ -62,4 +61,8 @@ elif sys.argv[3] == "revert":
          "f2_upper_y": f2_upper_pts[1][0:end_frame] + f2_y1_mean_offset
          }
     )
-    out_df.to_csv("cotracker_pts.csv")
+
+    if len(sys.argv) > 4:
+        out_df.to_csv(f"cotracker_pts_{sys.argv[4]}.csv")
+    else:
+        out_df.to_csv("cotracker_pts.csv")
