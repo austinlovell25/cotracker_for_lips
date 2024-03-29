@@ -12,6 +12,7 @@ source bin/activate
 cd SPIGA/spiga/demo
 python app_2d.py -i "$fname1" -d 300wprivate
 mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_L.csv
+mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_L.csv
 
 # Find coordinates of video 2
 echo "Running spiga 2d on $fname2 ..."
@@ -19,6 +20,7 @@ cd ~/python-environments/env
 cd SPIGA/spiga/demo
 python app_2d.py -i "$fname2" -d 300wprivate
 mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_R.csv
+mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_R.csv
 
 # Create csv average of first 5 points and find cropped points
 echo "Creating csv average..."

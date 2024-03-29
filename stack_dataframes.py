@@ -1,10 +1,10 @@
 import pandas as pd
 
-df1 = pd.read_csv("/home/kwangkim/Projects/cotracker_new/cotracker_pts_0.csv")
+df1 = pd.read_csv("/home/kwangkim/Projects/cotracker_new/tmp/cotracker_pts_0.csv")
 i = 1
 try:
     while True:
-        df2 = pd.read_csv(f"/home/kwangkim/Projects/cotracker_new/cotracker_pts_{i}.csv")
+        df2 = pd.read_csv(f"/home/kwangkim/Projects/cotracker_new/tmp/cotracker_pts_{i}.csv")
         df1 = pd.concat([df1, df2], ignore_index=True)
         i += 1
 except:

@@ -1,3 +1,4 @@
+import csv
 import sys
 import pandas as pd
 import numpy as np
@@ -41,6 +42,27 @@ if sys.argv[3] == "reduce":
     # print(out_df)
     out_df.to_csv("first_5_avg.csv")
 
+    new_support_spiga = []
+    fname = "tmp/spiga_support_L.csv"
+    with open(fname) as f:
+        reader_obj = csv.reader(f)
+        for row in reader_obj:
+            print(f"{row[1]=}")
+            print(f"{row[2]=}")
+            new_support_spiga.append([0., float(row[1]) - f1_x1_mean_offset, float(row[2]) - f1_y1_mean_offset])
+    np.savetxt("tmp/spiga_support_L.csv", np.asarray(new_support_spiga), delimiter=",")
+
+    new_support_spiga = []
+    fname = "tmp/spiga_support_R.csv"
+    with open(fname) as f:
+        reader_obj = csv.reader(f)
+        for row in reader_obj:
+            print(f"{row[1]=}")
+            print(f"{row[2]=}")
+            new_support_spiga.append([0., float(row[1]) - f2_x1_mean_offset, float(row[2]) - f2_y1_mean_offset])
+    np.savetxt("tmp/spiga_support_R.csv", np.asarray(new_support_spiga), delimiter=",")
+
+
 elif sys.argv[3] == "revert":
     f1_lower_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid0/lower_pts.csv", delimiter=",")
     f1_upper_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid0/upper_pts.csv", delimiter=",")
@@ -63,6 +85,22 @@ elif sys.argv[3] == "revert":
     )
 
     if len(sys.argv) > 4:
-        out_df.to_csv(f"cotracker_pts_{sys.argv[4]}.csv")
+        out_df.to_csv(f"tmp/cotracker_pts_{sys.argv[4]}.csv")
     else:
         out_df.to_csv("cotracker_pts.csv")
+
+elif sys.argv[3] == "from_cotracker":
+    l_pts = pd.read_csv("/home/kwangkim/Projects/cotracker_new/tmp/cotracker_end0.csv")
+    r_pts = pd.read_csv("/home/kwangkim/Projects/cotracker_new/tmp/cotracker_end1.csv")
+
+
+    out_df = pd.DataFrame(
+        {'x1_mean_incrop': [l_pts["x1"][0], r_pts["x1"][0]],
+         'y1_mean_incrop': [l_pts["y1"][0], r_pts["y1"][0]],
+         'x2_mean_incrop': [l_pts["x2"][0], r_pts["x2"][0]],
+         'y2_mean_incrop': [l_pts["y2"][0], r_pts["y2"][0]]}
+    )
+
+    print("\n\n-------------------------------------------------")
+    print(f"{out_df=}")
+    out_df.to_csv("first_5_avg.csv")

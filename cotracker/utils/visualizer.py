@@ -8,6 +8,7 @@ import numpy as np
 import imageio
 import torch
 import tqdm
+import pandas as pd
 
 from matplotlib import cm
 import torch.nn.functional as F
@@ -329,7 +330,15 @@ class Visualizer:
             np.savetxt(f, upper_pts, delimiter=",")
         with open(f"/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid{video_num}/lower_pts.csv", "wb") as f:
             np.savetxt(f, lower_pts, delimiter=",")
-
+        out_df = pd.DataFrame(
+            {'img_name': ["null"],
+             'x1': [lower_pts[0, -1]],
+             'y1': [lower_pts[1, -1]],
+             'x2': [upper_pts[0, -1]],
+             'y2': [upper_pts[1, -1]]}
+        )
+        print(f"WHY{video_num} {out_df=}")
+        out_df.to_csv(f"/home/kwangkim/Projects/cotracker_new/tmp/cotracker_end{video_num}.csv")
 
 
 

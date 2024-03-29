@@ -1,6 +1,19 @@
 #!/bin/bash
 
-# head3 startlater 200 frames
+export CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/video_sets/head3"
+#bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_3_startlater.mp4 ~/Projects/cotracker_new/assets/head3/head_right_3_startlater.mp4 head3_startlater_global_spiga global_spiga.json
+#bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_trim_0_200.mp4 ~/Projects/cotracker_new/assets/head3/head_right_trim_0_200.mp4 head3_startlater_global_spiga global_spiga.json
+
+#bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_trim_0_200.mp4 ~/Projects/cotracker_new/assets/head3/head_right_trim_0_200.mp4 head3_nomovement_spiga spiga.json
+bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_3_startlater.mp4 ~/Projects/cotracker_new/assets/head3/head_right_3_startlater.mp4 head3_startlater_spiga spiga.json
+
+
+# Cotracker Segmented
+#export CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/video_sets/head3"
+#bash cotracker_segmented.sh none none head3_coseg_startlater_global_lip global_lip.json
+
+
+: ' # head3 startlater 200 frames
 export CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/video_sets/head3"
 bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_startlater_0_200.mp4  ~/Projects/cotracker_new/assets/head3/head_right_startlater_0_200.mp4 color_head3_startlater_200_global global_config.json
 #bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_startlater_0_200.mp4  ~/Projects/cotracker_new/assets/head3/head_right_startlater_0_200.mp4 color_head3_startlater_200_global_local global_and_local.json
@@ -17,7 +30,7 @@ bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_startlate
 #bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_startlater_0_200.mp4  ~/Projects/cotracker_new/assets/head3/head_right_startlater_0_200.mp4 head3_startlater_200_global_sparse global_and_sparse_local.json
 #bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_startlater_0_200.mp4  ~/Projects/cotracker_new/assets/head3/head_right_startlater_0_200.mp4 head3_startlater_200_local local.json
 #bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_startlater_0_200.mp4  ~/Projects/cotracker_new/assets/head3/head_right_startlater_0_200.mp4 head3_startlater_200_very_sparse_local very_sparse_local.json
-
+'
 
 # head3 no movement 200 frames
 : '
