@@ -56,7 +56,6 @@ def spiga_support():
         fname = "tmp/spiga_support_L.csv"
     else:
         fname = "tmp/spiga_support_R.csv"
-    print(f"{fname=}")
     with open(fname) as f:
         reader_obj = csv.reader(f)
         for row in reader_obj:
@@ -92,10 +91,10 @@ if data["global_grid"]:
 if data["local_grid"]:
     griddify(float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num]))
     griddify(float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num]))
-if data["lip_contour"]:
+if "lip_contour" in data and data["lip_contour"]:
     contour_grid(float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num]), isUpper=True)
     contour_grid(float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num]), isUpper=False)
-if data["spiga_support"]:
+if "spiga_support" in data and data["spiga_support"]:
     spiga_support()
 
 # Initialize Model
@@ -125,3 +124,5 @@ vis.visualize(video=video, tracks=pred_tracks, visibility=pred_visibility, filen
 
 vis2 = Visualizer(save_dir=f'./videos/pipeline/{exp_name}/vid{video_num}', pad_value=120, linewidth=3)
 vis2.visualize(video, pred_tracks, pred_visibility, filename=f'{video_num}_queries_notrace', video_num=video_num)
+
+print(f"------------------------------ VIDEOS SAVED TO /videos/pipeline/{exp_name} -------------------------------------")

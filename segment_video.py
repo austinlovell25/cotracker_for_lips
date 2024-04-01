@@ -16,7 +16,7 @@ start = 0.0
 end = start + float(segment_length) / float(fps)
 i = 0
 while end < total_vid_frames / fps:
-    str = f"ffmpeg -ss {start} -i {fname} -y -nostats -loglevel 0 -c:v libx264 -c:a aac -frames:v {segment_length} tmp_points/out{i}_{lr}.mp4"
+    str = f"ffmpeg -ss {start} -i {fname} -y -nostats -loglevel 0 -c:v libx264 -c:a aac -frames:v {segment_length} tmp/out{i}_{lr}.mp4"
     print(str)
     subprocess.run(str, shell=True)
     start = end

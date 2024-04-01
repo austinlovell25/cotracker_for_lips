@@ -1,12 +1,22 @@
 #!/bin/bash
 
+# SPIGA Segmented
 export CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/video_sets/head3"
-#bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_3_startlater.mp4 ~/Projects/cotracker_new/assets/head3/head_right_3_startlater.mp4 head3_startlater_global_spiga global_spiga.json
-#bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_trim_0_200.mp4 ~/Projects/cotracker_new/assets/head3/head_right_trim_0_200.mp4 head3_startlater_global_spiga global_spiga.json
+bash spiga_segmented.sh none none head3_30SpSeg_startlater200_GlLp global_lip.json
+bash spiga_segmented.sh none none head3_30SpSeg_startlater200_Gl global.json
 
-#bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_trim_0_200.mp4 ~/Projects/cotracker_new/assets/head3/head_right_trim_0_200.mp4 head3_nomovement_spiga spiga.json
+:'
+export CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/video_sets/head3"
 bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_3_startlater.mp4 ~/Projects/cotracker_new/assets/head3/head_right_3_startlater.mp4 head3_startlater_spiga spiga.json
+bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_3_startlater.mp4 ~/Projects/cotracker_new/assets/head3/head_right_3_startlater.mp4 head3_startlater_global_spiga global_spiga.json
 
+bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_trim_0_200.mp4 ~/Projects/cotracker_new/assets/head3/head_right_trim_0_200.mp4 head3_nomovement_spiga spiga.json
+bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/head3/head_left_trim_0_200.mp4 ~/Projects/cotracker_new/assets/head3/head_right_trim_0_200.mp4 head3_nomovement_global_spiga global_spiga.json
+
+export CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/video_sets/L2033"
+bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/L2033/crop_trim_left_11-38.mp4 ~/Projects/cotracker_new/assets/L2033/real_crop_sync_right_11-38.mp4 L2033_11-38_spiga spiga.json
+bash spiga_pipeline.sh ~/Projects/cotracker_new/assets/L2033/crop_trim_left_11-38.mp4 ~/Projects/cotracker_new/assets/L2033/real_crop_sync_right_11-38.mp4 L2033_11-38_global_spiga global_spiga.json
+'
 
 # Cotracker Segmented
 #export CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/video_sets/head3"

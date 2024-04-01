@@ -162,7 +162,6 @@ class Visualizer:
 
             video_writer.close()
 
-            print(f"Video saved to {save_path}")
 
     def draw_tracks_on_video(
         self,
@@ -337,7 +336,6 @@ class Visualizer:
              'x2': [upper_pts[0, -1]],
              'y2': [upper_pts[1, -1]]}
         )
-        print(f"WHY{video_num} {out_df=}")
         out_df.to_csv(f"/home/kwangkim/Projects/cotracker_new/tmp/cotracker_end{video_num}.csv")
 
 
