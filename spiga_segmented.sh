@@ -14,13 +14,13 @@ echo "--------------------------------- RUNNING SPIGA --------------------------
 cd ~/python-environments/env
 source bin/activate
 cd SPIGA/spiga/demo
-python app_2d.py -i "$full_l" -d 300wprivate
+python app_2d.py --all -i "$full_l" -d 300wprivate
 mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_L.csv
 
 # Find coordinates of video 2
 cd ~/python-environments/env
 cd SPIGA/spiga/demo
-python app_2d.py -i "$full_r" -d 300wprivate
+python app_2d.py --all -i "$full_r" -d 300wprivate
 mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_R.csv
 
 
@@ -46,7 +46,7 @@ do
 
   # Create csv average of first 5 points and find cropped points
   cd ~/Projects/cotracker_new/
-  pts=($(python 10pt_all.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv ${i} 30 reduce | tr -d '[],'))
+  python 10pt_all.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv ${i} 30 reduce
 
   # Crop video using offset based on lip points
   ffmpeg -i "$fname1" -y -nostats -loglevel 0 -filter:v "crop=700:500:${pts[0]}:${pts[1]}" vid1_crop.mp4

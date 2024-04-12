@@ -19,26 +19,27 @@ df2 = pd.read_csv(fname2, header=0)
 crop_left = 300
 crop_up = 270
 
-f1_x1_mean_offset = df1["x1"][start:end].mean() - crop_left
-f1_y1_mean_offset = df1["y1"][start:end].mean() - crop_up
-f2_x1_mean_offset = df2["x1"][start:end].mean() - crop_left
-f2_y1_mean_offset = df2["y1"][start:end].mean() - crop_up
+f1_x1_mean_offset = df1["x1"][0:5].mean() - crop_left
+f1_y1_mean_offset = df1["y1"][0:5].mean() - crop_up
+f2_x1_mean_offset = df2["x1"][0:5].mean() - crop_left
+f2_y1_mean_offset = df2["y1"][0:5].mean() - crop_up
 
 # Points for cropping
 if sys.argv[5] == "reduce":
-    f1_x1_mean_incrop = df1["x1"].mean() - f1_x1_mean_offset
-    f1_y1_mean_incrop = df1["y1"].mean() - f1_y1_mean_offset
-    f1_x2_mean_incrop = df1["x2"].mean() - f1_x1_mean_offset
-    f1_y2_mean_incrop = df1["y2"].mean() - f1_y1_mean_offset
+    f1_x1_mean_incrop = df1["x1"][start:end].mean() - f1_x1_mean_offset
+    f1_y1_mean_incrop = df1["y1"][start:end].mean() - f1_y1_mean_offset
+    f1_x2_mean_incrop = df1["x2"][start:end].mean() - f1_x1_mean_offset
+    f1_y2_mean_incrop = df1["y2"][start:end].mean() - f1_y1_mean_offset
 
-    f2_x1_mean_incrop = df2["x1"].mean() - f2_x1_mean_offset
-    f2_y1_mean_incrop = df2["y1"].mean() - f2_y1_mean_offset
-    f2_x2_mean_incrop = df2["x2"].mean() - f2_x1_mean_offset
-    f2_y2_mean_incrop = df2["y2"].mean() - f2_y1_mean_offset
+    f2_x1_mean_incrop = df2["x1"][start:end].mean() - f2_x1_mean_offset
+    f2_y1_mean_incrop = df2["y1"][start:end].mean() - f2_y1_mean_offset
+    f2_x2_mean_incrop = df2["x2"][start:end].mean() - f2_x1_mean_offset
+    f2_y2_mean_incrop = df2["y2"][start:end].mean() - f2_y1_mean_offset
 
     pt_array = [f1_x1_mean_offset, f1_y1_mean_offset,
                 f2_x1_mean_offset, f2_y1_mean_offset]
-    print(pt_array)
+    if start == 0:
+        print(pt_array)
 
     out_df = pd.DataFrame(
         {'x1_mean_incrop': [f1_x1_mean_incrop, f2_x1_mean_incrop],
@@ -47,7 +48,9 @@ if sys.argv[5] == "reduce":
          'y2_mean_incrop': [f1_y2_mean_incrop, f2_y2_mean_incrop]}
     )
 
-    # print(out_df)
+    print(start)
+    print(f1_x1_mean_incrop)
+    print(out_df)
     out_df.to_csv("first_5_avg.csv")
 
 
