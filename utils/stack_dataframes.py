@@ -1,6 +1,6 @@
 import pandas as pd
 
-df1 = pd.read_csv("/home/kwangkim/Projects/cotracker_new/tmp/cotracker_pts_0.csv")
+df1 = pd.read_csv("/tmp/cotracker_pts_0.csv")
 i = 1
 try:
     while True:

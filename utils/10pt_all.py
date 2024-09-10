@@ -55,10 +55,10 @@ if sys.argv[5] == "reduce":
 
 
 elif sys.argv[5] == "revert":
-    f1_lower_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid0/lower_pts.csv", delimiter=",")
-    f1_upper_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid0/upper_pts.csv", delimiter=",")
-    f2_lower_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid1/lower_pts.csv", delimiter=",")
-    f2_upper_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid1/upper_pts.csv", delimiter=",")
+    f1_lower_pts = np.genfromtxt("/videos/pipeline/vid0/lower_pts.csv", delimiter=",")
+    f1_upper_pts = np.genfromtxt("/videos/pipeline/vid0/upper_pts.csv", delimiter=",")
+    f2_lower_pts = np.genfromtxt("/videos/pipeline/vid1/lower_pts.csv", delimiter=",")
+    f2_upper_pts = np.genfromtxt("/videos/pipeline/vid1/upper_pts.csv", delimiter=",")
 
     end_frame = np.shape(f1_upper_pts)[1]
     # print(f"{end_frame=}")

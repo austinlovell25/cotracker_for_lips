@@ -4,10 +4,19 @@ fname2="$2"
 exp_name="$3"
 grid_config="$4"
 
-CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/configs/L2045"
+CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration"
+
+# Check if files exist
+if [ ! -f "$fname1" ]; then
+    echo "File 1 does not exist. Please try again"
+    exit 1
+elif [ ! -f "$fname2" ]; then
+    echo "File 2 does not exist. Please try again"
+    exit 1
+fi
 
 
-# Find coordinates of video 1 (change thims to a loop later maybe)
+# Find coordinates of video 1 (change this to a loop later maybe)
 echo "$fname1"
 cd ~/python-environments/env
 source bin/activate
