@@ -75,17 +75,17 @@ def find_sync(fps, left_video, right_video):
     if right_frame <= left_frame:
         second_diff = (left_frame - right_frame) / int(fps)
         print(f"Right video starts {left_frame - right_frame} frames ({second_diff} seconds) after left video")
-        str = f"ffmpeg -ss {second_diff} -i {left_video} -c:v copy -c:a copy {left_folder}/LEFT_SYNC.mp4"
+        str = f"ffmpeg -ss {second_diff} -i {left_video} -c:v copy -c:a copy {left_folder}/left_sync.mp4"
         print(str)
         subprocess.run(str, shell=True)
-        str = f"mv {right_video} {right_folder}/RIGHT_SYNC.mp4"
+        str = f"mv {right_video} {right_folder}/right_sync.mp4"
         subprocess.run(str, shell=True)
 
     else:
         second_diff = (right_frame - left_frame) / int(fps)
         print(f"Left video starts {right_frame - left_frame} frames ({second_diff} seconds) after right frame")
-        str = f"ffmpeg -ss {second_diff} -i {right_video} -c:v copy -c:a copy {right_folder}/RIGHT_SYNC.mp4"
+        str = f"ffmpeg -ss {second_diff} -i {right_video} -c:v copy -c:a copy {right_folder}/right_sync.mp4"
         print(str)
         subprocess.run(str, shell=True)
-        str = f"mv {left_video} {left_folder}/LEFT_SYNC.mp4"
+        str = f"mv {left_video} {left_folder}/left_sync.mp4"
         subprocess.run(str, shell=True)
