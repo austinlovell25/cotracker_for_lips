@@ -66,14 +66,21 @@ parser.add_argument("-v", "--vid_name", help="Name of video")
 parser.add_argument("-n", "--vid_num", help="Number of video (left = 0, right = 1)")
 parser.add_argument("-e", "--exp_name", default="exp", help="Experiment name")
 parser.add_argument("-gc", "--grid_config", default="global_config.json", help="Grid config file (JSON)")
+parser.add_argument("-d", "--save_dir", default="/home/kwangkim/Desktop", help="Directory to save videos in")
 args = parser.parse_args()
 
 df = pd.read_csv("first_5_avg.csv")
 video_file = args.vid_name
 video_num = int(args.vid_num)
 exp_name = args.exp_name
-Path(f"./videos/pipeline/{exp_name}").mkdir(parents=True, exist_ok=True)
-Path(f"./videos/pipeline/{exp_name}/vid{video_num}").mkdir(parents=True, exist_ok=True)
+vid_save_dir = args.save_dir
+
+# Path(f"/home/kwangkim/Desktop/segmented_test_9_12_24/cotracker_output_global_dense").mkdir(parents=True, exist_ok=True)
+# Path(f"/home/kwangkim/Desktop/segmented_test_9_12_24/cotracker_output_global_dense/vid{video_num}").mkdir(parents=True, exist_ok=True)
+Path(f"{vid_save_dir}/cotracker_out/{exp_name}").mkdir(parents=True, exist_ok=True)
+Path(f"{vid_save_dir}/cotracker_out/{exp_name}/vid{video_num}").mkdir(parents=True, exist_ok=True)
+# Path(f"./videos/pipeline/{exp_name}").mkdir(parents=True, exist_ok=True)
+# Path(f"./videos/pipeline/{exp_name}/vid{video_num}").mkdir(parents=True, exist_ok=True)
 
 frames = iio.imread(video_file, plugin="FFMPEG")  # plugin="pyav"
 device = 'cuda'
@@ -119,10 +126,16 @@ for ind in range(0, video.shape[1] - cotracker.step, cotracker.step):
     )  # B T N 2,  B T N 1
 
 # Visualize
-vis = Visualizer(save_dir=f'./videos/pipeline/{exp_name}/vid{video_num}', linewidth=3, mode='cool', tracks_leave_trace=-1)
+# vis = Visualizer(save_dir=f'./videos/pipeline/{exp_name}/vid{video_num}', linewidth=3, mode='cool', tracks_leave_trace=-1)
+# vis.visualize(video=video, tracks=pred_tracks, visibility=pred_visibility, filename=f'{video_num}_queries_trace', video_num=video_num)
+
+# vis2 = Visualizer(save_dir=f'./videos/pipeline/{exp_name}/vid{video_num}', pad_value=120, linewidth=3)
+# vis2.visualize(video, pred_tracks, pred_visibility, filename=f'{video_num}_queries_notrace', video_num=video_num)
+
+vis = Visualizer(save_dir=f'{vid_save_dir}/cotracker_out/{exp_name}/vid{video_num}', linewidth=3, mode='cool', tracks_leave_trace=-1)
 vis.visualize(video=video, tracks=pred_tracks, visibility=pred_visibility, filename=f'{video_num}_queries_trace', video_num=video_num)
 
-vis2 = Visualizer(save_dir=f'./videos/pipeline/{exp_name}/vid{video_num}', pad_value=120, linewidth=3)
+vis2 = Visualizer(save_dir=f'{vid_save_dir}/cotracker_out/{exp_name}/vid{video_num}', pad_value=120, linewidth=3)
 vis2.visualize(video, pred_tracks, pred_visibility, filename=f'{video_num}_queries_notrace', video_num=video_num)
 
-print(f"------------------------------ VIDEOS SAVED TO /videos/pipeline/{exp_name} -------------------------------------")
+print(f"------------------------------ VIDEOS SAVED TO {vid_save_dir}/cotracker_out/ -------------------------------------")

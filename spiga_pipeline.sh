@@ -3,6 +3,7 @@ fname1="$1"
 fname2="$2"
 exp_name="$3"
 grid_config="$4"
+save_dir="$5"
 
 CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration"
 
@@ -43,10 +44,10 @@ ffmpeg -i "$fname2" -y -nostats -loglevel 0 -filter:v "crop=700:500:${pts[2]}:${
 # Run cotracker on first video
 deactivate
 source venv/bin/activate
-python quickstart.py -v vid1_crop.mp4 -n 0 -e "$exp_name" -gc "$grid_config"
+python quickstart.py -v vid1_crop.mp4 -n 0 -e "$exp_name" -gc "$grid_config" -d "$save_dir"
 
 # Run cotracker on second video
-python quickstart.py -v vid2_crop.mp4 -n 1 -e "$exp_name" -gc "$grid_config"
+python quickstart.py -v vid2_crop.mp4 -n 1 -e "$exp_name" -gc "$grid_config" -d "$save_dir"
 
 # Correct points to full size coordinates and save
 python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv revert

@@ -19,10 +19,10 @@ if args.gui == "True" or args.gui == "T" or args.gui == "true" or args.gui == "t
     right_vid = video_dir + "/right_video.mp4"
     find_sync(fps, left_vid, right_vid)
 
-    frames = easygui.multenterbox(msg="Enter the first and last frame the checker board appears", title="First frame",
-                                  fields=["First frame", "Last frame"])
-    first_frame = int(frames[0])
-    last_frame = int(frames[0])
+    # frames = easygui.multenterbox(msg="Enter the first and last frame the checker board appears", title="First frame",
+    #                               fields=["First frame", "Last frame"])
+    # first_frame = int(frames[0])
+    # last_frame = int(frames[0])
 
 
 
