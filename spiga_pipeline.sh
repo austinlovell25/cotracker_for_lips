@@ -4,6 +4,7 @@ fname2="$2"
 exp_name="$3"
 grid_config="$4"
 save_dir="$5"
+#is_mult_people="$6"
 
 CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration"
 
@@ -16,6 +17,16 @@ elif [ ! -f "$fname2" ]; then
     exit 1
 fi
 
+# Check if there are multiple people. If so, run black square program.
+#if (( "$is_mult_people" = 1 )); then
+#    echo "Arguments say that there are other multiple people in video. Using cropping tool"
+#    python select_points.py -p "$fname1" -l 1
+#    python select_points.py -p "$fname2" -l 0
+#    coords_vid1="/home/kwangkim/Projects/cotracker_new/squares_out_left.mp4"
+#    coords_vid2="/home/kwangkim/Projects/cotracker_new/squares_out_right.mp4"
+#else
+#    coords_vid1="$fname1"
+#    coords_vid2="$fname2"
 
 # Find coordinates of video 1 (change this to a loop later maybe)
 echo "$fname1"
@@ -27,6 +38,7 @@ mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_L.csv
 mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_L.csv
 
 # Find coordinates of video 2
+echo "$fname2"
 cd ~/python-environments/env
 cd SPIGA/spiga/demo
 python app_2d.py -i "$fname2" -d 300wprivate
@@ -55,6 +67,6 @@ python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv revert
 cd ~/python-environments/env
 source bin/activate
 cd SPIGA/spiga/demo/calibration
-python calibration.py triangulate cotracker "$exp_name" "$CAM_CONFIG_PATH"
+python calibration.py triangulate cotracker "$exp_name" "$CAM_CONFIG_PATH" "$save_dir"
 
 echo "Finished."

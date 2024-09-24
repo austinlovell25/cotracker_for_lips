@@ -1,18 +1,27 @@
+import argparse
 import subprocess
 import sys
+from pathlib import Path
 
-vid1 = "/home/kwangkim/Desktop/2-09_3s/left_synced_final.mp4"
-vid2 = "/home/kwangkim/Desktop/2-09_3s/right_synced_final.mp4"
-title = "2-09_3s"
-save_dir = "/home/kwangkim/Desktop/2-09_3s"
+parser = argparse.ArgumentParser()
+parser.add_argument("-v1", "--vid1", help="Video 1")
+parser.add_argument("-v2", "--vid2", help="Video 2")
+parser.add_argument("-t", "--title", help="Experiment Name")
+parser.add_argument("-d", "--save_dir", help="Directory to save output to")
+args = parser.parse_args()
+
+vid1 = args.vid1
+vid2 = args.vid2
+title = args.title
+save_dir = args.save_dir
+
+Path(f"{save_dir}").mkdir(parents=True, exist_ok=True)
 
 configs = {
     "Gl": "global.json",
     "GlLp": "global_lip.json",
     "GlSp": "global_spiga.json",
     "Sp": "spiga.json",
-    "GlDn": "global_and_dense_local.json",
-    "DnLc": "dense_local.json",
     "Lp": "lip_contour.json"
 }
 
