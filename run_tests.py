@@ -21,11 +21,11 @@ title = args.title
 save_dir = args.save_dir
 
 configs = {
-        "Gl": "global.json",
+     #   "Gl": "global.json",
         "GlLp": "global_lip.json",
-        "GlSp": "global_spiga.json",
-        "Sp": "spiga.json",
-        "Lp": "lip_contour.json"
+     #   "GlSp": "global_spiga.json",
+     #   "Sp": "spiga.json",
+     #   "Lp": "lip_contour.json"
 }
 
 if is_mult == "False":

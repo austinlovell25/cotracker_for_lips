@@ -22,11 +22,43 @@ if sys.argv[3] == "reduce":
     f1_y1_mean_incrop = df1["y1"].mean() - f1_y1_mean_offset
     f1_x2_mean_incrop = df1["x2"].mean() - f1_x1_mean_offset
     f1_y2_mean_incrop = df1["y2"].mean() - f1_y1_mean_offset
+    f1_x3_mean_incrop = df1["x3"].mean() - f1_x1_mean_offset
+    f1_y3_mean_incrop = df1["y3"].mean() - f1_y1_mean_offset
+    f1_x4_mean_incrop = df1["x4"].mean() - f1_x1_mean_offset
+    f1_y4_mean_incrop = df1["y4"].mean() - f1_y1_mean_offset
+    f1_x5_mean_incrop = df1["x5"].mean() - f1_x1_mean_offset
+    f1_y5_mean_incrop = df1["y5"].mean() - f1_y1_mean_offset
+    f1_x6_mean_incrop = df1["x6"].mean() - f1_x1_mean_offset
+    f1_y6_mean_incrop = df1["y6"].mean() - f1_y1_mean_offset
+    f1_x7_mean_incrop = df1["x7"].mean() - f1_x1_mean_offset
+    f1_y7_mean_incrop = df1["y7"].mean() - f1_y1_mean_offset
+    f1_x8_mean_incrop = df1["x8"].mean() - f1_x1_mean_offset
+    f1_y8_mean_incrop = df1["y8"].mean() - f1_y1_mean_offset
+    f1_x9_mean_incrop = df1["x9"].mean() - f1_x1_mean_offset
+    f1_y9_mean_incrop = df1["y9"].mean() - f1_y1_mean_offset
+    f1_x10_mean_incrop = df1["x10"].mean() - f1_x1_mean_offset
+    f1_y10_mean_incrop = df1["y10"].mean() - f1_y1_mean_offset
 
     f2_x1_mean_incrop = df2["x1"].mean() - f2_x1_mean_offset
     f2_y1_mean_incrop = df2["y1"].mean() - f2_y1_mean_offset
     f2_x2_mean_incrop = df2["x2"].mean() - f2_x1_mean_offset
     f2_y2_mean_incrop = df2["y2"].mean() - f2_y1_mean_offset
+    f2_x3_mean_incrop = df2["x3"].mean() - f2_x1_mean_offset
+    f2_y3_mean_incrop = df2["y3"].mean() - f2_y1_mean_offset
+    f2_x4_mean_incrop = df2["x4"].mean() - f2_x1_mean_offset
+    f2_y4_mean_incrop = df2["y4"].mean() - f2_y1_mean_offset
+    f2_x5_mean_incrop = df2["x5"].mean() - f2_x1_mean_offset
+    f2_y5_mean_incrop = df2["y5"].mean() - f2_y1_mean_offset
+    f2_x6_mean_incrop = df2["x6"].mean() - f2_x1_mean_offset
+    f2_y6_mean_incrop = df2["y6"].mean() - f2_y1_mean_offset
+    f2_x7_mean_incrop = df2["x7"].mean() - f2_x1_mean_offset
+    f2_y7_mean_incrop = df2["y7"].mean() - f2_y1_mean_offset
+    f2_x8_mean_incrop = df2["x8"].mean() - f2_x1_mean_offset
+    f2_y8_mean_incrop = df2["y8"].mean() - f2_y1_mean_offset
+    f2_x9_mean_incrop = df2["x9"].mean() - f2_x1_mean_offset
+    f2_y9_mean_incrop = df2["y9"].mean() - f2_y1_mean_offset
+    f2_x10_mean_incrop = df2["x10"].mean() - f2_x1_mean_offset
+    f2_y10_mean_incrop = df2["y10"].mean() - f2_y1_mean_offset
 
     pt_array = [f1_x1_mean_offset, f1_y1_mean_offset,
                 f2_x1_mean_offset, f2_y1_mean_offset]
@@ -36,7 +68,24 @@ if sys.argv[3] == "reduce":
         {'x1_mean_incrop': [f1_x1_mean_incrop, f2_x1_mean_incrop],
          'y1_mean_incrop': [f1_y1_mean_incrop, f2_y1_mean_incrop],
          'x2_mean_incrop': [f1_x2_mean_incrop, f2_x2_mean_incrop],
-         'y2_mean_incrop': [f1_y2_mean_incrop, f2_y2_mean_incrop]}
+         'y2_mean_incrop': [f1_y2_mean_incrop, f2_y2_mean_incrop],
+         'x3_mean_incrop': [f1_x3_mean_incrop, f2_x3_mean_incrop],
+         'y3_mean_incrop': [f1_y3_mean_incrop, f2_y3_mean_incrop],
+         'x4_mean_incrop': [f1_x4_mean_incrop, f2_x4_mean_incrop],
+         'y4_mean_incrop': [f1_y4_mean_incrop, f2_y4_mean_incrop],
+         'x5_mean_incrop': [f1_x5_mean_incrop, f2_x5_mean_incrop],
+         'y5_mean_incrop': [f1_y5_mean_incrop, f2_y5_mean_incrop],
+         'x6_mean_incrop': [f1_x6_mean_incrop, f2_x6_mean_incrop],
+         'y6_mean_incrop': [f1_y6_mean_incrop, f2_y6_mean_incrop],
+         'x7_mean_incrop': [f1_x7_mean_incrop, f2_x7_mean_incrop],
+         'y7_mean_incrop': [f1_y7_mean_incrop, f2_y7_mean_incrop],
+         'x8_mean_incrop': [f1_x8_mean_incrop, f2_x8_mean_incrop],
+         'y8_mean_incrop': [f1_y8_mean_incrop, f2_y8_mean_incrop],
+         'x9_mean_incrop': [f1_x9_mean_incrop, f2_x9_mean_incrop],
+         'y9_mean_incrop': [f1_y9_mean_incrop, f2_y9_mean_incrop],
+         'x10_mean_incrop': [f1_x10_mean_incrop, f2_x10_mean_incrop],
+         'y10_mean_incrop': [f1_y10_mean_incrop, f2_y10_mean_incrop]
+         }
     )
 
     # print(out_df)

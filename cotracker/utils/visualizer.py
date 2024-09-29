@@ -277,7 +277,7 @@ class Visualizer:
                     if not compensate_for_camera_motion or (
                         compensate_for_camera_motion and segm_mask[i] > 0
                     ):
-                        if i == 0 or i == 1:
+                        if i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
                             img = draw_circle(
                                 img,
                                 coord=double_coord,
@@ -286,10 +286,10 @@ class Visualizer:
                                 visible=visibile,
                             )
                     # double_coord = (double_tracks[t, i, 0], double_tracks[t, i, 1])
-                    if i == 1:
+                    if i == 6:#6 0
                         upper_pts[0, t] = double_coord[0]
                         upper_pts[1, t] = double_coord[1]
-                    elif i == 0:
+                    elif i == 1:#1 7
                         lower_pts[0, t] = double_coord[0]
                         lower_pts[1, t] = double_coord[1]
                     # print(f"{coord=}")

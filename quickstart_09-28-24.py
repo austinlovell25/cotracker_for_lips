@@ -106,8 +106,6 @@ pts.append([0., float(df["x5_mean_incrop"][video_num]), float(df["y5_mean_incrop
 pts.append([0., float(df["x6_mean_incrop"][video_num]), float(df["y6_mean_incrop"][video_num])])
 pts.append([0., float(df["x7_mean_incrop"][video_num]), float(df["y7_mean_incrop"][video_num])])
 pts.append([0., float(df["x8_mean_incrop"][video_num]), float(df["y8_mean_incrop"][video_num])])
-pts.append([0., float(df["x9_mean_incrop"][video_num]), float(df["y9_mean_incrop"][video_num])])
-pts.append([0., float(df["x10_mean_incrop"][video_num]), float(df["y10_mean_incrop"][video_num])])
 
 with open(f"grid_configs/{args.grid_config}", "r") as read_file:
     data = json.load(read_file)
