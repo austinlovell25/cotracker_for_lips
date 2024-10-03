@@ -41,7 +41,7 @@ def contour_grid(x, y, isUpper):
             #pts.append([0, x - 5*i, y-2*i])
             #pts.append([0, x + 5*i, y+2*i])
             #pts.append([0, x - 5*i, y+2*i])
-        for i in range(0, 20, 5):
+        for i in range(0, 30, 5): #20 and 30 gave me the best ones
             for z in range(0, 30, 5): #5, 30, 5
                 pts.append([0., x - i, y - z])
                 pts.append([0., x + i, y - z])
@@ -54,7 +54,7 @@ def contour_grid(x, y, isUpper):
             #pts.append([0, x + 5*i, y-2*i])
             #pts.append([0, x - 5*i, y-2*i])
 
-        for i in range(0, 20, 5):
+        for i in range(0, 30, 5):
             for z in range(0, 30, 5): #5, 30, 5
                 pts.append([0., x - i, y + z])
                 pts.append([0., x + i, y + z])
@@ -116,13 +116,17 @@ if data["global_grid"]:
 if data["local_grid"]:
     #griddify(float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num]))
     #griddify(float(df["x8_mean_incrop"][video_num]), float(df["y8_mean_incrop"][video_num]))
-    griddify(float(df["x7_mean_incrop"][video_num]), float(df["y7_mean_incrop"][video_num]))
-    griddify(float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num]))
+    #griddify(float(df["x7_mean_incrop"][video_num]), float(df["y7_mean_incrop"][video_num]))
+    #griddify(float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num]))
+    griddify(float(df["x10_mean_incrop"][video_num]), float(df["y10_mean_incrop"][video_num]))
+    griddify(float(df["x9_mean_incrop"][video_num]), float(df["y9_mean_incrop"][video_num]))
 if "lip_contour" in data and data["lip_contour"]:
-#    contour_grid(float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num]), isUpper=True)
-#    contour_grid(float(df["x8_mean_incrop"][video_num]), float(df["y8_mean_incrop"][video_num]), isUpper=False)
-    contour_grid(float(df["x7_mean_incrop"][video_num]), float(df["y7_mean_incrop"][video_num]), isUpper=True)
-    contour_grid(float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num]), isUpper=False)
+    #contour_grid(float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num]), isUpper=True)
+    #contour_grid(float(df["x8_mean_incrop"][video_num]), float(df["y8_mean_incrop"][video_num]), isUpper=False)
+    #contour_grid(float(df["x7_mean_incrop"][video_num]), float(df["y7_mean_incrop"][video_num]), isUpper=True)
+    #contour_grid(float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num]), isUpper=False)
+    contour_grid(float(df["x10_mean_incrop"][video_num]), float(df["y10_mean_incrop"][video_num]), isUpper=True)
+    contour_grid(float(df["x9_mean_incrop"][video_num]), float(df["y9_mean_incrop"][video_num]), isUpper=False)
 
 if "spiga_support" in data and data["spiga_support"]:
     spiga_support()

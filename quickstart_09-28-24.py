@@ -44,9 +44,9 @@ def contour_grid(x, y, isUpper):
         for i in range(0, 20, 5):
             for z in range(0, 30, 5): #5, 30, 5
                 pts.append([0., x - i, y - z])
-                pts.append([0., x + i, y - z])
+                #pts.append([0., x + i, y - z])
                 pts.append([0., x - i, y + z])
-                pts.append([0., x + i, y + z])
+                #pts.append([0., x + i, y + z])
     elif not isUpper:
         #for i in range(1, 8, 1):
             #pts.append([0, x + 5*i, y+2*i])
@@ -57,9 +57,9 @@ def contour_grid(x, y, isUpper):
         for i in range(0, 20, 5):
             for z in range(0, 30, 5): #5, 30, 5
                 pts.append([0., x - i, y + z])
-                pts.append([0., x + i, y + z])
+                #pts.append([0., x + i, y + z])
                 pts.append([0., x - i, y - z])
-                pts.append([0., x + i, y - z])
+                #pts.append([0., x + i, y - z])
 def spiga_support():
     if video_num == 0:
         fname = "tmp/spiga_support_L.csv"

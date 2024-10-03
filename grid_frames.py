@@ -3,14 +3,26 @@ import argparse
 import random
 import os
 import subprocess
+import string
 
 
-def discard_old_frames(calib_dir):
-    str = f"rm -rf {calib_dir}/D2"
+def move_old_frames(calib_dir):
+    random_dir = ''.join(random.choices(string.ascii_uppercase, k=10))
+    print("-----------------------------------------------------------------------------")
+    print("-----------------------------------------------------------------------------")
+    print(f"Moving previous D2, J2, and synched folders to {calib_dir}/configs/{random_dir}")
+    print("-----------------------------------------------------------------------------")
+    print("-----------------------------------------------------------------------------")
+
+    os.mkdir(f"{calib_dir}/configs/{random_dir}")
+    os.mkdir(f"{calib_dir}/configs/{random_dir}/D2")
+    os.mkdir(f"{calib_dir}/configs/{random_dir}/J2")
+    os.mkdir(f"{calib_dir}/configs/{random_dir}/synched")
+    str = f"mv {calib_dir}/D2 {calib_dir}/configs/{random_dir}/D2"
     subprocess.run(str, shell=True)
-    str = f"rm -rf {calib_dir}/J2"
+    str = f"mv {calib_dir}/J2 {calib_dir}/configs/{random_dir}/J2"
     subprocess.run(str, shell=True)
-    str = f"rm -rf {calib_dir}/synched"
+    str = f"mv {calib_dir}/synched {calib_dir}/configs/{random_dir}/synched"
     subprocess.run(str, shell=True)
 
 
@@ -27,7 +39,7 @@ print("Running...")
 
 parent_folder = os.path.dirname(os.path.dirname(args.right_video))
 calib_dir = "/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration"
-discard_old_frames(calib_dir)
+move_old_frames(calib_dir)
 try:
     os.mkdir(f"{parent_folder}/synched")
     os.mkdir(f"{parent_folder}/D2")

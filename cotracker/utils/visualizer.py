@@ -281,15 +281,15 @@ class Visualizer:
                             img = draw_circle(
                                 img,
                                 coord=double_coord,
-                                radius=int(self.linewidth * 2),
+                                radius=int(self.linewidth * 2),#*2
                                 color=vector_colors[t, i].astype(int),
                                 visible=visibile,
                             )
                     # double_coord = (double_tracks[t, i, 0], double_tracks[t, i, 1])
-                    if i == 6:#6 0
+                    if i == 8:#8 6 0
                         upper_pts[0, t] = double_coord[0]
                         upper_pts[1, t] = double_coord[1]
-                    elif i == 1:#1 7
+                    elif i == 9:#9 1 7
                         lower_pts[0, t] = double_coord[0]
                         lower_pts[1, t] = double_coord[1]
                     # print(f"{coord=}")
