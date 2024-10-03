@@ -1,0 +1,1 @@
+- Try different camera distances and angles.
