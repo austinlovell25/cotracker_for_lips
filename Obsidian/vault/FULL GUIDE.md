@@ -26,6 +26,7 @@ NOTE: For all commands in this guide, make sure to replace the command line argu
 	2. OR Specify start time in seconds and length of trimmed video in frames. example:
 		1. `ffmpeg -ss 191 -i RIGHT_SYNC.mp4 -c:v libx264 -c:a aac -frames:v 120 left311-313.mp4`
 	3. Either should work. The first method is probably easier though.
+	4. James' script also works.
 6. If there are people in the video other than the subject, in PyCharm terminal run the select_points.py script as following to remove them. Otherwise, ignore this step.
 	1. `python select_points.py -p left_vid.mp4 -l 1`
 	2. `python select_points.py -p right_vid.mp4 -l 0`
@@ -38,6 +39,9 @@ NOTE: For all commands in this guide, make sure to replace the command line argu
 		2. -v2 Trimmed right video
 		3. -t Experiment/data name
 		4. -d Directory to save videos to
-	4. Some windows will open up then close, but no user interaction is required.
-	5. The program will cotracker with the (possibly several) grids that are listed in the 'configs' variable in run_tests.py. You can modify the grids that will be used by referencing the grids in grid_configs/
-9. After the previous command finished, the results will be saved under a folder in the calibration directory with the experiment name given in the previous step. The video output will be saved in the specified directory
+	4. Or to read from a csv file
+		1. -m true
+		2. -f file_name.csv
+	5. Some windows will open up then close, but no user interaction is required.
+	6. The program will cotracker with the (possibly several) grids that are listed in the 'configs' variable in run_tests.py. You can modify the grids that will be used by referencing the grids in grid_configs/
+8. After the previous command finished, the results will be saved under a folder in the calibration directory with the experiment name given in the previous step. The video output will be saved in the specified directory

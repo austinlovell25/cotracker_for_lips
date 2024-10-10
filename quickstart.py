@@ -92,13 +92,6 @@ Path(f"{vid_save_dir}/cotracker_out/{exp_name}/vid{video_num}").mkdir(parents=Tr
 # Path(f"./videos/pipeline/{exp_name}/vid{video_num}").mkdir(parents=True, exist_ok=True)
 
 frames = iio.imread(video_file, plugin="FFMPEG")  # plugin="pyav"
-my_images = list()
-for file in Path("path/to/folder").iterdir():
-    if not file.is_file():
-        continue
-
-    my_images.append(iio.imread(file))
-
 device = 'cuda'
 video = torch.tensor(frames).permute(0, 3, 1, 2)[None].float().to(device)  # B T C H W
 
