@@ -7,8 +7,11 @@
 *.npy
 *.pth
 
-.idea/
+Obsidian/vault/.obsidian/appearance.json
+Obsidian/vault/.obsidian/workspace.json
+Obsidian/vault/.obsidian/
 
+.idea/
 __pycache__/
 *.py[cod]
 *$py.class
