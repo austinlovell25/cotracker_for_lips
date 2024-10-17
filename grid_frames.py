@@ -36,7 +36,7 @@ def get_frames(cap, folder, path, l_or_r, calib_dir):
     while success and index <= max(frames):
         if index in frames:
             # print(index)
-            cv2.imwrite(f"{folder}/{l_or_r}_grid_frames/camera-{cam_num}-{count:02}.jpg", image)
+            cv2.imwrite(f"{folder}/{l_or_r}_grid_frames/camera-{cam_num}-{count:02}.png", image, [cv2.IMWRITE_PNG_COMPRESSION, 0])
             count += 1
         success, image = cap.read()
         index += 1
