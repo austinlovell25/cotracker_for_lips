@@ -12,8 +12,43 @@ from cotracker.predictor import CoTrackerPredictor
 from pathlib import Path
 import argparse
 import json
+import subprocess
 
 pts = []
+
+def correct_top_spiga_pt(vid_file, pt):
+    str = f'ffmpeg -y -i {vid_file} -vf "select=eq(n\,0)" -vframes 1 tmp/edge_out.png'
+    print(str)
+    subprocess.run(str, shell=True)
+
+    ratio = 3
+    kernel_size = 3
+    low_threshold = 10
+
+    src = cv2.imread(cv2.samples.findFile("tmp/edge_out.png"))
+    if src is None:
+        print('Could not open or find the image: tmp/edge_out.png')
+        exit(0)
+    src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+
+    img_blur = cv2.blur(src_gray, (3, 3))
+    detected_edges = cv2.Canny(img_blur, low_threshold, low_threshold * ratio, kernel_size)
+    mask = detected_edges != 0
+    x_pt = round(pt[1])
+    y_iter = round(pt[2])
+    orig_y_iter = y_iter
+    # Y is first
+    while mask[y_iter, x_pt] == 0:
+        y_iter -= 1
+        # Failsafe
+        if (orig_y_iter - y_iter) >= 30:
+            y_iter = orig_y_iter
+            break
+    return x_pt, y_iter
+
+
+
+
 def global_grid(x_end, y_end):
     for i in range(0, x_end, 70):
         for z in range(0, y_end, 50):
@@ -108,6 +143,11 @@ pts.append([0., float(df["x7_mean_incrop"][video_num]), float(df["y7_mean_incrop
 pts.append([0., float(df["x8_mean_incrop"][video_num]), float(df["y8_mean_incrop"][video_num])])
 pts.append([0., float(df["x9_mean_incrop"][video_num]), float(df["y9_mean_incrop"][video_num])])
 pts.append([0., float(df["x10_mean_incrop"][video_num]), float(df["y10_mean_incrop"][video_num])])
+
+# Pull up top middle point using edge detection
+print(video_file)
+print(pts[9])
+pts[9][1], pts[9][2] = correct_top_spiga_pt(video_file, pts[9])
 
 with open(f"grid_configs/{args.grid_config}", "r") as read_file:
     data = json.load(read_file)

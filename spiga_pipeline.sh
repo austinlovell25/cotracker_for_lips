@@ -4,7 +4,8 @@ fname2="$2"
 exp_name="$3"
 grid_config="$4"
 save_dir="$5"
-#is_mult_people="$6"
+
+USE_CROP_SHIFTING=false
 
 CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration"
 
@@ -17,33 +18,54 @@ elif [ ! -f "$fname2" ]; then
     exit 1
 fi
 
-# Check if there are multiple people. If so, run black square program.
-#if (( "$is_mult_people" = 1 )); then
-#    echo "Arguments say that there are other multiple people in video. Using cropping tool"
-#    python select_points.py -p "$fname1" -l 1
-#    python select_points.py -p "$fname2" -l 0
-#    coords_vid1="/home/kwangkim/Projects/cotracker_new/squares_out_left.mp4"
-#    coords_vid2="/home/kwangkim/Projects/cotracker_new/squares_out_right.mp4"
-#else
-#    coords_vid1="$fname1"
-#    coords_vid2="$fname2"
+if [ "$USE_CROP_SHIFTING" = true ]; then
+  ffmpeg -y -i "$fname1" -filter_complex "[0:v][0:v]overlay=100:0,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/l_vid_right.mp4
+  ffmpeg -y -i "$fname1" -filter_complex "[0:v][0:v]overlay=-100:0,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/l_vid_left.mp4
+  ffmpeg -y -i "$fname1" -filter_complex "[0:v][0:v]overlay=0:-100,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/l_vid_up.mp4
+  ffmpeg -y -i "$fname1" -filter_complex "[0:v][0:v]overlay=0:100,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/l_vid_down.mp4
 
-# Find coordinates of video 1 (change this to a loop later maybe)
-echo "$fname1"
-cd ~/python-environments/env
-source bin/activate
-cd SPIGA/spiga/demo
-python app_2d.py -i "$fname1" -d 300wprivate
-mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_L.csv
-mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_L.csv
+  ffmpeg -y -i "$fname2" -filter_complex "[0:v][0:v]overlay=100:0,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/r_vid_right.mp4
+  ffmpeg -y -i "$fname2" -filter_complex "[0:v][0:v]overlay=-100:0,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/r_vid_left.mp4
+  ffmpeg -y -i "$fname2" -filter_complex "[0:v][0:v]overlay=0:-100,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/r_vid_up.mp4
+  ffmpeg -y -i "$fname2" -filter_complex "[0:v][0:v]overlay=0:100,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/r_vid_down.mp4
 
-# Find coordinates of video 2
-echo "$fname2"
-cd ~/python-environments/env
-cd SPIGA/spiga/demo
-python app_2d.py -i "$fname2" -d 300wprivate
-mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_R.csv
-mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_R.csv
+  echo "$fname1"
+  cd ~/python-environments/env
+  source bin/activate
+  cd SPIGA/spiga/demo
+
+  python app_2d.py -i "$fname1" -d 300wprivate --shake none
+  mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_L.csv
+  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/l_vid_right.mp4 -d 300wprivate --shake right
+  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/l_vid_left.mp4 -d 300wprivate --shake left
+  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/l_vid_up.mp4 -d 300wprivate --shake up
+  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/l_vid_down.mp4 -d 300wprivate --shake down
+  mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_L.csv
+
+  python app_2d.py -i "$fname2" -d 300wprivate --shake none
+  mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_R.csv
+  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/r_vid_right.mp4 -d 300wprivate --shake right
+  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/r_vid_left.mp4 -d 300wprivate --shake left
+  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/r_vid_up.mp4 -d 300wprivate --shake up
+  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/r_vid_down.mp4 -d 300wprivate --shake down
+  mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_R.csv
+
+else
+  # Find coordinates of video 1 (change this to a loop later maybe)
+  echo "$fname1"
+  cd ~/python-environments/env
+  source bin/activate
+  cd SPIGA/spiga/demo
+  python app_2d.py -i "$fname1" -d 300wprivate
+  mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_L.csv
+  mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_L.csv
+
+  # Find coordinates of video 2
+  echo "$fname2"
+  python app_2d.py -i "$fname2" -d 300wprivate
+  mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_R.csv
+  mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_R.csv
+fi
 
 # Create csv average of first 5 points and find cropped points
 cd ~/Projects/cotracker_new/

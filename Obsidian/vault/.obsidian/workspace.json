@@ -18,8 +18,33 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "3071efb4b70b0b27",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "FULL GUIDE.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "a33424212a4d05f4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "JPGvsPNG Calibration.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -48,7 +73,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "select",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -146,9 +171,16 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "0cb4be018c45436e",
+  "active": "3071efb4b70b0b27",
   "lastOpenFiles": [
+    "SPIGA full video.md",
+    "L2045.md",
+    "General.md",
+    "JPGvsPNG Calibration.md",
     "L2038 + Bash Commands.md",
+    "Camera.md",
+    "Capture.png",
+    "Post SPIGA Pre CoTracker correction.md",
     "FULL GUIDE.md",
     "todo.md",
     "backup.md",
