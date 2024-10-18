@@ -16,8 +16,8 @@ import subprocess
 
 pts = []
 
-def correct_top_spiga_pt(vid_file, pt):
-    str = f'ffmpeg -y -i {vid_file} -vf "select=eq(n\,0)" -vframes 1 tmp/edge_out.png'
+def snap_pt_to_upper_edge(vid_file, pt, thrs):
+    str = f'ffmpeg -hide_banner -loglevel error -y -i {vid_file} -vf "select=eq(n\,0)" -vframes 1 tmp/edge_out.png'
     print(str)
     subprocess.run(str, shell=True)
 
@@ -41,12 +41,14 @@ def correct_top_spiga_pt(vid_file, pt):
     while mask[y_iter, x_pt] == 0:
         y_iter -= 1
         # Failsafe
-        if (orig_y_iter - y_iter) >= 30:
+        if (orig_y_iter - y_iter) >= thrs:
             y_iter = orig_y_iter
             break
+    change = orig_y_iter - y_iter
+    print("------------------------------------------------------------")
+    print(f"Moved up {change} pixels")
+    print("------------------------------------------------------------")
     return x_pt, y_iter
-
-
 
 
 def global_grid(x_end, y_end):
@@ -145,9 +147,14 @@ pts.append([0., float(df["x9_mean_incrop"][video_num]), float(df["y9_mean_incrop
 pts.append([0., float(df["x10_mean_incrop"][video_num]), float(df["y10_mean_incrop"][video_num])])
 
 # Pull up top middle point using edge detection
-print(video_file)
-print(pts[9])
-pts[9][1], pts[9][2] = correct_top_spiga_pt(video_file, pts[9])
+pts[9][1], pts[9][2] = snap_pt_to_upper_edge(video_file, pts[9], 15)
+pts[1][1], pts[1][2] = snap_pt_to_upper_edge(video_file, pts[1], 10)
+pts[3][1], pts[3][2] = snap_pt_to_upper_edge(video_file, pts[3], 10)
+pts[5][1], pts[5][2] = snap_pt_to_upper_edge(video_file, pts[5], 10)
+pts[7][1], pts[7][2] = snap_pt_to_upper_edge(video_file, pts[7], 10)
+
+# Pull up bottom middle point using edge detection
+# pts[8][1], pts[8][2] = snap_pt_to_upper_edge(video_file, pts[8], 10)
 
 with open(f"grid_configs/{args.grid_config}", "r") as read_file:
     data = json.load(read_file)
