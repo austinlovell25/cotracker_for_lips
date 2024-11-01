@@ -4,10 +4,9 @@ fname2="$2"
 exp_name="$3"
 grid_config="$4"
 save_dir="$5"
+CAM_CONFIG_PATH="$6"
 
 USE_CROP_SHIFTING=false
-
-CAM_CONFIG_PATH="/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration"
 
 # Check if files exist
 if [ ! -f "$fname1" ]; then
@@ -72,8 +71,10 @@ cd ~/Projects/cotracker_new/
 pts=($(python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv reduce | tr -d '[],'))
 
 # Crop video using offset based on lip points
-ffmpeg -hide_banner -loglevel error -i "$fname1" -y -nostats -loglevel 0 -filter:v "crop=700:500:${pts[0]}:${pts[1]}" vid1_crop.mp4
-ffmpeg -hide_banner -loglevel error -i "$fname2" -y -nostats -loglevel 0 -filter:v "crop=700:500:${pts[2]}:${pts[3]}" vid2_crop.mp4
+#ffmpeg -hide_banner -loglevel error -i "$fname1" -y -nostats -loglevel 0 -filter:v "crop=700:500:${pts[0]}:${pts[1]}" vid1_crop.mp4
+#ffmpeg -hide_banner -loglevel error -i "$fname2" -y -nostats -loglevel 0 -filter:v "crop=700:500:${pts[2]}:${pts[3]}" vid2_crop.mp4
+ffmpeg -hide_banner -loglevel error -i "$fname1" -y -nostats -loglevel 0 -filter:v "crop=704:512:${pts[0]}:${pts[1]}" vid1_crop.mp4
+ffmpeg -hide_banner -loglevel error -i "$fname2" -y -nostats -loglevel 0 -filter:v "crop=704:512:${pts[2]}:${pts[3]}" vid2_crop.mp4
 
 # Run cotracker on first video
 deactivate

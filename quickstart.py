@@ -45,9 +45,9 @@ def snap_pt_to_upper_edge(vid_file, pt, thrs):
             y_iter = orig_y_iter
             break
     change = orig_y_iter - y_iter
-    print("------------------------------------------------------------")
-    print(f"Moved up {change} pixels")
-    print("------------------------------------------------------------")
+    # print("------------------------------------------------------------")
+    # print(f"Moved up {change} pixels")
+    # print("------------------------------------------------------------")
     return x_pt, y_iter
 
 
@@ -128,6 +128,7 @@ Path(f"{vid_save_dir}/cotracker_out/{exp_name}/vid{video_num}").mkdir(parents=Tr
 # Path(f"./videos/pipeline/{exp_name}").mkdir(parents=True, exist_ok=True)
 # Path(f"./videos/pipeline/{exp_name}/vid{video_num}").mkdir(parents=True, exist_ok=True)
 
+print("video file:" + video_file + "\n\n\n")
 frames = iio.imread(video_file, plugin="FFMPEG")  # plugin="pyav"
 device = 'cuda'
 video = torch.tensor(frames).permute(0, 3, 1, 2)[None].float().to(device)  # B T C H W
@@ -147,7 +148,13 @@ pts.append([0., float(df["x9_mean_incrop"][video_num]), float(df["y9_mean_incrop
 pts.append([0., float(df["x10_mean_incrop"][video_num]), float(df["y10_mean_incrop"][video_num])])
 
 # Pull up top middle point using edge detection
-pts[9][1], pts[9][2] = snap_pt_to_upper_edge(video_file, pts[9], 15)
+is_snap_middle_pt = True
+if is_snap_middle_pt:
+    print("Snapping middle point using edge detection")
+    pts[9][1], pts[9][2] = snap_pt_to_upper_edge(video_file, pts[9], 15) # middle turn it off for videos with ag501 sensors
+else:
+    print("Not snapping middle point")
+
 pts[1][1], pts[1][2] = snap_pt_to_upper_edge(video_file, pts[1], 10)
 pts[3][1], pts[3][2] = snap_pt_to_upper_edge(video_file, pts[3], 10)
 pts[5][1], pts[5][2] = snap_pt_to_upper_edge(video_file, pts[5], 10)
@@ -209,7 +216,7 @@ for ind in range(0, video.shape[1] - cotracker.step, cotracker.step):
 vis = Visualizer(save_dir=f'{vid_save_dir}/cotracker_out/{exp_name}/vid{video_num}', linewidth=3, mode='cool', tracks_leave_trace=-1)
 vis.visualize(video=video, tracks=pred_tracks, visibility=pred_visibility, filename=f'{video_num}_queries_trace', video_num=video_num)
 
-vis2 = Visualizer(save_dir=f'{vid_save_dir}/cotracker_out/{exp_name}/vid{video_num}', pad_value=120, linewidth=3)
+vis2 = Visualizer(save_dir=f'{vid_save_dir}/cotracker_out/{exp_name}/vid{video_num}', pad_value=0, linewidth=3)
 vis2.visualize(video, pred_tracks, pred_visibility, filename=f'{video_num}_queries_notrace', video_num=video_num)
 
 print(f"------------------------------ VIDEOS SAVED TO {vid_save_dir}/cotracker_out/ -------------------------------------")

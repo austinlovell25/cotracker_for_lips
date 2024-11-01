@@ -79,7 +79,8 @@ class Visualizer:
         self.mode = mode
         self.save_dir = save_dir
         if mode == "rainbow":
-            self.color_map = cm.get_cmap("gist_rainbow")
+            # self.color_map = cm.get_cmap("gist_rainbow")
+            self.color_map = cm.get_cmap(mode)
         elif mode == "cool":
             self.color_map = cm.get_cmap(mode)
         self.show_first_frame = show_first_frame
@@ -286,10 +287,10 @@ class Visualizer:
                                 visible=visibile,
                             )
                     # double_coord = (double_tracks[t, i, 0], double_tracks[t, i, 1])
-                    if i == 8:#8 6 0
+                    if i == 9:#8 6 0
                         upper_pts[0, t] = double_coord[0]
                         upper_pts[1, t] = double_coord[1]
-                    elif i == 9:#9 1 7
+                    elif i == 8:#9 1 7
                         lower_pts[0, t] = double_coord[0]
                         lower_pts[1, t] = double_coord[1]
                     # print(f"{coord=}")
