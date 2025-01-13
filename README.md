@@ -1,4 +1,4 @@
-# CoTracker: It is Better to Track Together
+# 3D markerless tracking of speech movements with submillimeter accuracy
 
 **[Meta AI Research, GenAI](https://ai.facebook.com/research/)**; **[University of Oxford, VGG](https://www.robots.ox.ac.uk/~vgg/)**
 
