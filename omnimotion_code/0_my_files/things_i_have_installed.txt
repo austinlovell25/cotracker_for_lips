@@ -1,6 +1,0 @@
-vim
-pycharm (in /opt)
-imported my ~/.vimrc
-sudo apt install gimp
-sudo apt install handbrake (sudo apt remove handbrake)
-
