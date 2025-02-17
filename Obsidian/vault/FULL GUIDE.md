@@ -1,5 +1,5 @@
 NOTE: For all commands in this guide, make sure to replace the command line arguments with the appropriate corresponding file names and values.
-
+test
 
 1. Open up PyCharm and make sure the PyCharm terminal (at the bottom) is in the directory ~/Projects/cotracker_new
 2. In PyCharm terminal, run
@@ -10,7 +10,7 @@ NOTE: For all commands in this guide, make sure to replace the command line argu
 	1. ```python grid_frames.py -s 10 -e 500 -l /home/kwangkim/Projects/kids/GUIDE_TEST/Left_Camera/left_sync_audio.mp4 -r /home/kwangkim/Projects/kids/GUIDE_TEST/Right_Camera/right_sync_audio.mp4```
 		1. You have to specify the starting frame (-s) and the ending frame (-e) of the video where the checkerboard first enters and exits. Do this by watching the start of the videos and guess based on the times where it enters and leaves (remember to multiply by the frame rate)
 	2. This produces the D2, J2, and synched folders both in the directory with the videos and identical copies in the calibration directory
-	3. The previous D2, J2, and synched folders will be moved to a randomly named directory (name will be printed to terminal) in calibration/configs
+	3. The previous D2, J2, and synched folders will be moved to a randomly named directory (name will be printed to terminal) in calibration/scraps/configs
 4. Open up a terminal (ctrl+alt+t) and run the following commands
 	1. `cd python-environments/env/`
 	2. `source bin/activate`
@@ -19,7 +19,7 @@ NOTE: For all commands in this guide, make sure to replace the command line argu
 		1. 17x24 is for the calibration board, and 15 is world scaling
 		2. This will calibrate the cameras using the images of the checkerboard, and save the camera1.yml, camera2.yml, and stereo_coeffs.yml to calibration/ as well as calibration/configs/config_name
 		3. It may take a while.
-	5. The previous camera1.yml, camera2.yml, and stereo_coeffs.yml folders will be moved to a randomly named directory (name will be printed to terminal) in calibration/configs
+	5. The previous camera1.yml, camera2.yml, and stereo_coeffs.yml folders will be moved to a randomly named directory (name will be printed to terminal) in calibration/scraps/configs
 5. Using ffmpeg, trim videos to 1-5 seconds length. There are two options for doing this. Make sure to change the output file names to what they should be and run these commands in terminal in the same directory as the videos.
 	1. Specify start and end times of video. example:
 		1. `ffmpeg -ss 00:09:28 -to 00:09:34 -i RIGHT_SYNC.mp4 -c copy right_9-28_9-34.mp4`
@@ -45,3 +45,5 @@ NOTE: For all commands in this guide, make sure to replace the command line argu
 	5. Some windows will open up then close, but no user interaction is required.
 	6. The program will cotracker with the (possibly several) grids that are listed in the 'configs' variable in run_tests.py. You can modify the grids that will be used by referencing the grids in grid_configs/
 8. After the previous command finished, the results will be saved under a folder in the calibration directory with the experiment name given in the previous step. The video output will be saved in the specified directory
+
+python select_points_batch.py -p /datadrive/individual_data/PrecisionCombo/ -tlx 114 -tly 120 -brx 2574 -bry 2949 -b F
