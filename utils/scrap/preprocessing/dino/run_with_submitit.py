@@ -66,7 +66,6 @@ class Trainer(object):
         main_dino.train_dino(self.args)
 
     def checkpoint(self):
-        import os
         import submitit
 
         self.args.dist_url = get_init_file().as_uri()

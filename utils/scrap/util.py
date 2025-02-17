@@ -109,7 +109,7 @@ def gen_grid_np(h, w, normalize=False, homogeneous=False):
 def save_current_code(outdir):
     now = datetime.now()  # current date and time
     date_time = now.strftime("%m_%d-%H:%M:%S")
-    src_dir = '.'
+    src_dir = ''
     dst_dir = os.path.join(outdir, 'code', '{}'.format(date_time))
     shutil.copytree(src_dir, dst_dir,
                     ignore=shutil.ignore_patterns(

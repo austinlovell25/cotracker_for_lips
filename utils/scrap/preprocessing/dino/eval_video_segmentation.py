@@ -25,12 +25,10 @@ from tqdm import tqdm
 
 import cv2
 import torch
-import torch.nn as nn
 from torch.nn import functional as F
 from PIL import Image
-from torchvision import transforms
 
-import utils
+from utils.scrap.preprocessing.dino import utils
 import vision_transformer as vits
 
 

@@ -23,7 +23,7 @@ from tqdm import tqdm
 import cv2
 import torch
 
-import utils
+from utils.scrap.preprocessing.dino import utils
 import vision_transformer as vits
 
 
