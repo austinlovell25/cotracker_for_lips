@@ -5,10 +5,12 @@ exp_name="$3"
 grid_config="$4"
 save_dir="$5"
 CAM_CONFIG_PATH="$6"
+is_snap="$7"
 
 USE_CROP_SHIFTING=false
 
 # Check if files exist
+echo "$fname1"
 if [ ! -f "$fname1" ]; then
     echo "File 1 does not exist. Please try again"
     exit 1
@@ -18,39 +20,34 @@ elif [ ! -f "$fname2" ]; then
 fi
 
 if [ "$USE_CROP_SHIFTING" = true ]; then
-  ffmpeg -y -i "$fname1" -filter_complex "[0:v][0:v]overlay=100:0,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/l_vid_right.mp4
-  ffmpeg -y -i "$fname1" -filter_complex "[0:v][0:v]overlay=-100:0,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/l_vid_left.mp4
-  ffmpeg -y -i "$fname1" -filter_complex "[0:v][0:v]overlay=0:-100,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/l_vid_up.mp4
-  ffmpeg -y -i "$fname1" -filter_complex "[0:v][0:v]overlay=0:100,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/l_vid_down.mp4
-
-  ffmpeg -y -i "$fname2" -filter_complex "[0:v][0:v]overlay=100:0,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/r_vid_right.mp4
-  ffmpeg -y -i "$fname2" -filter_complex "[0:v][0:v]overlay=-100:0,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/r_vid_left.mp4
-  ffmpeg -y -i "$fname2" -filter_complex "[0:v][0:v]overlay=0:-100,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/r_vid_up.mp4
-  ffmpeg -y -i "$fname2" -filter_complex "[0:v][0:v]overlay=0:100,format=yuv420p[out]" -map "[out]" -map 0:a? -codec:v libx264 -crf 23 -preset medium -c:a copy /home/kwangkim/Projects/cotracker_new/tmp/r_vid_down.mp4
-
+  echo "Using crop shifting"
   echo "$fname1"
   cd ~/python-environments/env
   source bin/activate
   cd SPIGA/spiga/demo
+  rm -f 2d_lip_coordinates.csv
 
-  python app_2d.py -i "$fname1" -d 300wprivate --shake none
-  mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_L.csv
-  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/l_vid_right.mp4 -d 300wprivate --shake right
-  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/l_vid_left.mp4 -d 300wprivate --shake left
-  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/l_vid_up.mp4 -d 300wprivate --shake up
-  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/l_vid_down.mp4 -d 300wprivate --shake down
-  mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_L.csv
+  for z in {0..4}
+  do
+    echo "$z" > shake_opt.txt
+    python app_2d.py -i "$fname1" -d 300wprivate --shake False
+  done
+  mv 2d_lip_coordinates.csv /home/kwangkim/Projects/cotracker_new/2d_lip_coords_L.csv
+  mv support_pts.csv /home/kwangkim/Projects/cotracker_new/tmp/spiga_support_L.csv
+  rm -f 2d_lip_coordinates.csv
 
-  python app_2d.py -i "$fname2" -d 300wprivate --shake none
-  mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_R.csv
-  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/r_vid_right.mp4 -d 300wprivate --shake right
-  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/r_vid_left.mp4 -d 300wprivate --shake left
-  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/r_vid_up.mp4 -d 300wprivate --shake up
-  python app_2d.py -i /home/kwangkim/Projects/cotracker_new/tmp/r_vid_down.mp4 -d 300wprivate --shake down
-  mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_R.csv
+  for z in {0..4}
+  do
+    echo "$z" > shake_opt.txt
+    python app_2d.py -i "$fname2" -d 300wprivate --shake False
+  done
+  mv 2d_lip_coordinates.csv /home/kwangkim/Projects/cotracker_new/2d_lip_coords_R.csv
+  mv support_pts.csv /home/kwangkim/Projects/cotracker_new/tmp/spiga_support_R.csv
+  rm -f 2d_lip_coordinates.csv
+  echo 0 > shake_opt.txt
 
 else
-  # Find coordinates of video 1 (change this to a loop later maybe)
+  # Find coordinates of video 1
   echo "$fname1"
   cd ~/python-environments/env
   source bin/activate
@@ -79,10 +76,10 @@ ffmpeg -hide_banner -loglevel error -i "$fname2" -y -nostats -loglevel 0 -filter
 # Run cotracker on first video
 deactivate
 source venv/bin/activate
-python quickstart.py -v vid1_crop.mp4 -n 0 -e "$exp_name" -gc "$grid_config" -d "$save_dir"
+python quickstart.py -v vid1_crop.mp4 -n 0 -e "$exp_name" -gc "$grid_config" -d "$save_dir" --snap_middle "$is_snap"
 
 # Run cotracker on second video
-python quickstart.py -v vid2_crop.mp4 -n 1 -e "$exp_name" -gc "$grid_config" -d "$save_dir"
+python quickstart.py -v vid2_crop.mp4 -n 1 -e "$exp_name" -gc "$grid_config" -d "$save_dir" --snap_middle "$is_snap"
 
 # Correct points to full size coordinates and save
 python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv revert
@@ -91,5 +88,15 @@ cd ~/python-environments/env
 source bin/activate
 cd SPIGA/spiga/demo/calibration
 python calibration.py triangulate cotracker "$exp_name" "$CAM_CONFIG_PATH" "$save_dir"
+
+#cd ~/Projects/cotracker_new/
+#python raise1pixel.py
+#cd ~/python-environments/env/SPIGA/spiga/demo/calibration/
+#python calibration.py triangulate cotracker "$exp_name"_raise1pixel "$CAM_CONFIG_PATH" "$save_dir"
+#
+#cd ~/Projects/cotracker_new/
+#python lower1pixel.py
+#cd ~/python-environments/env/SPIGA/spiga/demo/calibration/
+#python calibration.py triangulate cotracker "$exp_name"_lower1pixel "$CAM_CONFIG_PATH" "$save_dir"
 
 echo "Finished."

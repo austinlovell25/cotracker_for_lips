@@ -31,6 +31,9 @@ def read_video_from_path(path):
 
 def draw_circle(rgb, coord, radius, color=(255, 0, 0), visible=True):
     # color = (204, 121, 167)
+    #color = (0, 114, 178) # blue for regular
+    color = (86, 180, 233) #skyblue for inpainted
+    #color = (0,158,115) #blusihgreen for inpainted?
     # color = (213, 94, 0)
     # color = (230, 159, 0)
     # Create a draw object
@@ -41,8 +44,8 @@ def draw_circle(rgb, coord, radius, color=(255, 0, 0), visible=True):
     # Draw the circle
     draw.ellipse(
         [left_up_point, right_down_point],
-        fill=tuple(color) if visible else None,
-        outline=tuple(color),
+        fill=tuple(color), #if visible else None,
+        #outline=tuple([255, 255, 255])
     )
     return rgb
 
@@ -205,12 +208,14 @@ class Visualizer:
                 )
                 norm = plt.Normalize(y_min, y_max)
                 for n in range(N):
-                    color = self.color_map(norm(tracks[query_frame, n, 1]))
-                    color = np.array(color[:3])[None] * 255
+                    color = np.array([86,180,233])[None]
+                    # color = self.color_map(norm(tracks[query_frame, n, 1]))
+                    # color = np.array(color[:3])[None] * 255
                     vector_colors[:, n] = np.repeat(color, T, axis=0)
             else:
                 # color changes with time
                 for t in range(T):
+                    # color = [0, 114, 178]
                     color = np.array(self.color_map(t / T)[:3])[None] * 255
                     vector_colors[t] = np.repeat(color, N, axis=0)
         else:
@@ -231,9 +236,11 @@ class Visualizer:
             else:
                 # color changes with segm class
                 segm_mask = segm_mask.cpu()
-                color = np.zeros((segm_mask.shape[0], 3), dtype=np.float32)
-                color[segm_mask > 0] = np.array(self.color_map(1.0)[:3]) * 255.0
-                color[segm_mask <= 0] = np.array(self.color_map(0.0)[:3]) * 255.0
+                # color = [0, 114, 178]
+                color = np.array([86,180,233])[None]
+                # color = np.zeros((segm_mask.shape[0], 3), dtype=np.float32)
+                # color[segm_mask > 0] = np.array(self.color_map(1.0)[:3]) * 255.0
+                # color[segm_mask <= 0] = np.array(self.color_map(0.0)[:3]) * 255.0
                 vector_colors = np.repeat(color[None], T, axis=0)
 
         #  draw tracks
@@ -263,8 +270,8 @@ class Visualizer:
                     res_video[t] = self._draw_gt_tracks(res_video[t], gt_tracks[first_ind : t + 1])
 
         # T = Total number frames, t = index of frame, i = index of point
-        upper_pts = np.zeros((2, T))
-        lower_pts = np.zeros((2, T))
+        upper_pts = np.zeros((10, T))
+        lower_pts = np.zeros((10, T))
         #  draw points
         for t in range(query_frame, T):
             img = Image.fromarray(np.uint8(res_video[t]))
@@ -287,12 +294,36 @@ class Visualizer:
                                 visible=visibile,
                             )
                     # double_coord = (double_tracks[t, i, 0], double_tracks[t, i, 1])
-                    if i == 9:#8 6 0
+                    if i == 9:#9 8 6 0
                         upper_pts[0, t] = double_coord[0]
                         upper_pts[1, t] = double_coord[1]
-                    elif i == 8:#9 1 7
+                    elif i == 1:
+                        upper_pts[2, t] = double_coord[0]
+                        upper_pts[3, t] = double_coord[1]
+                    elif i == 3:
+                        upper_pts[4, t] = double_coord[0]
+                        upper_pts[5, t] = double_coord[1]
+                    elif i == 5:
+                        upper_pts[6, t] = double_coord[0]
+                        upper_pts[7, t] = double_coord[1]
+                    elif i == 7:
+                        upper_pts[8, t] = double_coord[0]
+                        upper_pts[9, t] = double_coord[1]
+                    elif i == 8:# 8 9 1 7
                         lower_pts[0, t] = double_coord[0]
                         lower_pts[1, t] = double_coord[1]
+                    elif i == 0:
+                        lower_pts[2, t] = double_coord[0]
+                        lower_pts[3, t] = double_coord[1]
+                    elif i == 2:
+                        lower_pts[4, t] = double_coord[0]
+                        lower_pts[5, t] = double_coord[1]
+                    elif i == 4:
+                        lower_pts[6, t] = double_coord[0]
+                        lower_pts[7, t] = double_coord[1]
+                    elif i == 6:
+                        lower_pts[8, t] = double_coord[0]
+                        lower_pts[9, t] = double_coord[1]
                     # print(f"{coord=}")
                     # print(f"{double_coord=}")
 

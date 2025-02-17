@@ -125,7 +125,43 @@ elif sys.argv[3] == "revert":
          "f2_lower_x": f2_lower_pts[0][0:end_frame] + f2_x1_mean_offset,
          "f2_lower_y": f2_lower_pts[1][0:end_frame] + f2_y1_mean_offset,
          "f2_upper_x": f2_upper_pts[0][0:end_frame] + f2_x1_mean_offset,
-         "f2_upper_y": f2_upper_pts[1][0:end_frame] + f2_y1_mean_offset
+         "f2_upper_y": f2_upper_pts[1][0:end_frame] + f2_y1_mean_offset,
+
+         "f1_lower_x2": f1_lower_pts[2][0:end_frame] + f1_x1_mean_offset,
+         "f1_lower_y2": f1_lower_pts[3][0:end_frame] + f1_y1_mean_offset,
+         "f1_upper_x2": f1_upper_pts[2][0:end_frame] + f1_x1_mean_offset,
+         "f1_upper_y2": f1_upper_pts[3][0:end_frame] + f1_y1_mean_offset,
+         "f2_lower_x2": f2_lower_pts[2][0:end_frame] + f2_x1_mean_offset,
+         "f2_lower_y2": f2_lower_pts[3][0:end_frame] + f2_y1_mean_offset,
+         "f2_upper_x2": f2_upper_pts[2][0:end_frame] + f2_x1_mean_offset,
+         "f2_upper_y2": f2_upper_pts[3][0:end_frame] + f2_y1_mean_offset,
+
+         "f1_lower_x3": f1_lower_pts[4][0:end_frame] + f1_x1_mean_offset,
+         "f1_lower_y3": f1_lower_pts[5][0:end_frame] + f1_y1_mean_offset,
+         "f1_upper_x3": f1_upper_pts[4][0:end_frame] + f1_x1_mean_offset,
+         "f1_upper_y3": f1_upper_pts[5][0:end_frame] + f1_y1_mean_offset,
+         "f2_lower_x3": f2_lower_pts[4][0:end_frame] + f2_x1_mean_offset,
+         "f2_lower_y3": f2_lower_pts[5][0:end_frame] + f2_y1_mean_offset,
+         "f2_upper_x3": f2_upper_pts[4][0:end_frame] + f2_x1_mean_offset,
+         "f2_upper_y3": f2_upper_pts[5][0:end_frame] + f2_y1_mean_offset,
+
+         "f1_lower_x4": f1_lower_pts[6][0:end_frame] + f1_x1_mean_offset,
+         "f1_lower_y4": f1_lower_pts[7][0:end_frame] + f1_y1_mean_offset,
+         "f1_upper_x4": f1_upper_pts[6][0:end_frame] + f1_x1_mean_offset,
+         "f1_upper_y4": f1_upper_pts[7][0:end_frame] + f1_y1_mean_offset,
+         "f2_lower_x4": f2_lower_pts[6][0:end_frame] + f2_x1_mean_offset,
+         "f2_lower_y4": f2_lower_pts[7][0:end_frame] + f2_y1_mean_offset,
+         "f2_upper_x4": f2_upper_pts[6][0:end_frame] + f2_x1_mean_offset,
+         "f2_upper_y4": f2_upper_pts[7][0:end_frame] + f2_y1_mean_offset,
+
+         "f1_lower_x5": f1_lower_pts[8][0:end_frame] + f1_x1_mean_offset,
+         "f1_lower_y5": f1_lower_pts[9][0:end_frame] + f1_y1_mean_offset,
+         "f1_upper_x5": f1_upper_pts[8][0:end_frame] + f1_x1_mean_offset,
+         "f1_upper_y5": f1_upper_pts[9][0:end_frame] + f1_y1_mean_offset,
+         "f2_lower_x5": f2_lower_pts[8][0:end_frame] + f2_x1_mean_offset,
+         "f2_lower_y5": f2_lower_pts[9][0:end_frame] + f2_y1_mean_offset,
+         "f2_upper_x5": f2_upper_pts[8][0:end_frame] + f2_x1_mean_offset,
+         "f2_upper_y5": f2_upper_pts[9][0:end_frame] + f2_y1_mean_offset
          }
     )
 

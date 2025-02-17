@@ -4,23 +4,27 @@ import random
 import os
 import subprocess
 import string
+import shutil
 
 
-def move_old_frames(calib_dir):
+def move_old_frames(calib_dir):s
     random_dir = ''.join(random.choices(string.ascii_uppercase, k=10))
     print("-----------------------------------------------------------------------------")
     print("-----------------------------------------------------------------------------")
-    print(f"Moving previous D2, J2, and synched folders to {calib_dir}/configs/{random_dir}")
+    print(f"Removing previous D2, J2, and synched folders")
     print("-----------------------------------------------------------------------------")
     print("-----------------------------------------------------------------------------")
 
-    os.mkdir(f"{calib_dir}/configs/{random_dir}")
-    str = f"mv {calib_dir}/D2 {calib_dir}/configs/{random_dir}"
-    subprocess.run(str, shell=True)
-    str = f"mv {calib_dir}/J2 {calib_dir}/configs/{random_dir}"
-    subprocess.run(str, shell=True)
-    str = f"mv {calib_dir}/synched {calib_dir}/configs/{random_dir}"
-    subprocess.run(str, shell=True)
+    os.mkdir(f"{calib_dir}/configs/scraps/{random_dir}")
+    shutil.rmtree(f"{calib_dir}/D2")
+    shutil.rmtree(f"{calib_dir}/J2")
+    shutil.rmtree(f"{calib_dir}/synched")
+    # str = f"mv {calib_dir}/D2 {calib_dir}/configs/scraps/{random_dir}"
+    # subprocess.run(str, shell=True)
+    # str = f"mv {calib_dir}/J2 {calib_dir}/configs/scraps/{random_dir}"
+    # subprocess.run(str, shell=True)
+    # str = f"mv {calib_dir}/synched {calib_dir}/configs/scraps/{random_dir}"
+    # subprocess.run(str, shell=True)
 
 def get_frames(cap, folder, path, l_or_r, calib_dir):
     if l_or_r == "left":

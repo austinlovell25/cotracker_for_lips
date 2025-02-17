@@ -50,6 +50,40 @@ def snap_pt_to_upper_edge(vid_file, pt, thrs):
     # print("------------------------------------------------------------")
     return x_pt, y_iter
 
+def snap_pt_to_bottom_edge(vid_file, pt, thrs):
+    str = f'ffmpeg -hide_banner -loglevel error -y -i {vid_file} -vf "select=eq(n\,0)" -vframes 1 tmp/edge_out.png'
+    print(str)
+    subprocess.run(str, shell=True)
+
+    ratio = 3
+    kernel_size = 3
+    low_threshold = 10
+
+    src = cv2.imread(cv2.samples.findFile("tmp/edge_out.png"))
+    if src is None:
+        print('Could not open or find the image: tmp/edge_out.png')
+        exit(0)
+    src_gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+
+    img_blur = cv2.blur(src_gray, (3, 3))
+    detected_edges = cv2.Canny(img_blur, low_threshold, low_threshold * ratio, kernel_size)
+    mask = detected_edges != 0
+    x_pt = round(pt[1])
+    y_iter = round(pt[2])
+    orig_y_iter = y_iter
+    # Y is first
+    while mask[y_iter, x_pt] == 0:
+        y_iter += 1
+        # Failsafe
+        if (y_iter - orig_y_iter) >= thrs:
+            y_iter = orig_y_iter
+            break
+    change = y_iter - orig_y_iter
+    # print("------------------------------------------------------------")
+    # print(f"Moved up {change} pixels")
+    # print("------------------------------------------------------------")
+    return x_pt, y_iter
+
 
 def global_grid(x_end, y_end):
     for i in range(0, x_end, 70):
@@ -113,6 +147,7 @@ parser.add_argument("-n", "--vid_num", help="Number of video (left = 0, right = 
 parser.add_argument("-e", "--exp_name", default="exp", help="Experiment name")
 parser.add_argument("-gc", "--grid_config", default="global_config.json", help="Grid config file (JSON)")
 parser.add_argument("-d", "--save_dir", default="/home/kwangkim/Desktop", help="Directory to save videos in")
+parser.add_argument("-sm", "--snap_middle", default="True", help="Snap middle point to edge")
 args = parser.parse_args()
 
 df = pd.read_csv("first_5_avg.csv")
@@ -120,6 +155,8 @@ video_file = args.vid_name
 video_num = int(args.vid_num)
 exp_name = args.exp_name
 vid_save_dir = args.save_dir
+is_snap_middle_pt = True if args.snap_middle == "True" else False
+
 
 # Path(f"/home/kwangkim/Desktop/segmented_test_9_12_24/cotracker_output_global_dense").mkdir(parents=True, exist_ok=True)
 # Path(f"/home/kwangkim/Desktop/segmented_test_9_12_24/cotracker_output_global_dense/vid{video_num}").mkdir(parents=True, exist_ok=True)
@@ -148,17 +185,26 @@ pts.append([0., float(df["x9_mean_incrop"][video_num]), float(df["y9_mean_incrop
 pts.append([0., float(df["x10_mean_incrop"][video_num]), float(df["y10_mean_incrop"][video_num])])
 
 # Pull up top middle point using edge detection
-is_snap_middle_pt = True
 if is_snap_middle_pt:
     print("Snapping middle point using edge detection")
     pts[9][1], pts[9][2] = snap_pt_to_upper_edge(video_file, pts[9], 15) # middle turn it off for videos with ag501 sensors
+    pts[1][1], pts[1][2] = snap_pt_to_upper_edge(video_file, pts[1], 10)
+    pts[3][1], pts[3][2] = snap_pt_to_upper_edge(video_file, pts[3], 10)
+    pts[5][1], pts[5][2] = snap_pt_to_upper_edge(video_file, pts[5], 10)
+    pts[7][1], pts[7][2] = snap_pt_to_upper_edge(video_file, pts[7], 10)
+
+    # print("\n\n\nWARNING: CODE IS CURRENTLY HARDCODED TO SNAP PTS TO BOTTOM EDGE\nPLEASE ADVISE!!!!!\n\n\n")
+    pts[0][1], pts[0][2] = snap_pt_to_bottom_edge(video_file, pts[0], 10)
+    pts[2][1], pts[2][2] = snap_pt_to_bottom_edge(video_file, pts[2], 10)
+    pts[4][1], pts[4][2] = snap_pt_to_bottom_edge(video_file, pts[4], 10)
+    pts[6][1], pts[6][2] = snap_pt_to_bottom_edge(video_file, pts[6], 10)
+    pts[8][1], pts[8][2] = snap_pt_to_bottom_edge(video_file, pts[8], 10)
+
 else:
     print("Not snapping middle point")
 
-pts[1][1], pts[1][2] = snap_pt_to_upper_edge(video_file, pts[1], 10)
-pts[3][1], pts[3][2] = snap_pt_to_upper_edge(video_file, pts[3], 10)
-pts[5][1], pts[5][2] = snap_pt_to_upper_edge(video_file, pts[5], 10)
-pts[7][1], pts[7][2] = snap_pt_to_upper_edge(video_file, pts[7], 10)
+
+
 
 # Pull up bottom middle point using edge detection
 # pts[8][1], pts[8][2] = snap_pt_to_upper_edge(video_file, pts[8], 10)
@@ -177,12 +223,14 @@ if data["local_grid"]:
 if "lip_contour" in data and data["lip_contour"]:
     # contour_grid(float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num]), isUpper=True)
     # contour_grid(float(df["x8_mean_incrop"][video_num]), float(df["y8_mean_incrop"][video_num]), isUpper=False)
-    #contour_grid(float(df["x7_mean_incrop"][video_num]), float(df["y7_mean_incrop"][video_num]), isUpper=True)
-    #contour_grid(float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num]), isUpper=False)
+    #contour_grid(float(df["x6_mean_incrop"][video_num]), float(df["y7_mean_incrop"][video_num]), isUpper=True)
+    #contour_grid(float(df["x3_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num]), isUpper=False)
     contour_grid(float(df["x10_mean_incrop"][video_num]), float(df["y10_mean_incrop"][video_num]), isUpper=True)
     contour_grid(float(df["x9_mean_incrop"][video_num]), float(df["y9_mean_incrop"][video_num]), isUpper=False)
 
 if "spiga_support" in data and data["spiga_support"]:
+    #contour_grid(float(df["x10_mean_incrop"][video_num]), float(df["y10_mean_incrop"][video_num]), isUpper=True)
+    #contour_grid(float(df["x9_mean_incrop"][video_num]), float(df["y9_mean_incrop"][video_num]), isUpper=False)
     spiga_support()
 
 # Initialize Model

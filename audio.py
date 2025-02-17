@@ -6,11 +6,12 @@ import subprocess
 import os
 
 
-def compute_pcm(vid, side):
+def compute_pcm(vid, side, range_end):
     audio_file = AudioSegment.from_file(vid)
     data = audio_file._data
     pcm16_signed_integers = []
-    rng = len(data) / 8
+    rng = 193090 * range_end
+    # rng = len(data) / 8
     for sample_index in tqdm(range(int(rng))):
         sample = int.from_bytes(data[sample_index * 2:sample_index * 2 + 2], 'little', signed=True)
         pcm16_signed_integers.append(sample)
@@ -40,11 +41,14 @@ def get_threshold(left_ints, right_ints):
 
 def find_sync(fps, left_video, right_video):
 
-    print("Running on first 1/8 of video...")
+    print("How many seconds after the start of the video should be used for the end of audio clap search range?")
+    range_end = int(input())
+
+    #print("Running on first 1/8 of video...") This line is no longer valid
     print("Running on left video")
-    left_pcm16_signed_integers = compute_pcm(left_video, "LEFT")
+    left_pcm16_signed_integers = compute_pcm(left_video, "LEFT", range_end)
     print("Running on right video")
-    right_pcm16_signed_integers = compute_pcm(right_video, "RIGHT")
+    right_pcm16_signed_integers = compute_pcm(right_video, "RIGHT", range_end)
     # with open("left_audio.npy", 'rb') as f:
     #     left_pcm16_signed_integers = np.load(f)
     # with open("right_audio.npy", 'rb') as f:
