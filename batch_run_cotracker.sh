@@ -10,6 +10,6 @@
 #phil, TA66, Austin
 
 #python run_tests.py -m true -f ./trial_csvs/SA42_sd1-5.csv
-python run_tests.py -m true -f ./trial_csvs/Yuri_sd1-5.csv
-python run_tests.py -m true -f ./trial_csvs/james_sd1-5.csv
-python run_tests.py -m true -f ./trial_csvs/Madi_sd1-5.csv
+python run_tests.py -m true -f ./trial_csvs/HannahRaised_sd1-5.csv
+python run_tests.py -m true -f ./trial_csvs/TA72.csv
+python run_tests.py -m true -f ./trial_csvs/TA72_sd1-5.csv
