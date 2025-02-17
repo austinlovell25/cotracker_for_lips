@@ -1,4 +1,0 @@
-- Line across edge of lip
-- 8 total non-middle points from spiga (trying now)
-- square of pixels around spiga middle pixel
-- horizontal line of pixels starting from spiga middle pixel.

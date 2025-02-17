@@ -1,2 +1,0 @@
-- Run run_spiga.py in SPIGA/spiga/demo
-	- Args: vid1 vid2 rows columns world_scaling exp_name save_dir
