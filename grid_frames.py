@@ -7,7 +7,7 @@ import string
 import shutil
 
 
-def move_old_frames(calib_dir):s
+def move_old_frames(calib_dir):
     random_dir = ''.join(random.choices(string.ascii_uppercase, k=10))
     print("-----------------------------------------------------------------------------")
     print("-----------------------------------------------------------------------------")

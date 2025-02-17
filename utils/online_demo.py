@@ -99,5 +99,5 @@ if __name__ == "__main__":
     # save a video with predicted tracks
     seq_name = args.video_path.split("/")[-1]
     video = torch.tensor(np.stack(window_frames), device=DEFAULT_DEVICE).permute(0, 3, 1, 2)[None]
-    vis = Visualizer(save_dir="./saved_videos", pad_value=120, linewidth=3)
+    vis = Visualizer(save_dir="../saved_videos", pad_value=120, linewidth=3)
     vis.visualize(video, pred_tracks, pred_visibility, query_frame=args.grid_query_frame)
