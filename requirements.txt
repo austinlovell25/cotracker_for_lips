@@ -1,0 +1,14 @@
+cotracker==2.0
+easygui==0.98.3
+einops==0.7.0
+flow-vis==0.1
+ipython==8.20.0
+matplotlib==3.8.2
+moviepy==1.0.3
+opencv-python==4.9.0.80
+pandas==2.2.0
+pip-chill==1.0.3
+pyarrow==15.0.0
+pydub==0.25.1
+timm==0.9.12
+torchaudio==2.1.2
