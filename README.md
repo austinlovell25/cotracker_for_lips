@@ -24,7 +24,7 @@ python grid_frames.py -s 10 -e 500 -l left_sync_video.mp4 -r right_sync_video.mp
 ```
 where -s is the first frame the checkerboard appears on, and -e is the last frame.
 
-3. Create the calibration matrices. The files for this are in the other directory so TODO.
+3. Create the calibration matrices.
 4. Using ffmpeg, trim the videos to be under 10 seconds of length to make the program run faster. This can be done by specifying the start and end time of the snippet. Example
 ```
 ffmpeg -ss 00:09:28 -to 00:09:34 -i right_video -c copy right_video_9-28_9-34.mp4
@@ -38,4 +38,3 @@ ffmpeg -ss 191 -i right_video.mp4 -c:v libx264 -c:a aac -frames:v 120 right_vide
 ```
 python run_tests.py -m true -f foo.json
 ```
-TODO Add info about how to create json file
