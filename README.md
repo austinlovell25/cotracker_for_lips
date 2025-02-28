@@ -34,6 +34,7 @@ python calibration.py --rows 17 --columns 24 --scaling 15 --dir /home/user/direc
 ```
 Where --rows is the number of rows on the checkerboard, --columns is the number of columns, and --scaling is the world 
 scaling (default is 15)
+
 4. Using ffmpeg, trim the videos to be under 10 seconds of length to make the program run faster. This can be done 
    by specifying the start and end time of the snippet. Example:
 ```
