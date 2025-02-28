@@ -26,7 +26,7 @@ def move_old_frames(calib_dir):
     # str = f"mv {calib_dir}/synched {calib_dir}/configs/scraps/{random_dir}"
     # subprocess.run(str, shell=True)
 
-def get_frames(cap, folder, path, l_or_r, calib_dir):
+def get_frames(cap, folder, l_or_r):
     if l_or_r == "left":
         cam_num = 1
         letter = "D"
@@ -45,11 +45,9 @@ def get_frames(cap, folder, path, l_or_r, calib_dir):
         success, image = cap.read()
         index += 1
 
-    str = f"cp {folder}/{l_or_r}_grid_frames/* {parent_folder}/{letter}2"
+    str = f"cp {folder}/{l_or_r}_grid_frames/* {folder}/{letter}2"
     subprocess.run(str, shell=True)
-    str = f"cp -r {parent_folder}/{letter}2 {calib_dir}"
-    subprocess.run(str, shell=True)
-    str = f"cp {folder}/{l_or_r}_grid_frames/* {parent_folder}/synched"
+    str = f"cp {folder}/{l_or_r}_grid_frames/* {folder}/synched"
     subprocess.run(str, shell=True)
 
 
@@ -65,33 +63,16 @@ print(frames)
 print("Running...")
 
 parent_folder = os.path.dirname(args.right_video)
-calib_dir = "/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration"
-move_old_frames(calib_dir)
-
-try:
-    os.mkdir(f"{parent_folder}/synched")
-    os.mkdir(f"{parent_folder}/D2")
-    os.mkdir(f"{parent_folder}/J2")
-    os.mkdir(f"{calib_dir}/synched")
-    os.mkdir(f"{calib_dir}/D2")
-    os.mkdir(f"{calib_dir}/J2")
-
-except:
-    print(f"Error: some folder already exists")
-    print("It is likely that this program was already ran and finished for these videos")
-    print("If you want to rerun this script, delete the D2, J2, and synched folder and retry")
+os.mkdir(f"{parent_folder}/synched")
+os.mkdir(f"{parent_folder}/D2")
+os.mkdir(f"{parent_folder}/J2")
 
 cap = cv2.VideoCapture(args.left_video)
-folder = os.path.dirname(args.left_video)
-path = os.mkdir(f"{folder}/left_grid_frames")
-get_frames(cap, folder, path, "left", calib_dir)
+os.mkdir(f"{parent_folder}/left_grid_frames")
+get_frames(cap, parent_folder, "left")
 
 cap = cv2.VideoCapture(args.right_video)
-folder = os.path.dirname(args.right_video)
-path = os.mkdir(f"{folder}/right_grid_frames")
-get_frames(cap, folder, path, "right", calib_dir)
+os.mkdir(f"{parent_folder}/right_grid_frames")
+get_frames(cap, parent_folder, "right")
 
-str = f"cp -r {parent_folder}/synched {calib_dir}/"
-subprocess.run(str, shell=True)
-
-print("Finished")
+print("Finished running grid_frames.py")
