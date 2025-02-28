@@ -28,7 +28,12 @@ python grid_frames.py -s 10 -e 500 -l left_sync_video.mp4 -r right_sync_video.mp
 ```
 where -s is the first frame the checkerboard appears on, and -e is the last frame.
 
-3. Create the calibration matrices.
+3. Create the calibration matrices. Example:
+```
+python calibration.py --rows 17 --columns 24 --scaling 15 --dir /home/user/directory/
+```
+Where --rows is the number of rows on the checkerboard, --columns is the number of columns, and --scaling is the world 
+scaling (default is 15)
 4. Using ffmpeg, trim the videos to be under 10 seconds of length to make the program run faster. This can be done 
    by specifying the start and end time of the snippet. Example:
 ```
