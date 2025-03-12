@@ -1,4 +1,3 @@
-cotracker==2.0
 easygui==0.98.3
 einops==0.7.0
 flow-vis==0.1
