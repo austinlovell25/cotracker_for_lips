@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-m", "--is_multiple", default="False")
+parser.add_argument("-m", "--is_multiple", default="Final")
 parser.add_argument("-f", "--file", default="None")
 parser.add_argument("-v1", "--vid1", help="Video 1")
 parser.add_argument("-v2", "--vid2", help="Video 2")
@@ -40,6 +40,22 @@ if is_mult == "False":
         str = f"bash spiga_pipeline.sh {vid1} {vid2} {title}_{key} {value} {save_dir} {cam_config_dir}"
         print(str)
         subprocess.run(str, shell=True)
+
+elif is_mult == "Final":
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+        exp_name = data["experiment_name"]
+        video_dir = data["source_directory"]
+        times = data["times"]
+        for time in times:
+            vid1 = f"{video_dir}/samples/left_{time}.mp4"
+            vid2 = f"{video_dir}/samples/right_{time}.mp4"
+
+            for key, value in configs.items():
+                str = f"bash spiga_pipeline.sh {vid1} {vid2} {exp_name}_{time}_{key} {value} {video_dir} {video_dir} false"
+                print(str)
+                subprocess.run(str, shell=True)
+
 
 elif is_mult == "True" or is_mult == "T" or is_mult == "true" or is_mult == "t":
     exp_name = None

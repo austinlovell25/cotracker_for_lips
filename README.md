@@ -38,15 +38,27 @@ scaling (default is 15)
 4. Using ffmpeg, trim the videos to be under 10 seconds of length to make the program run faster. This can be done 
    by specifying the start and end time of the snippet. Example:
 ```
-ffmpeg -ss 00:09:28 -to 00:09:34 -i right_video -c copy right_video_9-28_9-34.mp4
+ffmpeg -ss 00:09:28 -to 00:09:34 -i right_video -c copy right_9m28s.mp4
 ```
 Or by specifying the start time in seconds and length of snippet in frames. Example:
 ```
-ffmpeg -ss 191 -i right_video.mp4 -c:v libx264 -c:a aac -frames:v 120 right_video_191_193.mp4
+ffmpeg -ss 191 -i right_video.mp4 -c:v libx264 -c:a aac -frames:v 120 right_9m28s.mp4
 ```
+Rename the files following the format of "right_9m28s.mp4" or "left_9m28s.mp4" and move these videos to a 
+subdirectory called "samples"
+
 
 5. Create a json file with your experiment details, and then use run_tests.py on that file to estimate the lip 
    coordinates. Example:
 ```
-python run_tests.py -m true -f foo.json
+python run_tests.py -f foo.json
 ```
+
+Where the json file is set up with the following fields:
+ - "experiment_name": A String representing the chosen name of the experiment
+ - "source_directory": The directory being used for the experiment
+ - "times": An Array of the times of the samples listed in the String format specified in step 4.
+
+See trial_example.json for an example of this formatting. \
+After the script is finished running, the output will be saved in the directory under the cotracker_out subdirectory
+
