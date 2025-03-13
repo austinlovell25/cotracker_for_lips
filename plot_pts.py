@@ -1,28 +1,30 @@
 import cv2
 import pandas as pd
 import numpy as np
+import config
 
-# File paths
-video_path = "/datadrive/individual_data/foamheadc/1m0s/foamheadc_left_sync_1m0s_trimmed.mp4"
-cotracker_path = "/home/kwangkim/Desktop/Fig2_foamheadc/cotracker_pts.csv"
-lip_coords_path = "/home/kwangkim/Desktop/Fig2_foamheadc/2d_lip_coordinates.csv"
+# File paths moved to config.py
+#video_path = "/datadrive/individual_data/foamheadc/1m0s/foamheadc_left_sync_1m0s_trimmed.mp4"
+#cotracker_path = "/home/kwangkim/Desktop/Fig2_foamheadc/cotracker_pts.csv"
+#config.lip_coords_path = "/home/kwangkim/Desktop/Fig2_foamheadc/2d_lip_coordinates.csv"
+
 #video_path = "/datadrive/individual_data/L2087/8m48s/L2087_left_sync_8m48s_trimmed.mp4"
 #cotracker_path = "/home/kwangkim/Desktop/Fig2_L2087/cotracker_pts.csv"
-#lip_coords_path = "/home/kwangkim/Desktop/Fig2_L2087/2d_lip_coordinates.csv"
+#config.lip_coords_path = "/home/kwangkim/Desktop/Fig2_L2087/2d_lip_coordinates.csv"
 #video_path = "/datadrive/individual_data/PrecisionCombo/3m43s/PrecisionCombo_left_sync_3m43s_trimmed.mp4"
 #cotracker_path = "/home/kwangkim/Desktop/Fig2_PrecisionCombo/cotracker_pts.csv"
-#lip_coords_path = "/home/kwangkim/Desktop/Fig2_PrecisionCombo/2d_lip_coordinates.csv"
+#config.lip_coords_path = "/home/kwangkim/Desktop/Fig2_PrecisionCombo/2d_lip_coordinates.csv"
 
-output_video_path = "output_video.mp4"
-cropped_video_path = "cropped_video.mp4"
+#output_video_path = "output_video.mp4"
+#cropped_video_path = "cropped_video.mp4"
 r_l = "1" # left=1, right=2
 
 # Load data from CSV files
-cotracker_df = pd.read_csv(cotracker_path)
-lip_coords_df = pd.read_csv(lip_coords_path)
+cotracker_df = pd.read_csv(config.cotracker_path)
+lip_coords_df = pd.read_csv(config.lip_coords_path)
 
 # Open the video
-cap = cv2.VideoCapture(video_path)
+cap = cv2.VideoCapture(config.video_path)
 if not cap.isOpened():
     print("Error: Could not open video.")
     exit()
@@ -34,7 +36,7 @@ fps = int(cap.get(cv2.CAP_PROP_FPS))
 
 # Define codec and create VideoWriter for the initial output
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
+out = cv2.VideoWriter(config.output_video_path, fourcc, fps, (frame_width, frame_height))
 
 frame_idx = 0
 
@@ -78,13 +80,13 @@ cap.release()
 out.release()
 
 # Read the output video and crop it
-cap = cv2.VideoCapture(output_video_path)
+cap = cv2.VideoCapture(config.output_video_path)
 if not cap.isOpened():
     print("Error: Could not open the output video for cropping.")
     exit()
 
 # Define codec and create VideoWriter for the cropped video
-out_cropped = cv2.VideoWriter(cropped_video_path, fourcc, fps, (512, 512))
+out_cropped = cv2.VideoWriter(config.cropped_video_path, fourcc, fps, (512, 512))
 
 frame_idx = 0
 center_x = int(cotracker_df.loc[0, f'f{r_l}_upper_x'])
@@ -119,4 +121,4 @@ while True:
 cap.release()
 out_cropped.release()
 
-print("Video processing complete. Saved cropped video to:", cropped_video_path)
+print("Video processing complete. Saved cropped video to:", config.cropped_video_path)

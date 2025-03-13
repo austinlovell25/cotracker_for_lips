@@ -2,7 +2,7 @@ import csv
 import sys
 import pandas as pd
 import numpy as np
-
+import config
 fname1 = sys.argv[1]
 fname2 = sys.argv[2]
 df1 = pd.read_csv(fname1, header=0)
@@ -109,10 +109,10 @@ if sys.argv[3] == "reduce":
 
 
 elif sys.argv[3] == "revert":
-    f1_lower_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid0/lower_pts.csv", delimiter=",")
-    f1_upper_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid0/upper_pts.csv", delimiter=",")
-    f2_lower_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid1/lower_pts.csv", delimiter=",")
-    f2_upper_pts = np.genfromtxt("/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid1/upper_pts.csv", delimiter=",")
+    f1_lower_pts = np.genfromtxt(f"{config.pipeline_dir}/vid0/lower_pts.csv", delimiter=",")
+    f1_upper_pts = np.genfromtxt(f"{config.pipeline_dir}/vid0/upper_pts.csv", delimiter=",")
+    f2_lower_pts = np.genfromtxt(f"{config.pipeline_dir}/vid1/lower_pts.csv", delimiter=",")
+    f2_upper_pts = np.genfromtxt(f"{config.pipeline_dir}/vid1/upper_pts.csv", delimiter=",")
 
     end_frame = np.shape(f1_upper_pts)[1]
     # print(f"{end_frame=}")
@@ -171,8 +171,8 @@ elif sys.argv[3] == "revert":
         out_df.to_csv("cotracker_pts.csv")
 
 elif sys.argv[3] == "from_cotracker":
-    l_pts = pd.read_csv("/home/kwangkim/Projects/cotracker_new/tmp/cotracker_end0.csv")
-    r_pts = pd.read_csv("/home/kwangkim/Projects/cotracker_new/tmp/cotracker_end1.csv")
+    l_pts = pd.read_csv(f"{config.cotracker_new_path}/tmp/cotracker_end0.csv")
+    r_pts = pd.read_csv(f"{config.cotracker_new_path}/tmp/cotracker_end1.csv")
 
 
     out_df = pd.DataFrame(
