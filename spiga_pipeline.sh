@@ -48,23 +48,24 @@ if [ "$USE_CROP_SHIFTING" = true ]; then
 
 else
   # Find coordinates of video 1
+#  cd ~/python-environments/env
+#  source bin/activate
+#  cd SPIGA/spiga/demo
+#  python app_2d.py -i "$fname1" -d 300wprivate
   echo "$fname1"
-  cd ~/python-environments/env
-  source bin/activate
-  cd SPIGA/spiga/demo
-  python app_2d.py -i "$fname1" -d 300wprivate
-  mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_L.csv
-  mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_L.csv
+  python SPIGA/spiga/demo/app_2d.py -i "$fname1" -d 300wprivate
+  mv 2d_lip_coordinates.csv 2d_lip_coords_L.csv
+  mv support_pts.csv spiga_support_L.csv
 
   # Find coordinates of video 2
   echo "$fname2"
-  python app_2d.py -i "$fname2" -d 300wprivate
-  mv 2d_lip_coordinates.csv ~/Projects/cotracker_new/2d_lip_coords_R.csv
-  mv support_pts.csv ~/Projects/cotracker_new/tmp/spiga_support_R.csv
+  python SPIGA/spiga/demo/app_2d.py -i "$fname2" -d 300wprivate
+  mv 2d_lip_coordinates.csv 2d_lip_coords_R.csv
+  mv support_pts.csv spiga_support_R.csv
 fi
 
 # Create csv average of first 5 points and find cropped points
-cd ~/Projects/cotracker_new/
+#cd ~/Projects/cotracker_new/
 pts=($(python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv reduce | tr -d '[],'))
 
 # Crop video using offset based on lip points
@@ -74,8 +75,8 @@ ffmpeg -hide_banner -loglevel error -i "$fname1" -y -nostats -loglevel 0 -filter
 ffmpeg -hide_banner -loglevel error -i "$fname2" -y -nostats -loglevel 0 -filter:v "crop=704:512:${pts[2]}:${pts[3]}" vid2_crop.mp4
 
 # Run cotracker on first video
-deactivate
-source venv/bin/activate
+#deactivate
+#source venv/bin/activate
 python quickstart.py -v vid1_crop.mp4 -n 0 -e "$exp_name" -gc "$grid_config" -d "$save_dir" --snap_middle "$is_snap"
 
 # Run cotracker on second video
@@ -84,16 +85,20 @@ python quickstart.py -v vid2_crop.mp4 -n 1 -e "$exp_name" -gc "$grid_config" -d 
 # Correct points to full size coordinates and save
 python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv revert
 
-cd ~/python-environments/env
-source bin/activate
-cd SPIGA/spiga/demo/calibration
+#cd ~/python-environments/env
+#source bin/activate
+#cd SPIGA/spiga/demo/calibration
+echo "Listing variables"
+echo "$exp_name"
+echo "$CAM_CONFIG_PATH"
+echo "$save_dir"
 python calibration.py triangulate cotracker "$exp_name" "$CAM_CONFIG_PATH" "$save_dir"
 
 #cd ~/Projects/cotracker_new/
 #python raise1pixel.py
 #cd ~/python-environments/env/SPIGA/spiga/demo/calibration/
 #python calibration.py triangulate cotracker "$exp_name"_raise1pixel "$CAM_CONFIG_PATH" "$save_dir"
-#
+
 #cd ~/Projects/cotracker_new/
 #python lower1pixel.py
 #cd ~/python-environments/env/SPIGA/spiga/demo/calibration/
