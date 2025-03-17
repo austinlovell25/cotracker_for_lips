@@ -10,7 +10,14 @@ Clone this repository and setup Conda within your environment.
 Install necessary packages
 ```
 pip install -r requirements.txt
+cd cotracker
+pip install -e .
+cd SPIGA
+pip install -e .
 ```
+
+Download the spiga_300wprivate.pt file from this [Google Drive](https://drive.google.com/drive/folders/1olrkoiDNK_NUCscaG9BbO3qsussbDi7I)
+and move under SPIGA/spiga/models/weights/ (create the weights/ directory if needed).
 
 ## Guide
 
