@@ -21,3 +21,4 @@ cotracker_new_path = "/home/kwangkim/Projects/cotracker_new"
 
 # TODO:
 # Parameterize all the filepaths in run_tests
+# Compress user filepaths into a single input file directory, and a single output directory

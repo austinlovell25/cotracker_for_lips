@@ -14,7 +14,15 @@ Clone this repository and setup Conda within your environment.
 Install necessary packages
 ```
 pip install -r requirements.txt
+cd cotracker
+pip install -e .
+cd SPIGA
+pip install -e .
 ```
+
+Download the spiga_300wprivate.pt file from this [Google Drive](https://drive.google.com/drive/folders/1olrkoiDNK_NUCscaG9BbO3qsussbDi7I)
+and move under SPIGA/spiga/models/weights/ (create the weights/ directory if needed).
+
 
 ### Downloading Cotracker:
 - move to cotracker subdirectory
@@ -38,8 +46,9 @@ python pipeline.py --fps 60 --left_vid left_video.mp4 --right_vid right_video.mp
 - pipeline deletes the right video.
 
 2. Use grid_frames.py to extract the checkerboard frames from the videos for calibration. Example:
+Use relative paths for the videos.
 ```
-python grid_frames.py -s 10 -e 500 -l left_sync_video.mp4 -r right_sync_video.mp4
+python grid_frames.py -s 660 -e 1620 -l videos/left_sync_video.mp4 -r videos/right_sync_video.mp4
 ```
 where -s is the first frame the checkerboard appears on, and -e is the last frame.
 
@@ -49,17 +58,7 @@ python calibration.py --rows 17 --columns 24 --scaling 15 --dir /home/user/direc
 ```
 Where --rows is the number of rows on the checkerboard, --columns is the number of columns, and --scaling is the world 
 scaling (default is 15)
-- NOTE index error:
-```
-~/Projects/cotracker_for_lips$ python calibration.py --rows 17 --columns 24 --scaling 15 --dir ~/Projects
-17 24 15
-Traceback (most recent call last):
-  File "/home/skill/Projects/cotracker_for_lips/calibration.py", line 385, in <module>
-    mtx1, dist1, ret1 = calibrate_camera(images_folder=f'{dir}/D2/*', rows=rows, columns=columns, world_scaling=world_scaling)
-  File "/home/skill/Projects/cotracker_for_lips/calibration.py", line 39, in calibrate_camera
-    width = images[0].shape[1]
-IndexError: list index out of range
-```
+
  
 4. Using ffmpeg, trim the videos to be under 10 seconds of length to make the program run faster. This can be done 
    by specifying the start and end time of the snippet. Example:

@@ -261,123 +261,125 @@ def flip_y(df):
     df["f2_upper_y"] = 2988 - df["f2_upper_y"]
     return df
 
+if __name__ == "__main__":
+    if sys.argv[1] == "triangulate":
+        #DEPRECATED
+        tracker = sys.argv[2]
+        exp_name = "exp"
+        if tracker != "spiga" and tracker != "cotracker":
+            print("Invalid tracker option")
+            print("Correct usage: calibration.py test spiga/cotracker")
+            exit(1)
+        if len(sys.argv) > 3:
+            exp_name = sys.argv[3]
+            config_path = sys.argv[4]
+            save_dir = sys.argv[5]
+            if tracker == "spiga":
+                time = sys.argv[6]
 
-if sys.argv[1] == "triangulate":
-    tracker = sys.argv[2]
-    exp_name = "exp"
-    if tracker != "spiga" and tracker != "cotracker":
-        print("Invalid tracker option")
-        print("Correct usage: calibration.py test spiga/cotracker")
-        exit(1)
-    if len(sys.argv) > 3:
-        exp_name = sys.argv[3]
-        config_path = sys.argv[4]
-        save_dir = sys.argv[5]
+        Path(f"{exp_name}").mkdir(parents=True, exist_ok=True)
+
+        mtx1, dist1 = load_coefficients(f"{config_path}/camera1.yml")
+        mtx2, dist2 = load_coefficients(f"{config_path}/camera2.yml")
+        R, T = load_stereo_coefficients(f"{config_path}/stereo_coeffs.yml")
+
         if tracker == "spiga":
-            time = sys.argv[6]
+            df = pd.read_csv("/home/kwangkim/python-environments/env/SPIGA/spiga/demo/spiga_pts.csv")
+        elif tracker == "cotracker":
+            df = pd.read_csv("/home/kwangkim/Projects/cotracker_new/cotracker_pts.csv")
+        df = flip_y(df)
 
-    Path(f"{exp_name}").mkdir(parents=True, exist_ok=True)
-
-    mtx1, dist1 = load_coefficients(f"{config_path}/camera1.yml")
-    mtx2, dist2 = load_coefficients(f"{config_path}/camera2.yml")
-    R, T = load_stereo_coefficients(f"{config_path}/stereo_coeffs.yml")
-
-    if tracker == "spiga":
-        df = pd.read_csv("/home/kwangkim/python-environments/env/SPIGA/spiga/demo/spiga_pts.csv")
-    elif tracker == "cotracker":
-        df = pd.read_csv("/home/kwangkim/Projects/cotracker_new/cotracker_pts.csv")
-    df = flip_y(df)
-
-    uvs1_lower = df[["f1_lower_x", "f1_lower_y"]].to_numpy()[0:600]
-    uvs2_lower = df[["f2_lower_x", "f2_lower_y"]].to_numpy()[0:600]
-    p3ds_lower = triangulate(mtx1, mtx2, R, T, uvs1_lower, uvs2_lower)
-    np.savetxt(f'{exp_name}/{tracker}_lower_3dpts.txt',p3ds_lower)
+        uvs1_lower = df[["f1_lower_x", "f1_lower_y"]].to_numpy()[0:600]
+        uvs2_lower = df[["f2_lower_x", "f2_lower_y"]].to_numpy()[0:600]
+        p3ds_lower = triangulate(mtx1, mtx2, R, T, uvs1_lower, uvs2_lower)
+        np.savetxt(f'{exp_name}/{tracker}_lower_3dpts.txt',p3ds_lower)
 
 
-    uvs1_upper = df[["f1_upper_x", "f1_upper_y"]].to_numpy()[0:600]
-    uvs2_upper = df[["f2_upper_x", "f2_upper_y"]].to_numpy()[0:600]
-    p3ds_upper = triangulate(mtx1, mtx2, R, T, uvs1_upper, uvs2_upper)
-    np.savetxt(f'{exp_name}/{tracker}_upper_3dpts.txt',p3ds_upper)
+        uvs1_upper = df[["f1_upper_x", "f1_upper_y"]].to_numpy()[0:600]
+        uvs2_upper = df[["f2_upper_x", "f2_upper_y"]].to_numpy()[0:600]
+        p3ds_upper = triangulate(mtx1, mtx2, R, T, uvs1_upper, uvs2_upper)
+        np.savetxt(f'{exp_name}/{tracker}_upper_3dpts.txt',p3ds_upper)
 
 
-    dist_array = np.ones(np.shape(p3ds_upper)[0])
-    for i in range(np.shape(p3ds_upper)[0]):
-        dist_array[i] = ((p3ds_upper[i][0] - p3ds_lower[i][0]) ** 2 + (p3ds_upper[i][1] - p3ds_lower[i][1]) ** 2 + (p3ds_upper[i][2] - p3ds_lower[i][2]) ** 2) ** 0.5
-    np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_3dist.txt',dist_array)
+        dist_array = np.ones(np.shape(p3ds_upper)[0])
+        for i in range(np.shape(p3ds_upper)[0]):
+            dist_array[i] = ((p3ds_upper[i][0] - p3ds_lower[i][0]) ** 2 + (p3ds_upper[i][1] - p3ds_lower[i][1]) ** 2 + (p3ds_upper[i][2] - p3ds_lower[i][2]) ** 2) ** 0.5
+        np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_3dist.txt',dist_array)
 
-    stdv = np.std(dist_array, axis=0)
-    min_val = np.min(dist_array, axis=0)
-    max_val = np.max(dist_array, axis=0)
-    mean = np.mean(dist_array, axis=0)
-    med = np.median(dist_array, axis=0)
-    stats_df = pd.DataFrame(
-        {"stdv": stdv,
-         "min": min_val,
-         "max": max_val,
-         "mean": mean,
-         "median": med},
-        index=[0]
-    )
-    stats_df.to_csv(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_stats.csv")
-    print(f"{stdv=}")
+        stdv = np.std(dist_array, axis=0)
+        min_val = np.min(dist_array, axis=0)
+        max_val = np.max(dist_array, axis=0)
+        mean = np.mean(dist_array, axis=0)
+        med = np.median(dist_array, axis=0)
+        stats_df = pd.DataFrame(
+            {"stdv": stdv,
+             "min": min_val,
+             "max": max_val,
+             "mean": mean,
+             "median": med},
+            index=[0]
+        )
+        stats_df.to_csv(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_stats.csv")
+        print(f"{stdv=}")
 
-    fig, ax = plt.subplots()
-    x = np.arange(np.shape(p3ds_upper)[0])
-    ax.plot(x, dist_array*1, linewidth=2.0, c='r', label="3d euc. diff")
-    legend = ax.legend(loc='upper right', shadow=True, fontsize='x-large')
-    ax.set_xlabel('frames')
-    ax.set_ylabel('3d Euclidean distance (mm)')
-    ax.set_title('Difference between upper lip and lower lip point estimation')
-    plt.savefig(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_3d_distance")
-    # print(f"Saving image to {save_dir}/cotracker_out/{exp_name}/{tracker}_3d_distance")
+        fig, ax = plt.subplots()
+        x = np.arange(np.shape(p3ds_upper)[0])
+        ax.plot(x, dist_array*1, linewidth=2.0, c='r', label="3d euc. diff")
+        legend = ax.legend(loc='upper right', shadow=True, fontsize='x-large')
+        ax.set_xlabel('frames')
+        ax.set_ylabel('3d Euclidean distance (mm)')
+        ax.set_title('Difference between upper lip and lower lip point estimation')
+        plt.savefig(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_3d_distance")
+        # print(f"Saving image to {save_dir}/cotracker_out/{exp_name}/{tracker}_3d_distance")
 
-    # if tracker == "spiga":
-    #     cmd = f"mkdir -p {save_dir}/SPIGA_out/{time}/"
-    #     subprocess.run(cmd, shell=True)
-    #     cmd = f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/{exp_name} {save_dir}/SPIGA_out/{time}/data"
-    #     subprocess.run(cmd, shell=True)
-    # else:
-    #     cmd = f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/{exp_name} {save_dir}/cotracker_out/{exp_name}/data"
-    #     subprocess.run(cmd, shell=True)
+        # if tracker == "spiga":
+        #     cmd = f"mkdir -p {save_dir}/SPIGA_out/{time}/"
+        #     subprocess.run(cmd, shell=True)
+        #     cmd = f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/{exp_name} {save_dir}/SPIGA_out/{time}/data"
+        #     subprocess.run(cmd, shell=True)
+        # else:
+        #     cmd = f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/{exp_name} {save_dir}/cotracker_out/{exp_name}/data"
+        #     subprocess.run(cmd, shell=True)
 
-else:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--run", help="ignore")
-    parser.add_argument("--rows", type=int, help="Rows on checkerboard")
-    parser.add_argument("--columns", type=int, help="Columns on checkerboard")
-    parser.add_argument("--scaling", type=int, help="World scaling, default is 15", default=15)
-    parser.add_argument("--dir", type=Path, help="Directory with videos and calibration files")
-    args = parser.parse_args()
-    rows = args.rows
-    columns = args.columns
-    world_scaling = args.scaling
-    dir = args.dir.expanduser().resolve()
-    mtx1, dist1, ret1 = calibrate_camera(images_folder=f'{dir}/D2/*', rows=rows, columns=columns, world_scaling=world_scaling)
-    mtx2, dist2, ret2 = calibrate_camera(images_folder=f'{dir}/J2/*', rows=rows, columns=columns, world_scaling=world_scaling)
-    # print(f"{mtx1=}")
-    # print(f"{dist1=}")
+    else:
+        #Current
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--rows", type=int, help="Rows on checkerboard")
+        parser.add_argument("--columns", type=int, help="Columns on checkerboard")
+        parser.add_argument("--scaling", type=int, help="World scaling, default is 15", default=15)
+        parser.add_argument("--dir", type=Path, help="Directory with videos and calibration files")
+        args = parser.parse_args()
+        rows = args.rows
+        columns = args.columns
+        world_scaling = args.scaling
 
-    # calib_dir = "/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration"
-    # move_old_files(calib_dir)
+        dir = args.dir.expanduser().resolve()
+        mtx1, dist1, ret1 = calibrate_camera(images_folder=f'{dir}/D2/*', rows=rows, columns=columns, world_scaling=world_scaling)
+        mtx2, dist2, ret2 = calibrate_camera(images_folder=f'{dir}/J2/*', rows=rows, columns=columns, world_scaling=world_scaling)
+        # print(f"{mtx1=}")
+        # print(f"{dist1=}")
 
-    save_coefficients(mtx1, dist1, f'{dir}/camera1.yml')
-    save_coefficients(mtx2, dist2, f'{dir}/camera2.yml')
-    save_rmse(ret1, ret2, f'{dir}/rmse.yml')
+        # calib_dir = "/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration"
+        # move_old_files(calib_dir)
 
-    #R, T = stereo_calibrate(mtx1, dist1, mtx2, dist2, '/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/synched/*')
-    R, T, imgpoints_left, imgpoints_right = stereo_calibrate(mtx1, dist1, mtx2, dist2, f'{dir}/synched/*', rows=rows, columns=columns, world_scaling=world_scaling)
-    save_stereo_coefficients(R, T, imgpoints_left, imgpoints_right, f'{dir}/stereo_coeffs.yml')
+        save_coefficients(mtx1, dist1, f'{dir}/camera1.yml')
+        save_coefficients(mtx2, dist2, f'{dir}/camera2.yml')
+        save_rmse(ret1, ret2, f'{dir}/rmse.yml')
+
+        #R, T = stereo_calibrate(mtx1, dist1, mtx2, dist2, '/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/synced/*')
+        R, T, imgpoints_left, imgpoints_right = stereo_calibrate(mtx1, dist1, mtx2, dist2, f'{dir}/synced/*', rows=rows, columns=columns, world_scaling=world_scaling)
+        save_stereo_coefficients(R, T, imgpoints_left, imgpoints_right, f'{dir}/stereo_coeffs.yml')
 
 
-    # str1 = f"rm -rf {calib_dir}/configs/{config_name}"
-    # subprocess.run(str1, shell=True)
-    # os.mkdir(f"{calib_dir}/configs/{config_name}")
-    # str1 = f"cp {calib_dir}/camera1.yml {calib_dir}/configs/{config_name}/camera1.yml"
-    # subprocess.run(str1, shell=True)
-    # str1 = f"cp {calib_dir}/camera2.yml {calib_dir}/configs/{config_name}/camera2.yml"
-    # subprocess.run(str1, shell=True)
-    # str1 = f"cp {calib_dir}/stereo_coeffs.yml {calib_dir}/configs/{config_name}/stereo_coeffs.yml"
-    # subprocess.run(str1, shell=True)
-    # str1 = f"cp {calib_dir}/rmse.yml {calib_dir}/configs/{config_name}/rmse.yml"
-    # subprocess.run(str1, shell=True)
+        # str1 = f"rm -rf {calib_dir}/configs/{config_name}"
+        # subprocess.run(str1, shell=True)
+        # os.mkdir(f"{calib_dir}/configs/{config_name}")
+        # str1 = f"cp {calib_dir}/camera1.yml {calib_dir}/configs/{config_name}/camera1.yml"
+        # subprocess.run(str1, shell=True)
+        # str1 = f"cp {calib_dir}/camera2.yml {calib_dir}/configs/{config_name}/camera2.yml"
+        # subprocess.run(str1, shell=True)
+        # str1 = f"cp {calib_dir}/stereo_coeffs.yml {calib_dir}/configs/{config_name}/stereo_coeffs.yml"
+        # subprocess.run(str1, shell=True)
+        # str1 = f"cp {calib_dir}/rmse.yml {calib_dir}/configs/{config_name}/rmse.yml"
+        # subprocess.run(str1, shell=True)
 
