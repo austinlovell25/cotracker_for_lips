@@ -82,7 +82,7 @@ def find_sync(fps, left_video, right_video):
         str = f"ffmpeg -ss {second_diff} -i {left_video} -c:v copy -c:a copy {left_folder}/left_sync.mp4"
         print(str)
         subprocess.run(str, shell=True)
-        str = f"mv {right_video} {right_folder}/right_sync.mp4"
+        str = f"cp {right_video} {right_folder}/right_sync.mp4"
         subprocess.run(str, shell=True)
 
     else:
@@ -91,5 +91,5 @@ def find_sync(fps, left_video, right_video):
         str = f"ffmpeg -ss {second_diff} -i {right_video} -c:v copy -c:a copy {right_folder}/right_sync.mp4"
         print(str)
         subprocess.run(str, shell=True)
-        str = f"mv {left_video} {left_folder}/left_sync.mp4"
+        str = f"cp {left_video} {left_folder}/left_sync.mp4"
         subprocess.run(str, shell=True)
