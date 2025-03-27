@@ -11,8 +11,8 @@ import random
 import string
 import argparse
 
-import config
-
+ 
+ 
 def calibrate_camera(images_folder, rows, columns, world_scaling):
     images_names = glob.glob(images_folder)
     images = []
@@ -179,22 +179,22 @@ def move_old_files(calib_dir):
     print("-----------------------------------------------------------------------------")
     print("-----------------------------------------------------------------------------")
 
-    os.mkdir(f"{calib_dir}/configs/scraps/{random_dir}")
+    # os.mkdir(f"{calib_dir}/configs/scraps/{random_dir}")
     try:
-        os.remove("{config.calib_dir}/camera1.yml")
-        os.remove("{config.calib_dir}/camera2.yml")
-        os.remove("{config.calib_dir}/stereo_coeffs.yml")
-        os.remove("{config.calib_dir}/rmse.yml")
+        os.remove("/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/camera1.yml")
+        os.remove("/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/camera2.yml")
+        os.remove("/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/stereo_coeffs.yml")
+        os.remove("/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/rmse.yml")
     except Exception as e:
         print("os.remove call failed.")
 
-    # str1 = (f"mv {config.calib_dir}/camera1.yml {calib_dir}/configs/scraps/{random_dir}/camera1.yml")
+    # str1 = (f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/camera1.yml {calib_dir}/configs/scraps/{random_dir}/camera1.yml")
     # subprocess.run(str1, shell=True)
-    # str1 = (f"mv {config.calib_dir}/camera2.yml {calib_dir}/configs/scraps/{random_dir}/camera2.yml")
+    # str1 = (f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/camera2.yml {calib_dir}/configs/scraps/{random_dir}/camera2.yml")
     # subprocess.run(str1, shell=True)
-    # str1 = (f"mv {config.calib_dir}/stereo_coeffs.yml {calib_dir}/configs/scraps/{random_dir}/stereo_coeffs.yml")
+    # str1 = (f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/stereo_coeffs.yml {calib_dir}/configs/scraps/{random_dir}/stereo_coeffs.yml")
     # subprocess.run(str1, shell=True)
-    # str1 = (f"mv {config.calib_dir}/rmse.yml {calib_dir}/configs/scraps/{random_dir}/rmse.yml")
+    # str1 = (f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/rmse.yml {calib_dir}/configs/scraps/{random_dir}/rmse.yml")
     # subprocess.run(str1, shell=True)
 
 def save_coefficients(mtx, dist, path):
@@ -277,16 +277,15 @@ if sys.argv[1] == "triangulate":
             time = sys.argv[6]
 
     Path(f"{exp_name}").mkdir(parents=True, exist_ok=True)
-    print(config_path)
 
     mtx1, dist1 = load_coefficients(f"{config_path}/camera1.yml")
     mtx2, dist2 = load_coefficients(f"{config_path}/camera2.yml")
     R, T = load_stereo_coefficients(f"{config_path}/stereo_coeffs.yml")
 
     if tracker == "spiga":
-        df = pd.read_csv(f"{config.spiga_demo_path}/spiga_pts.csv")
+        df = pd.read_csv("/home/kwangkim/python-environments/env/SPIGA/spiga/demo/spiga_pts.csv")
     elif tracker == "cotracker":
-        df = pd.read_csv(f"{config.cotracker_new_path}/cotracker_pts.csv")
+        df = pd.read_csv("/home/kwangkim/Projects/cotracker_new/cotracker_pts.csv")
     df = flip_y(df)
 
     uvs1_lower = df[["f1_lower_x", "f1_lower_y"]].to_numpy()[0:600]
@@ -304,7 +303,7 @@ if sys.argv[1] == "triangulate":
     dist_array = np.ones(np.shape(p3ds_upper)[0])
     for i in range(np.shape(p3ds_upper)[0]):
         dist_array[i] = ((p3ds_upper[i][0] - p3ds_lower[i][0]) ** 2 + (p3ds_upper[i][1] - p3ds_lower[i][1]) ** 2 + (p3ds_upper[i][2] - p3ds_lower[i][2]) ** 2) ** 0.5
-    np.savetxt(f'{exp_name}/{tracker}_3dist.txt',dist_array)
+    np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_3dist.txt',dist_array)
 
     stdv = np.std(dist_array, axis=0)
     min_val = np.min(dist_array, axis=0)
@@ -319,7 +318,7 @@ if sys.argv[1] == "triangulate":
          "median": med},
         index=[0]
     )
-    stats_df.to_csv(f"{exp_name}/{tracker}_stats.csv")
+    stats_df.to_csv(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_stats.csv")
     print(f"{stdv=}")
 
     fig, ax = plt.subplots()
@@ -329,48 +328,19 @@ if sys.argv[1] == "triangulate":
     ax.set_xlabel('frames')
     ax.set_ylabel('3d Euclidean distance (mm)')
     ax.set_title('Difference between upper lip and lower lip point estimation')
-    plt.savefig(f"{config.calib_dir}/{exp_name}/{tracker}_3d_distance")
-    print(f"Saving image to {config.calib_dir}/{exp_name}/{tracker}_3d_distance")
+    plt.savefig(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_3d_distance")
+    # print(f"Saving image to {save_dir}/cotracker_out/{exp_name}/{tracker}_3d_distance")
 
-    if tracker == "spiga":
-        cmd = f"mkdir -p {save_dir}/SPIGA_out/{time}/"
-        subprocess.run(cmd, shell=True)
-        cmd = f"mv {config.calib_dir}/{exp_name} {save_dir}/SPIGA_out/{time}/data"
-        subprocess.run(cmd, shell=True)
-    else:
-        cmd = f"mv {config.calib_dir}/{exp_name} {save_dir}/cotracker_out/{exp_name}/data"
-        subprocess.run(cmd, shell=True)
+    # if tracker == "spiga":
+    #     cmd = f"mkdir -p {save_dir}/SPIGA_out/{time}/"
+    #     subprocess.run(cmd, shell=True)
+    #     cmd = f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/{exp_name} {save_dir}/SPIGA_out/{time}/data"
+    #     subprocess.run(cmd, shell=True)
+    # else:
+    #     cmd = f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/{exp_name} {save_dir}/cotracker_out/{exp_name}/data"
+    #     subprocess.run(cmd, shell=True)
 
-elif sys.argv[1] == "compare":
-    print(sys.argv[2])
-    spiga_dist = np.loadtxt(sys.argv[2])
-    cotracker_dist = np.loadtxt(sys.argv[3])
-    codir = os.path.dirname(sys.argv[4])
-    end = int(sys.argv[5])
-
-    fig, ax = plt.subplots()
-    x = np.arange(np.shape(spiga_dist[0:end])[0])
-    ax.plot(x, spiga_dist[0:end] * 10, linewidth=2.0, c=(0.0, 0.447, 0.698), label="SPIGA 3d euc. diff")
-    ax.plot(x, cotracker_dist[0:end] * 10, linewidth=2.0, c=(0.8, 0.474, 0.655), label="Cotracker 3d euc. diff 2", linestyle="solid")
-
-
-    # ax.set_xlim([xmin, xmax])
-    # ax.set_ylim([17.5, 20.5])
-    # plt.yticks(fontsize=24)
-    # labels = [0, 0.5, 1, 1.5]
-    # plt.xticks([0, 60, 120, 180], labels, fontsize=24)
-    legend = ax.legend(loc='best', shadow=True, fontsize='x-large')
-    ax.set_xlabel('Time (s)')
-    ax.set_ylabel('3D distance (mm)')
-    ax.set_title(f'3d Euclidean Distance Cotracker vs. SPIGA')
-    plt.savefig(f"{config.calib_dir}/{codir}/cotracker_vs_spiga", bbox_inches="tight", dpi=600)
-    print(
-        f"Saving image to {config.calib_dir}/{codir}/cotracker_vs_spiga")
-
-
-# elif sys.argv[1] == "run":
-if True:
-
+else:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run", help="ignore")
     parser.add_argument("--rows", type=int, help="Rows on checkerboard")
@@ -387,14 +357,14 @@ if True:
     # print(f"{mtx1=}")
     # print(f"{dist1=}")
 
-    # calib_dir = "{config.calib_dir}"
+    # calib_dir = "/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration"
     # move_old_files(calib_dir)
 
     save_coefficients(mtx1, dist1, f'{dir}/camera1.yml')
     save_coefficients(mtx2, dist2, f'{dir}/camera2.yml')
     save_rmse(ret1, ret2, f'{dir}/rmse.yml')
 
-    #R, T = stereo_calibrate(mtx1, dist1, mtx2, dist2, '{config.calib_dir}/synched/*')
+    #R, T = stereo_calibrate(mtx1, dist1, mtx2, dist2, '/home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/synched/*')
     R, T, imgpoints_left, imgpoints_right = stereo_calibrate(mtx1, dist1, mtx2, dist2, f'{dir}/synched/*', rows=rows, columns=columns, world_scaling=world_scaling)
     save_stereo_coefficients(R, T, imgpoints_left, imgpoints_right, f'{dir}/stereo_coeffs.yml')
 

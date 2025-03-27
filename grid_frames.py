@@ -15,7 +15,7 @@ def move_old_frames(calib_dir):
     print("-----------------------------------------------------------------------------")
     print("-----------------------------------------------------------------------------")
 
-    os.mkdir(f"{calib_dir}/configs/scraps/{random_dir}")
+    # os.mkdir(f"{calib_dir}/configs/scraps/{random_dir}")
     shutil.rmtree(f"{calib_dir}/D2")
     shutil.rmtree(f"{calib_dir}/J2")
     shutil.rmtree(f"{calib_dir}/synched")
