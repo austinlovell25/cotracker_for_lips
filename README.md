@@ -4,9 +4,13 @@
 
 Credit to Meta and their CoTracker project, which this repository is based on.
 
+
 ## Install
 Clone this repository and setup Conda within your environment.
-
+- NOTE:
+- create new python environment
+- install python 3.10
+- 
 Install necessary packages
 ```
 pip install -r requirements.txt
@@ -19,6 +23,13 @@ pip install -e .
 Download the spiga_300wprivate.pt file from this [Google Drive](https://drive.google.com/drive/folders/1olrkoiDNK_NUCscaG9BbO3qsussbDi7I)
 and move under SPIGA/spiga/models/weights/ (create the weights/ directory if needed).
 
+
+### Downloading Cotracker:
+- move to cotracker subdirectory
+- ensure setup.py exists, and its version is 2.0
+- run
+` pip install -e .`
+
 ## Guide
 
 0. Create an empty directory, and move your left and right-angled mp4 files to this directory. Intermediate files 
@@ -29,9 +40,15 @@ and move under SPIGA/spiga/models/weights/ (create the weights/ directory if nee
 ```
 python pipeline.py --fps 60 --left_vid left_video.mp4 --right_vid right_video.mp4
 ```
+- NOTE: pipeline will ask for seconds after start to look for synchronization data. Inputting 0 will cause an error.
+- Inputting 1 seems to work fine
+- MAJOR ISSUE:
+- pipeline deletes the right video.
+
 2. Use grid_frames.py to extract the checkerboard frames from the videos for calibration. Example:
+Use relative paths for the videos.
 ```
-python grid_frames.py -s 10 -e 500 -l left_sync_video.mp4 -r right_sync_video.mp4
+python grid_frames.py -s 660 -e 1620 -l videos/left_sync_video.mp4 -r videos/right_sync_video.mp4
 ```
 where -s is the first frame the checkerboard appears on, and -e is the last frame.
 
@@ -42,6 +59,7 @@ python calibration.py --rows 17 --columns 24 --scaling 15 --dir /home/user/direc
 Where --rows is the number of rows on the checkerboard, --columns is the number of columns, and --scaling is the world 
 scaling (default is 15)
 
+ 
 4. Using ffmpeg, trim the videos to be under 10 seconds of length to make the program run faster. This can be done 
    by specifying the start and end time of the snippet. Example:
 ```
