@@ -31,7 +31,7 @@ python pipeline.py --fps 60 --left_vid left_video.mp4 --right_vid right_video.mp
 ```
 2. Use grid_frames.py to extract the checkerboard frames from the videos for calibration. Example:
 ```
-python grid_frames.py -s 10 -e 500 -l left_sync_video.mp4 -r right_sync_video.mp4
+python grid_frames.py -s 600 -e 1600 -l left_sync_video.mp4 -r right_sync_video.mp4
 ```
 where -s is the first frame the checkerboard appears on, and -e is the last frame.
 
