@@ -40,10 +40,8 @@ and move under SPIGA/spiga/models/weights/ (create the weights/ directory if nee
 ```
 python pipeline.py --fps 60 --left_vid left_video.mp4 --right_vid right_video.mp4
 ```
-- NOTE: pipeline will ask for seconds after start to look for synchronization data. Inputting 0 will cause an error.
-- Inputting 1 seems to work fine
-- MAJOR ISSUE:
-- pipeline deletes the right video.
+- NOTE: pipeline will prompt the user for the seconds after video start to look for synchronization data.
+- This must be a positive integer. Inputting 0 will cause an error.
 
 2. Use grid_frames.py to extract the checkerboard frames from the videos for calibration. Example:
 Use relative paths for the videos.
@@ -71,7 +69,7 @@ ffmpeg -ss 191 -i right_video.mp4 -c:v libx264 -c:a aac -frames:v 120 right_9m28
 ```
 Rename the files following the format of "right_9m28s.mp4" or "left_9m28s.mp4" and move these videos to a 
 subdirectory called "samples"
-
+- QUESTION: What to look for in the 10 second clip?
 
 5. Create a json file with your experiment details, and then use run_tests.py on that file to estimate the lip 
    coordinates. Example:

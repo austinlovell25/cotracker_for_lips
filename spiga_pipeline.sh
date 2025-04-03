@@ -6,7 +6,7 @@ grid_config="$4"
 save_dir="$5"
 CAM_CONFIG_PATH="$6"
 is_snap="$7"
-
+lip_coords_dir="$8"
 USE_CROP_SHIFTING=false
 
 # Check if files exist
@@ -32,8 +32,8 @@ if [ "$USE_CROP_SHIFTING" = true ]; then
     echo "$z" > shake_opt.txt
     python app_2d.py -i "$fname1" -d 300wprivate --shake False
   done
-  mv 2d_lip_coordinates.csv /home/kwangkim/Projects/cotracker_new/2d_lip_coords_L.csv
-  mv support_pts.csv /home/kwangkim/Projects/cotracker_new/tmp/spiga_support_L.csv
+  mv 2d_lip_coordinates.csv "$lip_coords_dir"/2d_lip_coords_L.csv
+  mv support_pts.csv "$lip_coords_dir"/tmp/spiga_support_L.csv
   rm -f 2d_lip_coordinates.csv
 
   for z in {0..4}
@@ -41,8 +41,8 @@ if [ "$USE_CROP_SHIFTING" = true ]; then
     echo "$z" > shake_opt.txt
     python app_2d.py -i "$fname2" -d 300wprivate --shake False
   done
-  mv 2d_lip_coordinates.csv /home/kwangkim/Projects/cotracker_new/2d_lip_coords_R.csv
-  mv support_pts.csv /home/kwangkim/Projects/cotracker_new/tmp/spiga_support_R.csv
+  mv 2d_lip_coordinates.csv "$lip_coords_dir"/2d_lip_coords_R.csv
+  mv support_pts.csv "$lip_coords_dir"/tmp/spiga_support_R.csv
   rm -f 2d_lip_coordinates.csv
   echo 0 > shake_opt.txt
 
