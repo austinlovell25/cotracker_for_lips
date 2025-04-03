@@ -26,7 +26,7 @@ def move_old_frames(calib_dir):
     # str = f"mv {calib_dir}/synced {calib_dir}/configs/scraps/{random_dir}"
     # subprocess.run(str, shell=True)
 
-def get_frames(cap, folder, l_or_r):
+def get_frames(cap, folder, l_or_r, frames):
     if l_or_r == "left":
         cam_num = 1
         letter = "D"
@@ -50,39 +50,44 @@ def get_frames(cap, folder, l_or_r):
     str = f"cp {folder}/{l_or_r}_grid_frames/* {folder}/synced"
     subprocess.run(str, shell=True)
 
+def extract_checkerboard(left_video, right_video, start_frame, end_frame):
+    frames = [random.randint(start_frame, end_frame) for a in range(50)]
+    parent_folder = os.path.dirname(right_video)
+    os.mkdir(f"{parent_folder}/synced")
+    os.mkdir(f"{parent_folder}/D2")
+    os.mkdir(f"{parent_folder}/J2")
+
+    cap = cv2.VideoCapture(left_video)
+    os.mkdir(f"{parent_folder}/left_grid_frames")
+    get_frames(cap, parent_folder, "left", frames)
+
+    cap = cv2.VideoCapture(right_video)
+    os.mkdir(f"{parent_folder}/right_grid_frames")
+    get_frames(cap, parent_folder, "right", frames)
+
 if __name__ == "__main__":
-    print("hello")
     parser = argparse.ArgumentParser()
     parser.add_argument("-l", "--left_video", help="First frame grid fully appears on")
     parser.add_argument("-r", "--right_video", help="Last frame grid fully appears on")
     parser.add_argument("-s", "--start_frame", type=int, help="First frame grid fully appears on")
     parser.add_argument("-e", "--end_frame", type=int, help="Last frame grid fully appears on")
     args = parser.parse_args()
-    if not os.path.exists(args.left_video):
-        print(f"File {args.left_video} could not be found.")
-        exit(1)
-    if not os.path.exists(args.right_video):
-        print(f"File {args.right_video} could not be found.")
-        exit(1)
 
     frames = [random.randint(args.start_frame, args.end_frame) for a in range(50)]
     print(frames)
     print("Running...")
 
     parent_folder = os.path.dirname(args.right_video)
-    os.makedirs(f"{parent_folder}/synced", exist_ok=True)
-    os.makedirs(f"{parent_folder}/D2", exist_ok=True)
-    os.makedirs(f"{parent_folder}/J2", exist_ok=True)
-
+    os.mkdir(f"{parent_folder}/synced")
+    os.mkdir(f"{parent_folder}/D2")
+    os.mkdir(f"{parent_folder}/J2")
 
     cap = cv2.VideoCapture(args.left_video)
-    os.makedirs(f"{parent_folder}/left_grid_frames", exist_ok=True)
-    get_frames(cap, parent_folder, "left")
-
-
+    os.mkdir(f"{parent_folder}/left_grid_frames")
+    get_frames(cap, parent_folder, "left", frames)
 
     cap = cv2.VideoCapture(args.right_video)
-    os.makedirs(f"{parent_folder}/right_grid_frames", exist_ok=True)
-    get_frames(cap, parent_folder, "right")
+    os.mkdir(f"{parent_folder}/right_grid_frames")
+    get_frames(cap, parent_folder, "right", frames)
 
     print("Finished running grid_frames.py")
