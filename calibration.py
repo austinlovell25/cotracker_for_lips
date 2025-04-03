@@ -188,15 +188,6 @@ def move_old_files(calib_dir):
     except Exception as e:
         print("os.remove call failed.")
 
-    # str1 = (f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/camera1.yml {calib_dir}/configs/scraps/{random_dir}/camera1.yml")
-    # subprocess.run(str1, shell=True)
-    # str1 = (f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/camera2.yml {calib_dir}/configs/scraps/{random_dir}/camera2.yml")
-    # subprocess.run(str1, shell=True)
-    # str1 = (f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/stereo_coeffs.yml {calib_dir}/configs/scraps/{random_dir}/stereo_coeffs.yml")
-    # subprocess.run(str1, shell=True)
-    # str1 = (f"mv /home/kwangkim/python-environments/env/SPIGA/spiga/demo/calibration/rmse.yml {calib_dir}/configs/scraps/{random_dir}/rmse.yml")
-    # subprocess.run(str1, shell=True)
-
 def save_coefficients(mtx, dist, path):
     """ Save the camera matrix and the distortion coefficients to given path/file. """
     cv_file = cv.FileStorage(path, cv.FILE_STORAGE_WRITE)
@@ -261,9 +252,23 @@ def flip_y(df):
     df["f2_upper_y"] = 2988 - df["f2_upper_y"]
     return df
 
+def run_calibration(rows, columns, world_scaling, dir):
+    dir = Path(dir).expanduser().resolve()
+    mtx1, dist1, ret1 = calibrate_camera(images_folder=f'{dir}/D2/*', rows=rows, columns=columns,
+                                         world_scaling=world_scaling)
+    mtx2, dist2, ret2 = calibrate_camera(images_folder=f'{dir}/J2/*', rows=rows, columns=columns,
+                                         world_scaling=world_scaling)
+
+    save_coefficients(mtx1, dist1, f'{dir}/camera1.yml')
+    save_coefficients(mtx2, dist2, f'{dir}/camera2.yml')
+    save_rmse(ret1, ret2, f'{dir}/rmse.yml')
+
+    R, T, imgpoints_left, imgpoints_right = stereo_calibrate(mtx1, dist1, mtx2, dist2, f'{dir}/synced/*', rows=rows,
+                                                             columns=columns, world_scaling=world_scaling)
+    save_stereo_coefficients(R, T, imgpoints_left, imgpoints_right, f'{dir}/stereo_coeffs.yml')
+
 if __name__ == "__main__":
     if sys.argv[1] == "triangulate":
-        #DEPRECATED
         tracker = sys.argv[2]
         exp_name = "exp"
         if tracker != "spiga" and tracker != "cotracker":
@@ -342,8 +347,8 @@ if __name__ == "__main__":
         #     subprocess.run(cmd, shell=True)
 
     else:
-        #Current
         parser = argparse.ArgumentParser()
+        parser.add_argument("--run", help="ignore")
         parser.add_argument("--rows", type=int, help="Rows on checkerboard")
         parser.add_argument("--columns", type=int, help="Columns on checkerboard")
         parser.add_argument("--scaling", type=int, help="World scaling, default is 15", default=15)
@@ -352,7 +357,6 @@ if __name__ == "__main__":
         rows = args.rows
         columns = args.columns
         world_scaling = args.scaling
-
         dir = args.dir.expanduser().resolve()
         mtx1, dist1, ret1 = calibrate_camera(images_folder=f'{dir}/D2/*', rows=rows, columns=columns, world_scaling=world_scaling)
         mtx2, dist2, ret2 = calibrate_camera(images_folder=f'{dir}/J2/*', rows=rows, columns=columns, world_scaling=world_scaling)
