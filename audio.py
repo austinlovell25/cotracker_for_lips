@@ -31,7 +31,8 @@ def get_threshold(left_ints, right_ints):
     print(f"Threshold selected to be {threshold}")
     print("Is this value ok?")
     print("[Y/N]")
-    choice = input().lower()
+    # choice = input().lower()
+    choice = "yes"
     if choice != "yes" and choice != 'y':
         print("Enter your threshold")
         threshold = int(input())
@@ -39,12 +40,11 @@ def get_threshold(left_ints, right_ints):
     return threshold
 
 
-def find_sync(fps, left_video, right_video):
+def find_sync(fps, left_video, right_video, range_end=60):
 
-    print("How many seconds after the start of the video should be used for the end of audio clap search range?")
-    range_end = int(input())
+    # print("How many seconds after the start of the video should be used for the end of audio clap search range?")
+    # range_end = int(input())
 
-    #print("Running on first 1/8 of video...") This line is no longer valid
     print("Running on left video")
     left_pcm16_signed_integers = compute_pcm(left_video, "LEFT", range_end)
     print("Running on right video")

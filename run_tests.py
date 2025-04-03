@@ -6,7 +6,21 @@ import os
 import json
 from pathlib import Path
 
-if __name__ == "__main__":
+def run_tracking(exp_name, video_dir, times):
+    configs = {
+        "GlLp": "global_lip.json",
+    }
+    for time in times:
+        vid1 = f"{video_dir}/samples/left_{time}.mp4"
+        vid2 = f"{video_dir}/samples/right_{time}.mp4"
+
+        for key, value in configs.items():
+            str = f"bash spiga_pipeline.sh {vid1} {vid2} {exp_name}_{time}_{key} {value} {video_dir} {video_dir} false"
+            print(str)
+            subprocess.run(str, shell=True)
+
+
+if __name__ == "main":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--is_multiple", default="Final")
     parser.add_argument("-f", "--file", default="None")
@@ -124,7 +138,7 @@ if __name__ == "__main__":
                         vid2 = f"{video_dir}{time}/{video_start_name}_right_sync_{time}_{video_name_type}.mp4"
 
                         for key, value in configs.items():
-                            str = f"bash spiga_pipeline.sh {vid1} {vid2} {video_start_name}_{time}_{key} {value} {save_dir} {cam_config_dir} {is_snap} {config}"
+                            str = f"bash spiga_pipeline.sh {vid1} {vid2} {video_start_name}_{time}_{key} {value} {save_dir} {cam_config_dir} {is_snap}"
                             print(str)
                             subprocess.run(str, shell=True)
 
