@@ -6,11 +6,8 @@ Credit to Meta and their CoTracker project, which this repository is based on.
 
 
 ## Install
-Clone this repository and setup Conda within your environment.
-- NOTE:
-- create new python environment
-- install python 3.10
-- 
+Clone this repository and setup Conda within your environment. Repository was developed using Python 3.10
+
 Install necessary packages
 ```
 pip install -r requirements.txt
@@ -24,12 +21,6 @@ Download the spiga_300wprivate.pt file from this [Google Drive](https://drive.go
 and move under SPIGA/spiga/models/weights/ (create the weights/ directory if needed).
 
 
-### Downloading Cotracker:
-- move to cotracker subdirectory
-- ensure setup.py exists, and its version is 2.0
-- run
-` pip install -e .`
-
 ## Guide
 
 0. Create an empty directory, and move your left and right-angled mp4 files to this directory. Intermediate files 
@@ -40,8 +31,10 @@ and move under SPIGA/spiga/models/weights/ (create the weights/ directory if nee
 ```
 python pipeline.py --fps 60 --left_vid left_video.mp4 --right_vid right_video.mp4
 ```
+
 - NOTE: pipeline will prompt the user for the seconds after video start to look for synchronization data.
 - This must be a positive integer. Inputting 0 will cause an error.
+
 
 2. Use grid_frames.py to extract the checkerboard frames from the videos for calibration. Example:
 Use relative paths for the videos.
