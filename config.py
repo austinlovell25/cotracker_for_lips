@@ -19,6 +19,10 @@ pipeline_dir = "/home/kwangkim/Projects/cotracker_new/videos/pipeline"
 # For calibration.py and 5pt_average.py
 cotracker_new_path = "/home/kwangkim/Projects/cotracker_new"
 
+
+# For run_tests.py (Used by spiga_pipeline.sh)
+#TODO replace with current directory
+lip_coords_dir = "/home/skill/Projects/cotracker_for_lips2"
 # TODO:
 # Parameterize all the filepaths in run_tests
 # Compress user filepaths into a single input file directory, and a single output directory
