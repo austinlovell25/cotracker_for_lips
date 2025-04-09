@@ -20,8 +20,24 @@ pip install -e .
 Download the spiga_300wprivate.pt file from this [Google Drive](https://drive.google.com/drive/folders/1olrkoiDNK_NUCscaG9BbO3qsussbDi7I)
 and move under SPIGA/spiga/models/weights/ (create the weights/ directory if needed).
 
+## GUI Guide
+0. Create an empty directory, and move your left and right-angled mp4 files to this directory. Intermediate files and the final output will be stored in this directory.
+1. Run the GUI.py script
+2. Select your chosen directory, left video, and right video, and enter the video's FPS and what point of the video 
+   to end the search for the clap noise (e.g. if 100 is entered, then the program will 
+   search for the clap noise from the start of the video to 100 seconds into the video). Click "Sync Videos" and 
+   respond to the popup confirmation.
+3. Enter the first and last frame that the checkerboard fully appears on in the video. It does not have to be 
+   perfect, however, the calibration will be more accurate the less occluded the checkerboard is. Click "Extract 
+   Checkerboard Frames." This step may take a few minutes
+4. Enter the number of rows, number of columns, and length in millimeters. Click "Calibrate Cameras"
+5. Move to the next tab to create samples. These are the small segments of the video that will be trimmed and then 
+   used for tracking in the next step. Follow the formatting guide in the GUI description and hit "Trim Samples"
+6. Move to the next tab to run the tracker. Enter an experiment name and line-separated start times based on the 
+   snippets created in the previous step. This information can also be entered from a JSON file (see trial_example.
+   json). Hit "Run Tracker". This step may take over 30 minutes if a large amount of samples are being processed.
 
-## Guide
+## Command Line Interface Guide
 
 0. Create an empty directory, and move your left and right-angled mp4 files to this directory. Intermediate files 
    and the final output will be stored in this directory.

@@ -29,17 +29,17 @@ class RetinaSortTracker(tracker.Tracker):
         features = self.detector.inference(image)
         bboxes = features['bbox']
 
-        with open("/home/kwangkim/python-environments/env/SPIGA/spiga/demo/shake_opt.txt", "r") as f:
-            shake_opt = int(f.readline().strip())
-        print(f"{shake_opt=}")
-        if shake_opt == 1:
-            bboxes[0][0] += 5
-        elif shake_opt == 2:
-            bboxes[0][0] -= 5
-        elif shake_opt == 3:
-            bboxes[0][1] += 5
-        elif shake_opt == 4:
-            bboxes[0][1] -= 5
+        # with open("/home/kwangkim/python-environments/env/SPIGA/spiga/demo/shake_opt.txt", "r") as f:
+        #     shake_opt = int(f.readline().strip())
+        # print(f"{shake_opt=}")
+        # if shake_opt == 1:
+        #     bboxes[0][0] += 5
+        # elif shake_opt == 2:
+        #     bboxes[0][0] -= 5
+        # elif shake_opt == 3:
+        #     bboxes[0][1] += 5
+        # elif shake_opt == 4:
+        #     bboxes[0][1] -= 5
 
         bboxes = self._code_bbox_idx(bboxes)
         bboxes_id = self.associator.update(bboxes)

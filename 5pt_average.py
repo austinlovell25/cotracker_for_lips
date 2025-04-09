@@ -94,20 +94,20 @@ if __name__ == "__main__":
         out_df.to_csv("first_5_avg.csv")
 
         new_support_spiga = []
-        fname = "tmp/spiga_support_L.csv"
+        fname = "spiga_support_L.csv"
         with open(fname) as f:
             reader_obj = csv.reader(f)
             for row in reader_obj:
                 new_support_spiga.append([0., float(row[1]) - f1_x1_mean_offset, float(row[2]) - f1_y1_mean_offset])
-        np.savetxt("tmp/spiga_support_L.csv", np.asarray(new_support_spiga), delimiter=",")
+        np.savetxt("spiga_support_L.csv", np.asarray(new_support_spiga), delimiter=",")
 
         new_support_spiga = []
-        fname = "tmp/spiga_support_R.csv"
+        fname = "spiga_support_R.csv"
         with open(fname) as f:
             reader_obj = csv.reader(f)
             for row in reader_obj:
                 new_support_spiga.append([0., float(row[1]) - f2_x1_mean_offset, float(row[2]) - f2_y1_mean_offset])
-        np.savetxt("tmp/spiga_support_R.csv", np.asarray(new_support_spiga), delimiter=",")
+        np.savetxt("spiga_support_R.csv", np.asarray(new_support_spiga), delimiter=",")
 
 
     elif sys.argv[3] == "revert":

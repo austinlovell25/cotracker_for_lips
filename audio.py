@@ -40,47 +40,14 @@ def get_threshold(left_ints, right_ints):
     return threshold
 
 
-def find_sync(fps, left_video, right_video, range_end=60):
-
-    # print("How many seconds after the start of the video should be used for the end of audio clap search range?")
-    # range_end = int(input())
-
-    print("Running on left video")
-    left_pcm16_signed_integers = compute_pcm(left_video, "LEFT", range_end)
-    print("Running on right video")
-    right_pcm16_signed_integers = compute_pcm(right_video, "RIGHT", range_end)
-    # with open("left_audio.npy", 'rb') as f:
-    #     left_pcm16_signed_integers = np.load(f)
-    # with open("right_audio.npy", 'rb') as f:
-    #     right_pcm16_signed_integers = np.load(f)
-    print(len(left_pcm16_signed_integers))
-
-    left_ints = np.asarray(left_pcm16_signed_integers)
-    right_ints = np.asarray(right_pcm16_signed_integers)
-    threshold = get_threshold(left_ints, right_ints)
-
-    hz = 48000
-    fps = int(fps)
-
-    frame = np.where(left_ints > threshold)
-    num = frame[0][0] * fps
-    denom = hz * 2
-    left_frame = int(num/denom)
-
-    frame = np.where(right_ints > threshold)
-    num = frame[0][0] * fps
-    denom = hz * 2
-    right_frame = int(num/denom)
-
-    print(f"Left video clap frame = {left_frame}")
-    print(f"Right video clap frame = {right_frame}")
+def create_videos(fps, left_video, right_video, left_frame, right_frame):
     left_folder = os.path.dirname(left_video)
     right_folder = os.path.dirname(right_video)
     if right_frame <= left_frame:
         second_diff = (left_frame - right_frame) / int(fps)
         print(f"Right video starts {left_frame - right_frame} frames ({second_diff} seconds) after left video")
-        str = f"ffmpeg -ss {second_diff} -i {left_video} -c:v copy -c:a copy {left_folder}/left_sync.mp4"
-        print(str)
+        str = f"ffmpeg -nostats -loglevel 0 -ss {second_diff} -i {left_video} -c:v copy -c:a copy {left_folder}/left_sync.mp4"
+        # print(str)
         subprocess.run(str, shell=True)
         str = f"cp {right_video} {right_folder}/right_sync.mp4"
         subprocess.run(str, shell=True)
@@ -88,8 +55,45 @@ def find_sync(fps, left_video, right_video, range_end=60):
     else:
         second_diff = (right_frame - left_frame) / int(fps)
         print(f"Left video starts {right_frame - left_frame} frames ({second_diff} seconds) after right frame")
-        str = f"ffmpeg -ss {second_diff} -i {right_video} -c:v copy -c:a copy {right_folder}/right_sync.mp4"
-        print(str)
+        str = f"ffmpeg -nostats -loglevel 0 -ss {second_diff} -i {right_video} -c:v copy -c:a copy {right_folder}/right_sync.mp4"
+        # print(str)
         subprocess.run(str, shell=True)
         str = f"cp {left_video} {left_folder}/left_sync.mp4"
         subprocess.run(str, shell=True)
+
+
+def find_sync_with_threshold(fps, left_ints, right_ints, threshold):
+    hz = 48000
+    fps = int(fps)
+
+    frame = np.where(left_ints > threshold)
+    num = frame[0][0] * fps
+    denom = hz * 2
+    left_frame = int(num / denom)
+
+    frame = np.where(right_ints > threshold)
+    num = frame[0][0] * fps
+    denom = hz * 2
+    right_frame = int(num / denom)
+
+    return left_frame, right_frame
+
+
+def find_sync(fps, left_video, right_video, range_end=60):
+
+    # print("How many seconds after the start of the video should be used for the end of audio clap search range?")
+    # range_end = int(input())
+
+    # print("Running on left video")
+    left_pcm16_signed_integers = compute_pcm(left_video, "LEFT", range_end)
+    # print("Running on right video")
+    right_pcm16_signed_integers = compute_pcm(right_video, "RIGHT", range_end)
+    # print(len(left_pcm16_signed_integers))
+
+    left_ints = np.asarray(left_pcm16_signed_integers)
+    right_ints = np.asarray(right_pcm16_signed_integers)
+    threshold = get_threshold(left_ints, right_ints)
+
+    left_frame, right_frame = find_sync_with_threshold(fps, left_ints, right_ints, threshold)
+
+    create_videos(fps, left_video, right_video, left_frame, right_frame)

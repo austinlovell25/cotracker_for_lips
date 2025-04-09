@@ -5,13 +5,13 @@ import subprocess
 import tkinter as tk
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 from customtkinter import filedialog
 from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from audio import find_sync
-from audio import compute_pcm
+from audio import compute_pcm, find_sync_with_threshold, create_videos
 from grid_frames import extract_checkerboard
 from calibration import run_calibration
 from run_tests import run_tracking
@@ -25,8 +25,9 @@ class App(ctk.CTk):
         self.left_video = None
         self.right_video = None
         self.json_run = None
-        self.is_running = False
+        self.running_message = None
         self.plt_canvas = None
+        self.rmse_label = None
 
         self.title("CoTracker for lips")
         self.geometry("1200x1200")
@@ -47,62 +48,91 @@ class App(ctk.CTk):
         for button in self.tabview._segmented_button._buttons_dict.values():
             button.configure(width=100, height=50, font=(ctk.CTkFont, 16))
 
+
         # Tab 1 Column 1
-        self.sync_label = ctk.CTkLabel(self.tab1, text="1. Choose directory with videos, select left and right video, enter FPS, and run.", fg_color="transparent", font=(ctk.CTkFont, 20), wraplength=300)
+        self.sync_label = ctk.CTkLabel(self.tab1,
+                                       text="1. Choose directory with videos, select left and right video, enter FPS, end of range to search for the board clap, and run.",
+                                       fg_color="transparent", font=(ctk.CTkFont, 20), wraplength=300)
         self.sync_label.grid(row=0, column=0, pady=(20, 20), padx=40, sticky="nw")
 
-        self.select_dir_button = ctk.CTkButton(self.tab1, text='Select Directory', command=self.select_dir, font=(ctk.CTkFont, 16))
+        self.select_dir_button = ctk.CTkButton(self.tab1, text='Select Directory', command=self.select_dir,
+                                               font=(ctk.CTkFont, 16))
         self.select_dir_button.grid(row=1, column=0, pady=(5, 0))
 
-        self.select_left_vid_button = ctk.CTkButton(self.tab1, text='Select Left Video', command=self.select_left_video, font=(ctk.CTkFont, 16))
-        self.select_left_vid_button.grid(row=2, column=0, pady=(5, 0))
+        self.selected_dir_label = ctk.CTkLabel(self.tab1, text="Selected Dir: ", font=(ctk.CTkFont, 16))
+        self.selected_dir_label.grid(row=2, column=0, pady=(0, 2))
 
-        self.select_right_vid_button = ctk.CTkButton(self.tab1, text='Select Right Video', command=self.select_right_video, font=(ctk.CTkFont, 16))
-        self.select_right_vid_button.grid(row=3, column=0, pady=(5, 0))
+        self.select_left_vid_button = ctk.CTkButton(self.tab1, text='Select Left Video', command=self.select_left_video,
+                                                    font=(ctk.CTkFont, 16))
+        self.select_left_vid_button.grid(row=3, column=0, pady=(5, 0))
+
+        self.selected_left_vid_label = ctk.CTkLabel(self.tab1, text=f"Selected Video: ", font=(ctk.CTkFont, 16))
+        self.selected_left_vid_label.grid(row=4, column=0, pady=(0, 2))
+
+        self.select_right_vid_button = ctk.CTkButton(self.tab1, text='Select Right Video',
+                                                     command=self.select_right_video, font=(ctk.CTkFont, 16))
+        self.select_right_vid_button.grid(row=5, column=0, pady=(5, 0))
+
+        self.selected_right_vid_label = ctk.CTkLabel(self.tab1, text="Selected Video: ", font=(ctk.CTkFont, 16))
+        self.selected_right_vid_label.grid(row=6, column=0, pady=(0, 2))
 
         self.label = ctk.CTkLabel(self.tab1, text="Enter FPS of Videos", fg_color="transparent", font=(ctk.CTkFont, 16))
-        self.label.grid(row=4, column=0, pady=5)
+        self.label.grid(row=7, column=0, pady=5)
 
         self.fps_entry = ctk.CTkEntry(self.tab1, placeholder_text='0', font=(ctk.CTkFont, 16))
-        self.fps_entry.grid(row=5, column=0, pady=5)
+        self.fps_entry.grid(row=8, column=0, pady=5)
+
+        self.clapperboard_label = ctk.CTkLabel(self.tab1,
+                                               text="Enter the number of seconds after the start of the video that the program should end the search for the clapperboard",
+                                               font=(ctk.CTkFont, 16), wraplength=300)
+        self.clapperboard_label.grid(row=9, column=0, pady=10)
+
+        self.clapperboard_entry = ctk.CTkEntry(self.tab1, placeholder_text='0', font=(ctk.CTkFont, 16))
+        self.clapperboard_entry.grid(row=10, column=0, pady=10)
 
         self.sync_button = ctk.CTkButton(self.tab1, text="Sync Videos", command=self.sync_videos,
                                          font=(ctk.CTkFont, 16))
-        self.sync_button.grid(row=6, column=0, pady=5)
+        self.sync_button.grid(row=11, column=0, pady=5)
 
 
         # Tab 1 Column 2
-        self.grid_label = ctk.CTkLabel(self.tab1, text="2. Enter the first frame and last frame that the checkerboard fully appears on in the videos.", fg_color="transparent", font=(ctk.CTkFont, 20), wraplength=300)
+        self.grid_label = ctk.CTkLabel(self.tab1,
+                                       text="2. Enter the first frame and last frame that the checkerboard fully appears on in the videos.",
+                                       fg_color="transparent", font=(ctk.CTkFont, 20), wraplength=300)
         self.grid_label.grid(row=0, column=1, pady=(20, 20), padx=40, sticky="nw")
 
-        self.first_frame_label = ctk.CTkLabel(self.tab1, text="Enter First Frame", fg_color="transparent", font=(ctk.CTkFont, 16))
+        self.first_frame_label = ctk.CTkLabel(self.tab1, text="Enter First Frame", fg_color="transparent",
+                                              font=(ctk.CTkFont, 16))
         self.first_frame_label.grid(row=1, column=1, pady=5)
 
         self.first_grid_frame_entry = ctk.CTkEntry(self.tab1, placeholder_text="0", font=(ctk.CTkFont, 16))
         self.first_grid_frame_entry.grid(row=2, column=1, pady=5)
 
-        self.last_frame_label = ctk.CTkLabel(self.tab1, text="Enter Last Frame", fg_color="transparent", font=(ctk.CTkFont, 16))
+        self.last_frame_label = ctk.CTkLabel(self.tab1, text="Enter Last Frame", fg_color="transparent",
+                                             font=(ctk.CTkFont, 16))
         self.last_frame_label.grid(row=3, column=1, pady=5)
 
         self.last_grid_frame_entry = ctk.CTkEntry(self.tab1, placeholder_text="100", font=(ctk.CTkFont, 16))
         self.last_grid_frame_entry.grid(row=4, column=1, pady=5)
 
-        self.grid_button = ctk.CTkButton(self.tab1, text="Extract Checkerboard Frames", command=self.checkerboard, font=(ctk.CTkFont, 16))
+        self.grid_button = ctk.CTkButton(self.tab1, text="Extract Checkerboard Frames", command=self.checkerboard,
+                                         font=(ctk.CTkFont, 16))
         self.grid_button.grid(row=6, column=1, pady=5)
 
 
         # Tab 1 Column 3
-        self.grid_label = ctk.CTkLabel(self.tab1, text="3. Enter number of rows and columns on the checkerboard and the length of the squares in mm.",
+        self.grid_label = ctk.CTkLabel(self.tab1,
+                                       text="3. Enter number of rows and columns on the checkerboard and the length of the squares in mm.",
                                        fg_color="transparent", font=(ctk.CTkFont, 20), wraplength=300)
         self.grid_label.grid(row=0, column=2, pady=(20, 20), padx=40, sticky="nw")
 
-        self.rows_entry = ctk.CTkEntry(self.tab1, placeholder_text="17", font=(ctk.CTkFont, 16))
+        self.rows_entry = ctk.CTkEntry(self.tab1, placeholder_text="rows", font=(ctk.CTkFont, 16))
         self.rows_entry.grid(row=1, column=2, pady=5)
 
-        self.columns_entry = ctk.CTkEntry(self.tab1, placeholder_text="24", font=(ctk.CTkFont, 16))
+        self.columns_entry = ctk.CTkEntry(self.tab1, placeholder_text="columns", font=(ctk.CTkFont, 16))
         self.columns_entry.grid(row=2, column=2, pady=5)
 
-        self.scaling_entry = ctk.CTkEntry(self.tab1, placeholder_text="15", font=(ctk.CTkFont, 16))
+        self.scaling_entry = ctk.CTkEntry(self.tab1, placeholder_text="length", font=(ctk.CTkFont, 16))
         self.scaling_entry.grid(row=3, column=2, pady=5)
 
         self.calib_button = ctk.CTkButton(self.tab1, text="Calibrate Cameras", command=self.calibrate,
@@ -111,8 +141,10 @@ class App(ctk.CTk):
 
 
         # Tab 2 Column 1
-        self.times_label = ctk.CTkLabel(self.tab2, text="4. Create samples. For each sample, enter the sample start time and sample length in seconds in the format (1m35s, 2) (for a 2 second long snippet "
-                                                       "starting at 1 min 35 seconds in the video) separating entries by line.", font=(ctk.CTkFont, 20), wraplength=300)
+        self.times_label = ctk.CTkLabel(self.tab2,
+                                        text="4. Create samples. For each sample, enter the sample start time and sample length in seconds in the format (1m35s, 2) (for a 2 second long snippet "
+                                             "starting at 1 min 35 seconds in the video) separating entries by line.",
+                                        font=(ctk.CTkFont, 20), wraplength=300)
         self.times_label.grid(row=0, column=0, pady=(20, 20), sticky="nw", padx=(40, 0))
 
         self.times_textbox = ctk.CTkTextbox(self.tab2)
@@ -121,9 +153,10 @@ class App(ctk.CTk):
         self.trim_button = ctk.CTkButton(self.tab2, text="Trim Samples", command=self.trim, font=(ctk.CTkFont, 16))
         self.trim_button.grid(row=9, column=0, pady=5, padx=(40, 0))
 
-
         # Tab 3 Column 1
-        self.experiment_title_label = ctk.CTkLabel(self.tab3, text="5. Enter the experiment details.\nOr, upload experiment from JSON file", font=(ctk.CTkFont, 20), wraplength=300)
+        self.experiment_title_label = ctk.CTkLabel(self.tab3,
+                                                   text="5. Enter the experiment details. Experiment name and sample start times in line-separated XmXs format (ex. 1m35s) required\nOr, upload experiment from JSON file",
+                                                   font=(ctk.CTkFont, 20), wraplength=300)
         self.experiment_title_label.grid(row=0, column=1, pady=(20, 20), sticky="nw", padx=(40, 0))
 
         self.json_button = ctk.CTkButton(self.tab3, text="Upload JSON", command=self.open_json, font=(ctk.CTkFont, 16))
@@ -154,29 +187,38 @@ class App(ctk.CTk):
                 print("Error: Failed to decode the JSON file.")
             except Exception as e:
                 print(f"An error occurred: {e}")
+
     def select_dir(self):
         self.data_dir = filedialog.askdirectory()
+        self.selected_dir_label.configure(text=f"Selected Dir: {os.path.basename(self.data_dir)}")
 
     def select_left_video(self):
-        self.left_video = filedialog.askopenfilename(initialdir=self.data_dir, filetypes=[("MP4 Files", ["*.mp4", "*.MP4"])])
+        self.left_video = filedialog.askopenfilename(initialdir=self.data_dir,
+                                                     filetypes=[("MP4 Files", ["*.mp4", "*.MP4"])])
+        self.selected_left_vid_label.configure(text=f"Selected Video: {os.path.basename(self.left_video)}")
 
     def select_right_video(self):
-        self.right_video = filedialog.askopenfilename(initialdir=self.data_dir, filetypes=[("MP4 Files", ["*.mp4", "*.MP4"])])
+        self.right_video = filedialog.askopenfilename(initialdir=self.data_dir,
+                                                      filetypes=[("MP4 Files", ["*.mp4", "*.MP4"])])
+        self.selected_right_vid_label.configure(text=f"Selected Video: {os.path.basename(self.right_video)}")
 
     def sync_videos(self):
-        fps = self.fps_entry.get()
+        try:
+            fps = int(self.fps_entry.get())
+            clapperboard_time = int(self.clapperboard_entry.get())
+        except Exception as e:
+            self.show_error("Error: FPS and Clapperboard time entries must be valid positive integers")
 
-        if not fps.isdigit():
-            self.show_error("Error: FPS entry must be a valid positive integer")
-        elif self.data_dir is None or self.left_video is None or self.right_video is None:
+        if self.data_dir is None or self.left_video is None or self.right_video is None:
             self.show_error("Error: Make selections for the directory, left video, and right video")
         else:
             self.waiting(self.tab1, "Syncing videos...")
-            find_sync(fps, self.left_video, self.right_video)
+            self.compute_sync(fps, self.left_video, self.right_video, clapperboard_time)
             self.finished()
             self.left_video = self.data_dir + "/left_sync.mp4"
             self.right_video = self.data_dir + "/right_sync.mp4"
-            print(self.right_video)
+            self.selected_left_vid_label.configure(text=f"Selected Video: {os.path.basename(self.left_video)}")
+            self.selected_right_vid_label.configure(text=f"Selected Video: {os.path.basename(self.right_video)}")
 
     def show_error(self, error_message):
         messagebox.showerror("Error", error_message)
@@ -195,6 +237,17 @@ class App(ctk.CTk):
         self.waiting(self.tab1, "Calibrating cameras...")
         run_calibration(rows, columns, scaling, self.data_dir)
         self.finished()
+        self.display_rmse()
+
+    def display_rmse(self):
+        with open(f"{self.data_dir}/rmse.json", "r") as file:
+            data = json.load(file)
+        camera1_rmse = data["camera1_rmse"]
+        camera2_rmse = data["camera2_rmse"]
+
+        self.rmse_label = ctk.CTkLabel(self.tab1, text=f"Left Camera RMSE: {camera1_rmse}\nRight Camera RMSE: {camera2_rmse} ", font=(ctk.CTkFont, 16))
+        self.rmse_label.grid(row=7, column=2, pady=5)
+
 
     def trim(self):
         self.waiting(self.tab2, "Trimming samples...")
@@ -211,9 +264,9 @@ class App(ctk.CTk):
                 break
             time_str = entry[0].replace('m', ':').replace('s', '')
             minute, second = time_str.split(":")
-            command = f"ffmpeg -ss 00:{time_str} -t 00:00:0{entry[1]} -i {self.left_video} -c:v copy -c:a copy {self.data_dir}/samples/left_{minute}m{second}s.mp4"
+            command = f"ffmpeg -nostats -loglevel 0 -ss 00:{time_str} -t 00:00:0{entry[1]} -i {self.left_video} -c:v copy -c:a copy {self.data_dir}/samples/left_{minute}m{second}s.mp4"
             subprocess.run(command, shell=True)
-            command = f"ffmpeg -ss 00:{time_str} -t 00:00:0{entry[1]} -i {self.right_video} -c:v copy -c:a copy {self.data_dir}/samples/right_{minute}m{second}s.mp4"
+            command = f"ffmpeg -nostats -loglevel 0 -ss 00:{time_str} -t 00:00:0{entry[1]} -i {self.right_video} -c:v copy -c:a copy {self.data_dir}/samples/right_{minute}m{second}s.mp4"
             subprocess.run(command, shell=True)
         self.finished()
 
@@ -232,23 +285,69 @@ class App(ctk.CTk):
             run_tracking(exp_name=exp_name, video_dir=self.data_dir, times=times_array)
         self.finished()
 
-    def toggle_message(self):
-        if self.is_running:
-            self.finished()
-        else:
-            self.waiting(self.tab1)
-        self.is_running = not self.is_running
 
     def waiting(self, tab, message="Running... Please Wait."):
-        self.running_message = ctk.CTkLabel(tab, text=message, font=(ctk.CTkFont, 30))
+        self.running_message = ctk.CTkLabel(tab, text=message, font=(ctk.CTkFont, 30), text_color="DodgerBlue4")
         if tab is self.tab1 or self.tab3:
             col = 1
         else:
             col = 0
-        self.running_message.grid(row=100, column=col, pady=(40, 0))
+        self.running_message.grid(row=13, column=col, pady=(40, 0))
+        self.tabview.update()
 
     def finished(self):
+        self.running_message.configure(text="Finished.")
+        self.tabview.update()
+        time.sleep(1)
         self.running_message.grid_forget()
+
+    def compute_sync(self, fps, left_video, right_video, range_end):
+        left_pcm16_signed_integers = compute_pcm(left_video, "LEFT", range_end)
+        right_pcm16_signed_integers = compute_pcm(right_video, "RIGHT", range_end)
+
+        left_ints = np.asarray(left_pcm16_signed_integers)
+        right_ints = np.asarray(right_pcm16_signed_integers)
+
+        np.save("tmpl.npy", left_ints)
+        np.save("tmp2.npy", right_ints)
+
+        threshold = self.display_threshold(left_ints, right_ints, range_end)
+        left_frame, right_frame = find_sync_with_threshold(fps, left_ints, right_ints, threshold)
+        create_videos(fps, left_video, right_video, left_frame, right_frame)
+
+    def display_threshold(self, left_ints, right_ints, range_end):
+        fig, ax = plt.subplots(figsize=(5, 4))
+        x_vals = np.linspace(0, range_end, left_ints.size)
+
+        ax.plot(x_vals, left_ints)
+        ax.plot(x_vals, right_ints)
+
+        # Add a title and labels
+        ax.set_title("Audio Plot")
+        ax.set_xlabel("Seconds")
+        ax.set_ylabel("Amplitude")
+
+        # Create a canvas to display the plot in tkinter
+        self.plt_canvas = FigureCanvasTkAgg(fig, master=self.tab1)
+        self.plt_canvas.get_tk_widget().grid(row=12, column=1, columnspan=2, padx=10, pady=10)
+
+        threshold = int((np.max(left_ints) + np.max(right_ints)) * (6 / 16))
+        combobox_choice = ctk.StringVar()
+
+        check_label = ctk.CTkLabel(self.tab1, text=f"Threshold selected to be y={threshold}. Is this value ok?",
+                                   font=(ctk.CTkFont, 24), text_color="Red", wraplength=300)
+        check_label.grid(row=11, column=1, columnspan=2, pady=2)
+
+        combobox = ctk.CTkComboBox(self.tab1, values=["Yes", "No"], variable=combobox_choice, font=(ctk.CTkFont, 16))
+        combobox.grid(row=10, column=1, columnspan=2, pady=2)
+
+        check_label.waitvar(combobox_choice)
+
+        self.plt_canvas.get_tk_widget().destroy()
+        check_label.destroy()
+        combobox.destroy()
+
+        return threshold
 
 
 if __name__ == "__main__":

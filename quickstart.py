@@ -17,7 +17,7 @@ import subprocess
 pts = []
 
 def snap_pt_to_upper_edge(vid_file, pt, thrs):
-    str = f'ffmpeg -hide_banner -loglevel error -y -i {vid_file} -vf "select=eq(n\,0)" -vframes 1 tmp/edge_out.png'
+    str = f'ffmpeg -hide_banner -nostats -loglevel 0 -y -i {vid_file} -vf "select=eq(n\,0)" -vframes 1 tmp/edge_out.png'
     print(str)
     subprocess.run(str, shell=True)
 
@@ -51,7 +51,7 @@ def snap_pt_to_upper_edge(vid_file, pt, thrs):
     return x_pt, y_iter
 
 def snap_pt_to_bottom_edge(vid_file, pt, thrs):
-    str = f'ffmpeg -hide_banner -loglevel error -y -i {vid_file} -vf "select=eq(n\,0)" -vframes 1 tmp/edge_out.png'
+    str = f'ffmpeg -hide_banner -nostats -loglevel 0 -y -i {vid_file} -vf "select=eq(n\,0)" -vframes 1 tmp/edge_out.png'
     print(str)
     subprocess.run(str, shell=True)
 
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     # Path(f"./videos/pipeline/{exp_name}").mkdir(parents=True, exist_ok=True)
     # Path(f"./videos/pipeline/{exp_name}/vid{video_num}").mkdir(parents=True, exist_ok=True)
 
-    print("video file:" + video_file + "\n\n\n")
+    # print("video file:" + video_file + "\n\n\n")
     frames = iio.imread(video_file, plugin="FFMPEG")  # plugin="pyav"
     device = 'cuda'
     video = torch.tensor(frames).permute(0, 3, 1, 2)[None].float().to(device)  # B T C H W
@@ -268,4 +268,4 @@ if __name__ == "__main__":
     vis2 = Visualizer(save_dir=f'{vid_save_dir}/cotracker_out/{exp_name}/vid{video_num}', pad_value=0, linewidth=3)
     vis2.visualize(video, pred_tracks, pred_visibility, filename=f'{video_num}_queries_notrace', video_num=video_num)
 
-    print(f"------------------------------ VIDEOS SAVED TO {vid_save_dir}/cotracker_out/ -------------------------------------")
+    # print(f"------------------------------ VIDEOS SAVED TO {vid_save_dir}/cotracker_out/ -------------------------------------")

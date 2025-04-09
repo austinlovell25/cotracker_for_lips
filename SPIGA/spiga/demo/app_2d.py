@@ -54,7 +54,7 @@ def main():
     pars.add_argument('--fps', type=int, default=30, help='Frames per second')
     pars.add_argument('--shape', nargs='+', type=int, help='Visualizer shape (W,H)')
     pars.add_argument('--filename', type=str, default='Distance(2d).txt', help='file name')
-    pars.add_argument('--shake', type=str, default='False', help='use camera shake mode')
+    pars.add_argument('--shake', type=str, default='none', help='use camera shake mode')
     args = pars.parse_args()
 
     if args.shape:
@@ -221,7 +221,6 @@ def video_app(input_name, spiga_dataset=None, tracker=None, fps=30, save=False,
                         file.write(str(dist) + '\n')
                     # Show results
                     key = viewer.process_image(frame, drawers=[faces_analyzer], show_attributes=plot)
-                    # viewer.save_canvas("/home/kwangkim/python-environments/env/SPIGA/spiga/demo/")
                     # if key:
                     #     break
             else:

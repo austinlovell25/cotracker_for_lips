@@ -10,6 +10,7 @@ from pathlib import Path
 import random
 import string
 import argparse
+import json
 
  
  
@@ -211,11 +212,17 @@ def save_stereo_coefficients(_R, _T, _imgpoints_left, _imgpoints_right, path):
     
 def save_rmse(ret1, ret2, path):
     """ Save the RMSE for each camera. """
-    cv_file = cv.FileStorage(path, cv.FILE_STORAGE_WRITE)
-    cv_file.write("camera 1", ret1)
-    cv_file.write("camera 2", ret2)
-    # note you *release* you don't close() a FileStorage object
-    cv_file.release()
+    data = {
+        "camera1_rmse": ret1,
+        "camera2_rmse": ret2
+    }
+    with open(path, 'w') as file:
+        json.dump(data, file)
+
+    # cv_file = cv.FileStorage(path, cv.FILE_STORAGE_WRITE)
+    # cv_file.write("camera 1", ret1)
+    # cv_file.write("camera 2", ret2)
+    # cv_file.release()
 
 
 
@@ -261,7 +268,7 @@ def run_calibration(rows, columns, world_scaling, dir):
 
     save_coefficients(mtx1, dist1, f'{dir}/camera1.yml')
     save_coefficients(mtx2, dist2, f'{dir}/camera2.yml')
-    save_rmse(ret1, ret2, f'{dir}/rmse.yml')
+    save_rmse(ret1, ret2, f'{dir}/rmse.json')
 
     R, T, imgpoints_left, imgpoints_right = stereo_calibrate(mtx1, dist1, mtx2, dist2, f'{dir}/synced/*', rows=rows,
                                                              columns=columns, world_scaling=world_scaling)
