@@ -9,7 +9,6 @@ is_snap="$7"
 lip_coords_dir="$8"
 USE_CROP_SHIFTING=false
 
-
 set -euo pipefail
 
 # Check if files exist

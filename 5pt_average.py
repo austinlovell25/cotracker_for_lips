@@ -173,8 +173,8 @@ if __name__ == "__main__":
             out_df.to_csv("cotracker_pts.csv")
 
     elif sys.argv[3] == "from_cotracker":
-        l_pts = pd.read_csv(f"{config.cotracker_new_path}/tmp/cotracker_end0.csv")
-        r_pts = pd.read_csv(f"{config.cotracker_new_path}/tmp/cotracker_end1.csv")
+        l_pts = pd.read_csv(f"{config.project_directory}/tmp/cotracker_end0.csv")
+        r_pts = pd.read_csv(f"{config.project_directory}/tmp/cotracker_end1.csv")
 
 
         out_df = pd.DataFrame(

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 fnames1=("/home/kwangkim/Projects/cotracker_new/tmp/out0_l.mp4" "/home/kwangkim/Projects/cotracker_new/tmp/out1_l.mp4" "/home/kwangkim/Projects/cotracker_new/tmp/out2_l.mp4" "/home/kwangkim/Projects/cotracker_new/tmp/out3_l.mp4" "/home/kwangkim/Projects/cotracker_new/tmp/out4_l.mp4" "/home/kwangkim/Projects/cotracker_new/tmp/out5_l.mp4" "/home/kwangkim/Projects/cotracker_new/tmp/out6_l.mp4" )
 fnames2=("/home/kwangkim/Projects/cotracker_new/tmp/out0_r.mp4" "/home/kwangkim/Projects/cotracker_new/tmp/out1_r.mp4" "/home/kwangkim/Projects/cotracker_new/tmp/out2_r.mp4" "/home/kwangkim/Projects/cotracker_new/tmp/out3_r.mp4" "/home/kwangkim/Projects/cotracker_new/tmp/out4_r.mp4" "/home/kwangkim/Projects/cotracker_new/tmp/out5_r.mp4" "/home/kwangkim/Projects/cotracker_new/tmp/out6_r.mp4" )
 exp_name="$3"

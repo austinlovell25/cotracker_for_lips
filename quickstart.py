@@ -7,6 +7,8 @@ import torch
 import cv2
 import imageio.v3 as iio
 import numpy as np
+
+import config
 from cotracker.utils.visualizer import Visualizer, read_video_from_path
 from cotracker.predictor import CoTrackerPredictor, CoTrackerOnlinePredictor
 from pathlib import Path
@@ -173,8 +175,8 @@ if __name__ == "__main__":
     #device = 'cuda'
     video = torch.tensor(frames).permute(0, 3, 1, 2)[None].float().to('cuda')  # B T C H W
 
-    cotracker = torch.hub.load("facebookresearch/co-tracker", "cotracker2_online").to('cuda')
-    #cotracker = CoTrackerOnlinePredictor(checkpoint=None).to('cuda')
+    #cotracker = torch.hub.load("facebookresearch/co-tracker", "cotracker2_online").to('cuda')
+    cotracker = CoTrackerOnlinePredictor(checkpoint=config.project_directory + "/checkpoints/cotracker2.pth").to('cuda')
     # Get points to track.
     pts.append([0., float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num])])
     pts.append([0., float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num])])
@@ -205,9 +207,6 @@ if __name__ == "__main__":
 
     else:
         print("Not snapping middle point")
-
-
-
 
     # Pull up bottom middle point using edge detection
     # pts[8][1], pts[8][2] = snap_pt_to_upper_edge(video_file, pts[8], 10)
