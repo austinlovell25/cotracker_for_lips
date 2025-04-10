@@ -1,3 +1,4 @@
+customtkinter==5.2.2
 easygui==0.98.3
 einops==0.7.0
 flow-vis==0.1
@@ -17,7 +18,7 @@ numpy==1.26.3
 scipy==1.15.2
 spiga==0.0.6
 pillow==10.2.0
-torchvision==0.16.0
+torchvision~=0.16.0
 torch==2.1.2
 imageio==2.33.1
 tqdm==4.67.1

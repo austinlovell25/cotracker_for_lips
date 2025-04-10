@@ -13,12 +13,19 @@ Install necessary packages
 pip install -r requirements.txt
 cd cotracker
 pip install -e .
+cd ..
 cd SPIGA
 pip install -e .
+cd ..
+mkdir checkpoints
+cd checkpoints
+wget https://huggingface.co/facebook/cotracker/resolve/main/cotracker2.pth
 ```
 
 Download the spiga_300wprivate.pt file from this [Google Drive](https://drive.google.com/drive/folders/1olrkoiDNK_NUCscaG9BbO3qsussbDi7I)
 and move under SPIGA/spiga/models/weights/ (create the weights/ directory if needed).
+
+
 
 ## GUI Guide
 0. Create an empty directory, and move your left and right-angled mp4 files to this directory. Intermediate files and the final output will be stored in this directory.
