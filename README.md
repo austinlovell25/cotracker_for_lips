@@ -11,6 +11,7 @@ Clone this repository and setup Conda within your environment. Repository was de
 Install necessary packages
 ```
 pip install -r requirements.txt
+sudo apt 
 cd cotracker
 pip install -e .
 cd ..

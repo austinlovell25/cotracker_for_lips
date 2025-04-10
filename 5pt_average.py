@@ -111,10 +111,10 @@ if __name__ == "__main__":
 
 
     elif sys.argv[3] == "revert":
-        f1_lower_pts = np.genfromtxt(f"{config.pipeline_dir}/vid0/lower_pts.csv", delimiter=",")
-        f1_upper_pts = np.genfromtxt(f"{config.pipeline_dir}/vid0/upper_pts.csv", delimiter=",")
-        f2_lower_pts = np.genfromtxt(f"{config.pipeline_dir}/vid1/lower_pts.csv", delimiter=",")
-        f2_upper_pts = np.genfromtxt(f"{config.pipeline_dir}/vid1/upper_pts.csv", delimiter=",")
+        f1_lower_pts = np.genfromtxt(f"{config.upper_lower_tmp_csv_dir}/vid0/lower_pts.csv", delimiter=",")
+        f1_upper_pts = np.genfromtxt(f"{config.upper_lower_tmp_csv_dir}/vid0/upper_pts.csv", delimiter=",")
+        f2_lower_pts = np.genfromtxt(f"{config.upper_lower_tmp_csv_dir}/vid1/lower_pts.csv", delimiter=",")
+        f2_upper_pts = np.genfromtxt(f"{config.upper_lower_tmp_csv_dir}/vid1/upper_pts.csv", delimiter=",")
 
         end_frame = np.shape(f1_upper_pts)[1]
         # print(f"{end_frame=}")

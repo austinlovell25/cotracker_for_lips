@@ -12,8 +12,8 @@ import string
 import argparse
 import json
 
- 
- 
+import os
+
 def calibrate_camera(images_folder, rows, columns, world_scaling):
     images_names = glob.glob(images_folder)
     images = []
@@ -296,9 +296,9 @@ if __name__ == "__main__":
         R, T = load_stereo_coefficients(f"{config_path}/stereo_coeffs.yml")
 
         if tracker == "spiga":
-            df = pd.read_csv("/home/kwangkim/python-environments/env/SPIGA/spiga/demo/spiga_pts.csv")
+            df = pd.read_csv(f"{os.getcwd()}/SPIGA/spiga/demo/spiga_pts.csv")
         elif tracker == "cotracker":
-            df = pd.read_csv("/home/kwangkim/Projects/cotracker_new/cotracker_pts.csv")
+            df = pd.read_csv(f"{os.getcwd()}/cotracker_pts.csv")
         df = flip_y(df)
 
         uvs1_lower = df[["f1_lower_x", "f1_lower_y"]].to_numpy()[0:600]

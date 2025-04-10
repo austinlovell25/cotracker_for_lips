@@ -13,12 +13,11 @@ pydub==0.25.1
 retinaface-py==0.0.2
 sort-tracker-py==1.0.2
 timm==0.9.12
-torchaudio==2.1.2
 numpy==1.26.3
 scipy==1.15.2
 spiga==0.0.6
 pillow==10.2.0
-torchvision~=0.16.0
+torchvision~=0.16.2
 torch==2.1.2
 imageio==2.33.1
 tqdm==4.67.1

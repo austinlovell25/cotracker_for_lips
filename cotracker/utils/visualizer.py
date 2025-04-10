@@ -16,6 +16,7 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
 
+import config
 
 def read_video_from_path(path):
     try:
@@ -357,20 +358,13 @@ class Visualizer:
         # plt.savefig("/home/kwangkim/Projects/cotracker_new/test2")
         # print("Saving image to /home/kwangkim/Projects/cotracker_new/test2")
 
-        with open(f"/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid{video_num}/upper_pts.csv", "wb") as f:
+        dir_path = f"{config.upper_lower_tmp_csv_dir}/vid{video_num}"
+        os.makedirs(dir_path, exist_ok=True)
+
+        with open(f"{config.upper_lower_tmp_csv_dir}/vid{video_num}/upper_pts.csv", "wb") as f:
             np.savetxt(f, upper_pts, delimiter=",")
-        with open(f"/home/kwangkim/Projects/cotracker_new/videos/pipeline/vid{video_num}/lower_pts.csv", "wb") as f:
+        with open(f"{config.upper_lower_tmp_csv_dir}/vid{video_num}/lower_pts.csv", "wb") as f:
             np.savetxt(f, lower_pts, delimiter=",")
-        out_df = pd.DataFrame(
-            {'img_name': ["null"],
-             'x1': [lower_pts[0, -1]],
-             'y1': [lower_pts[1, -1]],
-             'x2': [upper_pts[0, -1]],
-             'y2': [upper_pts[1, -1]]}
-        )
-        out_df.to_csv(f"/home/kwangkim/Projects/cotracker_new/tmp/cotracker_end{video_num}.csv")
-
-
 
 
         #  construct the final rgb sequence

@@ -8,11 +8,13 @@ import cv2
 import imageio.v3 as iio
 import numpy as np
 from cotracker.utils.visualizer import Visualizer, read_video_from_path
-from cotracker.predictor import CoTrackerPredictor
+from cotracker.predictor import CoTrackerPredictor, CoTrackerOnlinePredictor
 from pathlib import Path
 import argparse
 import json
 import subprocess
+
+
 
 pts = []
 
@@ -168,11 +170,11 @@ if __name__ == "__main__":
 
     # print("video file:" + video_file + "\n\n\n")
     frames = iio.imread(video_file, plugin="FFMPEG")  # plugin="pyav"
-    device = 'cuda'
-    video = torch.tensor(frames).permute(0, 3, 1, 2)[None].float().to(device)  # B T C H W
+    #device = 'cuda'
+    video = torch.tensor(frames).permute(0, 3, 1, 2)[None].float().to('cuda')  # B T C H W
 
-    cotracker = torch.hub.load("facebookresearch/co-tracker", "cotracker2_online").to(device)
-
+    cotracker = torch.hub.load("facebookresearch/co-tracker", "cotracker2_online").to('cuda')
+    #cotracker = CoTrackerOnlinePredictor(checkpoint=None).to('cuda')
     # Get points to track.
     pts.append([0., float(df["x1_mean_incrop"][video_num]), float(df["y1_mean_incrop"][video_num])])
     pts.append([0., float(df["x2_mean_incrop"][video_num]), float(df["y2_mean_incrop"][video_num])])
