@@ -335,6 +335,8 @@ class Visualizer:
                         lower_pts[9, t] = coord[1]
             res_video[t] = np.array(img)
 
+        if not os.path.exists(f"{config.upper_lower_tmp_csv_dir}/vid{video_num}"):
+            os.makedirs(f"{config.upper_lower_tmp_csv_dir}/vid{video_num}")
         with open(f"{config.upper_lower_tmp_csv_dir}/vid{video_num}/upper_pts.csv", "wb") as f:
             np.savetxt(f, upper_pts, delimiter=",")
         with open(f"{config.upper_lower_tmp_csv_dir}/vid{video_num}/lower_pts.csv", "wb") as f:

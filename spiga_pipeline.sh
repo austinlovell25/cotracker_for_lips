@@ -48,12 +48,13 @@ if [ "$USE_CROP_SHIFTING" = true ]; then
   echo 0 > shake_opt.txt
 
 else
-  echo "Not using crop shifting"
+  #  echo "Not using crop shifting"
+  #  cd ~/python-environments/env
+  #  source bin/activate
+  #  cd SPIGA/spiga/demo
+  #  python app_2d.py -i "$fname1" -d 300wprivate
+
   # Find coordinates of video 1
-#  cd ~/python-environments/env
-#  source bin/activate
-#  cd SPIGA/spiga/demo
-#  python app_2d.py -i "$fname1" -d 300wprivate
   echo "$fname1"
   python SPIGA/spiga/demo/app_2d.py -i "$fname1" -d 300wprivate
   mv 2d_lip_coordinates.csv 2d_lip_coords_L.csv
@@ -67,12 +68,9 @@ else
 fi
 
 # Create csv average of first 5 points and find cropped points
-#cd ~/Projects/cotracker_new/
 pts=($(python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv reduce | tr -d '[],'))
 
 # Crop video using offset based on lip points
-#ffmpeg -hide_banner -loglevel error -i "$fname1" -y -nostats -loglevel 0 -filter:v "crop=700:500:${pts[0]}:${pts[1]}" vid1_crop.mp4
-#ffmpeg -hide_banner -loglevel error -i "$fname2" -y -nostats -loglevel 0 -filter:v "crop=700:500:${pts[2]}:${pts[3]}" vid2_crop.mp4
 ffmpeg -hide_banner -nostats -loglevel 0 -i "$fname1" -y -nostats -loglevel 0 -filter:v "crop=704:512:${pts[0]}:${pts[1]}" vid1_crop.mp4
 ffmpeg -hide_banner -nostats -loglevel 0 -i "$fname2" -y -nostats -loglevel 0 -filter:v "crop=704:512:${pts[2]}:${pts[3]}" vid2_crop.mp4
 
@@ -95,15 +93,5 @@ python 5pt_average.py 2d_lip_coords_L.csv 2d_lip_coords_R.csv revert
 #echo "$CAM_CONFIG_PATH"
 #echo "$save_dir"
 python calibration.py triangulate cotracker "$exp_name" "$CAM_CONFIG_PATH" "$save_dir"
-
-#cd ~/Projects/cotracker_new/
-#python raise1pixel.py
-#cd ~/python-environments/env/SPIGA/spiga/demo/calibration/
-#python calibration.py triangulate cotracker "$exp_name"_raise1pixel "$CAM_CONFIG_PATH" "$save_dir"
-
-#cd ~/Projects/cotracker_new/
-#python lower1pixel.py
-#cd ~/python-environments/env/SPIGA/spiga/demo/calibration/
-#python calibration.py triangulate cotracker "$exp_name"_lower1pixel "$CAM_CONFIG_PATH" "$save_dir"
 
 echo "Finished."

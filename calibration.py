@@ -289,7 +289,7 @@ if __name__ == "__main__":
             if tracker == "spiga":
                 time = sys.argv[6]
 
-        Path(f"{exp_name}").mkdir(parents=True, exist_ok=True)
+        Path(f"{save_dir}/cotracker_out/{exp_name}").mkdir(parents=True, exist_ok=True)
 
         mtx1, dist1 = load_coefficients(f"{config_path}/camera1.yml")
         mtx2, dist2 = load_coefficients(f"{config_path}/camera2.yml")
@@ -304,13 +304,14 @@ if __name__ == "__main__":
         uvs1_lower = df[["f1_lower_x", "f1_lower_y"]].to_numpy()[0:600]
         uvs2_lower = df[["f2_lower_x", "f2_lower_y"]].to_numpy()[0:600]
         p3ds_lower = triangulate(mtx1, mtx2, R, T, uvs1_lower, uvs2_lower)
-        np.savetxt(f'{exp_name}/{tracker}_lower_3dpts.txt',p3ds_lower)
+        print(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_lower_3dpts.txt")
+        np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_lower_3dpts.txt', p3ds_lower)
 
 
         uvs1_upper = df[["f1_upper_x", "f1_upper_y"]].to_numpy()[0:600]
         uvs2_upper = df[["f2_upper_x", "f2_upper_y"]].to_numpy()[0:600]
         p3ds_upper = triangulate(mtx1, mtx2, R, T, uvs1_upper, uvs2_upper)
-        np.savetxt(f'{exp_name}/{tracker}_upper_3dpts.txt',p3ds_upper)
+        np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_upper_3dpts.txt', p3ds_upper)
 
 
         dist_array = np.ones(np.shape(p3ds_upper)[0])
