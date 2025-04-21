@@ -53,7 +53,7 @@ def main():
     pars.add_argument('--outpath', type=str, default=video_out_path_dft, help='Video output directory')
     pars.add_argument('--fps', type=int, default=30, help='Frames per second')
     pars.add_argument('--shape', nargs='+', type=int, help='Visualizer shape (W,H)')
-    pars.add_argument('--filename', type=str, default='Distance(2d).txt', help='file name')
+    pars.add_argument('--filename', type=str, default='tmp/Distance(2d).txt', help='file name')
     pars.add_argument('--shake', type=str, default='none', help='use camera shake mode')
     args = pars.parse_args()
 

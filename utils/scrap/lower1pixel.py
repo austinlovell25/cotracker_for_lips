@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Read the CSV file
-file_name = "cotracker_pts.csv"
+file_name = "tmp/cotracker_pts.csv"
 data = pd.read_csv(file_name)
 
 data['f1_upper_y'] += 1

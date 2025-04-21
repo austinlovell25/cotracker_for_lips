@@ -308,9 +308,6 @@ class App(ctk.CTk):
         left_ints = np.asarray(left_pcm16_signed_integers)
         right_ints = np.asarray(right_pcm16_signed_integers)
 
-        np.save("tmpl.npy", left_ints)
-        np.save("tmp2.npy", right_ints)
-
         threshold = self.display_threshold(left_ints, right_ints, range_end)
         left_frame, right_frame = find_sync_with_threshold(fps, left_ints, right_ints, threshold)
         create_videos(fps, left_video, right_video, left_frame, right_frame)

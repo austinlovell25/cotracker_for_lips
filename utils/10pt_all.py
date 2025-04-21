@@ -51,7 +51,7 @@ if sys.argv[5] == "reduce":
     print(start)
     print(f1_x1_mean_incrop)
     print(out_df)
-    out_df.to_csv("first_5_avg.csv")
+    out_df.to_csv("tmp/first_5_avg.csv")
 
 
 elif sys.argv[5] == "revert":

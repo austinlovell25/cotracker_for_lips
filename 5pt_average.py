@@ -91,23 +91,23 @@ if __name__ == "__main__":
         )
 
         # print(out_df)
-        out_df.to_csv("first_5_avg.csv")
+        out_df.to_csv("tmp/first_5_avg.csv")
 
         new_support_spiga = []
-        fname = "spiga_support_L.csv"
+        fname = "tmp/spiga_support_L.csv"
         with open(fname) as f:
             reader_obj = csv.reader(f)
             for row in reader_obj:
                 new_support_spiga.append([0., float(row[1]) - f1_x1_mean_offset, float(row[2]) - f1_y1_mean_offset])
-        np.savetxt("spiga_support_L.csv", np.asarray(new_support_spiga), delimiter=",")
+        np.savetxt("tmp/spiga_support_L.csv", np.asarray(new_support_spiga), delimiter=",")
 
         new_support_spiga = []
-        fname = "spiga_support_R.csv"
+        fname = "tmp/spiga_support_R.csv"
         with open(fname) as f:
             reader_obj = csv.reader(f)
             for row in reader_obj:
                 new_support_spiga.append([0., float(row[1]) - f2_x1_mean_offset, float(row[2]) - f2_y1_mean_offset])
-        np.savetxt("spiga_support_R.csv", np.asarray(new_support_spiga), delimiter=",")
+        np.savetxt("tmp/spiga_support_R.csv", np.asarray(new_support_spiga), delimiter=",")
 
 
     elif sys.argv[3] == "revert":
@@ -168,9 +168,13 @@ if __name__ == "__main__":
         )
 
         if len(sys.argv) > 4:
+            print("other here")
+            print(sys.argv)
             out_df.to_csv(f"tmp/cotracker_pts_{sys.argv[4]}.csv")
         else:
-            out_df.to_csv("cotracker_pts.csv")
+            print("here")
+            print(sys.argv)
+            out_df.to_csv("tmp/cotracker_pts.csv")
 
     elif sys.argv[3] == "from_cotracker":
         l_pts = pd.read_csv(f"{config.project_directory}/tmp/cotracker_end0.csv")
@@ -183,4 +187,4 @@ if __name__ == "__main__":
              'x2_mean_incrop': [l_pts["x2"][0], r_pts["x2"][0]],
              'y2_mean_incrop': [l_pts["y2"][0], r_pts["y2"][0]]}
         )
-        out_df.to_csv("first_5_avg.csv")
+        out_df.to_csv("tmp/first_5_avg.csv")

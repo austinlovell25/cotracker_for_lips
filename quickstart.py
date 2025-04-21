@@ -70,7 +70,7 @@ if __name__ == "__main__":
     parser.add_argument("-sm", "--snap_middle", default="True", help="Snap middle point to edge")
     args = parser.parse_args()
 
-    df = pd.read_csv("first_5_avg.csv")
+    df = pd.read_csv("tmp/first_5_avg.csv")
     video_file = args.vid_name
     video_num = int(args.vid_num)
     exp_name = args.exp_name
@@ -95,7 +95,6 @@ if __name__ == "__main__":
         contour_grid(float(df["x9_mean_incrop"][video_num]), float(df["y9_mean_incrop"][video_num]), isUpper=False)
     if "spiga_support" in data and data["spiga_support"]:
         spiga_support()
-
 
     device = 'cuda'
 

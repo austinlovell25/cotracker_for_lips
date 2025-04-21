@@ -15,7 +15,7 @@ def compute_pcm(vid, side, range_end):
     for sample_index in tqdm(range(int(rng))):
         sample = int.from_bytes(data[sample_index * 2:sample_index * 2 + 2], 'little', signed=True)
         pcm16_signed_integers.append(sample)
-    fname = "left_audio.npy" if side == "LEFT" else "right_audio.npy"
+    fname = "tmp/left_audio.npy" if side == "LEFT" else "tmp/right_audio.npy"
     with open(fname, 'wb') as f:
         np.save(f, pcm16_signed_integers)
     return pcm16_signed_integers
