@@ -1,3 +1,6 @@
+import json
+import shutil
+
 import customtkinter as ctk
 import os
 import tkinter as tk
@@ -18,6 +21,7 @@ class App(ctk.CTk):
         self.plt_canvas = None
         self.left_img_canvas = None
         self.right_img_canvas = None
+        self.selected_frame = None
         self.upper_left_pt = None
         self.lower_left_pt = None
         self.upper_right_pt = None
@@ -78,22 +82,61 @@ class App(ctk.CTk):
         if not (self.upper_left_pt and self.lower_left_pt and self.upper_right_pt and self.lower_right_pt):
             tk.messagebox.showerror("Error", "Please select upper and lower lip points for both images before rerunning the tracker")
         else:
+            # TODO: Un-hardcode FPS, Store pts_dict by video_dir
             print("rerun")
+            pts_dict = {
+                "upper_left": self.upper_left_pt,
+                "lower_left": self.lower_left_pt,
+                "upper_right": self.upper_right_pt,
+                "lower_right": self.lower_right_pt,
+            }
+            with open("tmp/rerun_pts.json", "w") as f:
+                json.dump(pts_dict, f)
+
+            refine_dir = f"{self.data_dir}/refine_frame{self.selected_frame}"
+            # Delete if exists
+            if os.path.exists(refine_dir):
+                shutil.rmtree(refine_dir)
+            os.mkdir(refine_dir)
+            main_dir = os.path.dirname(os.path.dirname(self.data_dir))
+            time_string = os.path.basename(self.data_dir).split("_")[1]
+            left_snippet = f"{main_dir}/samples/left_{time_string}.mp4"
+            right_snippet = f"{main_dir}/samples/right_{time_string}.mp4"
+
+            # NOTE: FPS HARDCODED
+            fps = 60
+            second_start = round(self.selected_frame / fps, 3)
+
+            command = f"ffmpeg -nostats -loglevel 0 -ss {second_start} -i {left_snippet} -c:v copy -c:a copy {refine_dir}/left_video.mp4"
+            subprocess.run(command, shell=True)
+            command = f"ffmpeg -nostats -loglevel 0 -ss {second_start} -i {right_snippet} -c:v copy -c:a copy {refine_dir}/right_video.mp4"
+            subprocess.run(command, shell=True)
+
+            configs = {
+                "GlLp": "global_lip.json",
+            }
+            vid1 = f"{refine_dir}/left_video.mp4"
+            vid2 = f"{refine_dir}/right_video.mp4"
+
+            for key, value in configs.items():
+                command = f"bash rerun_pipeline.sh {vid1} {vid2} rerun_{second_start}_{key} {value} {refine_dir} {main_dir} false"
+                print(command)
+                subprocess.run(command, shell=True)
 
     def select_dir(self):
         self.data_dir = filedialog.askdirectory()
         self.selected_dir_label.configure(text=f"Selected Dir: {os.path.basename(self.data_dir)}")
         if not os.path.isdir(f"{self.data_dir}/vid0/images"):
-            os.mkdir(f"{self.data_dir}/vid0/images")
-            command = f"ffmpeg -hide_banner -nostats -loglevel 0 -i {self.data_dir}/vid0/0_queries_notrace.mp4 {self.data_dir}/vid0/images/%04d.png"
-            subprocess.run(command, shell=True)
+            try:
+                os.mkdir(f"{self.data_dir}/vid0/images")
+                command = f"ffmpeg -hide_banner -nostats -loglevel 0 -i {self.data_dir}/vid0/0_queries_notrace.mp4 {self.data_dir}/vid0/images/%04d.png"
+                subprocess.run(command, shell=True)
 
-            os.mkdir(f"{self.data_dir}/vid1/images")
-            command = f"ffmpeg -hide_banner -nostats -loglevel 0 -i {self.data_dir}/vid1/1_queries_notrace.mp4 {self.data_dir}/vid1/images/%04d.png"
-            subprocess.run(command, shell=True)
-
-
-
+                os.mkdir(f"{self.data_dir}/vid1/images")
+                command = f"ffmpeg -hide_banner -nostats -loglevel 0 -i {self.data_dir}/vid1/1_queries_notrace.mp4 {self.data_dir}/vid1/images/%04d.png"
+                subprocess.run(command, shell=True)
+            except FileNotFoundError:
+                tk.messagebox.showerror("Error", "Please select a valid experiment directory.")
 
     def left_image_click(self, event):
         x_select = round(event.xdata)
@@ -153,18 +196,17 @@ class App(ctk.CTk):
 
     def plot_click(self, event):
         try:
-            self.selected_frame_label.configure(text=f"Selected Frame: {round(event.xdata)}")
+            self.selected_frame = round(event.xdata)
+            self.selected_frame_label.configure(text=f"Selected Frame: {self.selected_frame}")
             self.display_image(round(event.xdata))
         except FileNotFoundError:
             print("Error: Select point on plot.")
 
     def on_enter(self, event):
         self.tab1.configure(cursor="hand2")
-        # self.plt_canvas.get_tk_widget().config(cursor="hand2")  # Change cursor to a hand
 
     def on_leave(self, event):
         self.tab1.configure(cursor="")
-        # self.plt_canvas.get_tk_widget().config(cursor="")  # Revert to default cursor
 
     def display_plot(self):
         fig, ax = plt.subplots(figsize=(5, 4))

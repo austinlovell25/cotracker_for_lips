@@ -298,7 +298,7 @@ if __name__ == "__main__":
         if tracker == "spiga":
             df = pd.read_csv(f"{os.getcwd()}/SPIGA/spiga/demo/spiga_pts.csv")
         elif tracker == "cotracker":
-            df = pd.read_csv(f"{os.getcwd()}/tmp/cotracker_pts.csv")
+            df = pd.read_csv("tmp/cotracker_pts.csv")
         df = flip_y(df)
 
         uvs1_lower = df[["f1_lower_x", "f1_lower_y"]].to_numpy()[0:600]

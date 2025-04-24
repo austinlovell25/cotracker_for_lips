@@ -114,8 +114,8 @@ if __name__ == "__main__":
             video_chunk=video[:, ind : ind + cotracker.step * 2], queries=queries[None]
         )  # B T N 2,  B T N 1
 
-    vis = Visualizer(save_dir=f'{vid_save_dir}/cotracker_out/{exp_name}/vid{video_num}', linewidth=3, mode='cool', tracks_leave_trace=-1)
-    vis.visualize(video=video, tracks=pred_tracks, visibility=pred_visibility, filename=f'{video_num}_queries_trace', video_num=video_num)
+    # vis = Visualizer(save_dir=f'{vid_save_dir}/cotracker_out/{exp_name}/vid{video_num}', linewidth=3, mode='cool', tracks_leave_trace=-1)
+    # vis.visualize(video=video, tracks=pred_tracks, visibility=pred_visibility, filename=f'{video_num}_queries_trace', video_num=video_num)
 
     vis2 = Visualizer(save_dir=f'{vid_save_dir}/cotracker_out/{exp_name}/vid{video_num}', pad_value=0, linewidth=3)
     vis2.visualize(video, pred_tracks, pred_visibility, filename=f'{video_num}_queries_notrace', video_num=video_num)

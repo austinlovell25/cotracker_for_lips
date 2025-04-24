@@ -298,11 +298,13 @@ class Visualizer:
                             img = draw_circle(
                                 img,
                                 coord=coord,
-                                radius=int(self.linewidth * 2),
+                                radius=int(self.linewidth * 1),
                                 color=vector_colors[t, i].astype(int),
                                 visible=visibile,
                                 color_alpha=color_alpha,
                             )
+                    # 8 = Lower Middle
+                    # 9 = Upper Middle
                     if i == 9:#9 8 6 0
                         upper_pts[0, t] = coord[0]
                         upper_pts[1, t] = coord[1]
@@ -335,11 +337,11 @@ class Visualizer:
                         lower_pts[9, t] = coord[1]
             res_video[t] = np.array(img)
 
-        if not os.path.exists(f"{config.upper_lower_tmp_csv_dir}/vid{video_num}"):
+        if not os.path.exists(f"tmp/vid{video_num}"):
             os.makedirs(f"{config.upper_lower_tmp_csv_dir}/vid{video_num}")
-        with open(f"{config.upper_lower_tmp_csv_dir}/vid{video_num}/upper_pts.csv", "wb") as f:
+        with open(f"tmp/vid{video_num}/upper_pts.csv", "w") as f:
             np.savetxt(f, upper_pts, delimiter=",")
-        with open(f"{config.upper_lower_tmp_csv_dir}/vid{video_num}/lower_pts.csv", "wb") as f:
+        with open(f"tmp/vid{video_num}/lower_pts.csv", "w") as f:
             np.savetxt(f, lower_pts, delimiter=",")
         # out_df = pd.DataFrame(
         #     {'img_name': ["null"],
