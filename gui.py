@@ -340,10 +340,28 @@ class App(ctk.CTk):
 
         check_label.waitvar(combobox_choice)
 
-        self.plt_canvas.get_tk_widget().destroy()
         check_label.destroy()
         combobox.destroy()
 
+        if combobox_choice.get() == "No":
+            threshold_label = ctk.CTkLabel(self.tab1, text=f"Enter your desired y threshold value", font=(ctk.CTkFont, 24))
+            threshold_label.grid(row=10, column=1, columnspan=2, pady=2)
+
+            threshold_entry = ctk.CTkEntry(self.tab1, font=(ctk.CTkFont, 24))
+            threshold_entry.grid(row=11, column=1, columnspan=1, pady=2)
+
+            var = tk.IntVar()
+            button = ctk.CTkButton(self.tab1, text="Run", command=lambda: var.set(1))
+            button.grid(row=11, column=2, columnspan=1, pady=2)
+
+            button.wait_variable(var)
+            threshold = int(threshold_entry.get())
+
+            threshold_label.destroy()
+            threshold_entry.destroy()
+            button.destroy()
+
+        self.plt_canvas.get_tk_widget().destroy()
         return threshold
 
 

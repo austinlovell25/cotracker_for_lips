@@ -36,6 +36,7 @@ python quickstart.py -v tmp/vid2_crop.mp4 -n 1 -e "$exp_name" -gc "$grid_config"
 
 # Correct points to full size coordinates and save
 python 5pt_average.py tmp/2d_lip_coords_L.csv tmp/2d_lip_coords_R.csv rerun_revert
+cp tmp/cotracker_pts.csv "$save_dir"/cotracker_out/"$exp_name"/cotracker_pts.csv
 
 python calibration.py triangulate cotracker "$exp_name" "$CAM_CONFIG_PATH" "$save_dir"
 

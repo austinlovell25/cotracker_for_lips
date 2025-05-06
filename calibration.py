@@ -274,6 +274,54 @@ def run_calibration(rows, columns, world_scaling, dir):
                                                              columns=columns, world_scaling=world_scaling)
     save_stereo_coefficients(R, T, imgpoints_left, imgpoints_right, f'{dir}/stereo_coeffs.yml')
 
+def rerun_triangulate(config_path, save_dir):
+        mtx1, dist1 = load_coefficients(f"{config_path}/camera1.yml")
+        mtx2, dist2 = load_coefficients(f"{config_path}/camera2.yml")
+        R, T = load_stereo_coefficients(f"{config_path}/stereo_coeffs.yml")
+
+        df = pd.read_csv("tmp/cotracker_pts.csv")
+        df = flip_y(df)
+
+        uvs1_lower = df[["f1_lower_x", "f1_lower_y"]].to_numpy()[0:600]
+        uvs2_lower = df[["f2_lower_x", "f2_lower_y"]].to_numpy()[0:600]
+        p3ds_lower = triangulate(mtx1, mtx2, R, T, uvs1_lower, uvs2_lower)
+        np.savetxt(f"{save_dir}/cotracker_lower_3dpts.txt", p3ds_lower)
+
+        uvs1_upper = df[["f1_upper_x", "f1_upper_y"]].to_numpy()[0:600]
+        uvs2_upper = df[["f2_upper_x", "f2_upper_y"]].to_numpy()[0:600]
+        p3ds_upper = triangulate(mtx1, mtx2, R, T, uvs1_upper, uvs2_upper)
+        np.savetxt(f"{save_dir}/cotracker_upper_3dpts.txt", p3ds_upper)
+
+        dist_array = np.ones(np.shape(p3ds_upper)[0])
+        for i in range(np.shape(p3ds_upper)[0]):
+            dist_array[i] = ((p3ds_upper[i][0] - p3ds_lower[i][0]) ** 2 + (p3ds_upper[i][1] - p3ds_lower[i][1]) ** 2 + (p3ds_upper[i][2] - p3ds_lower[i][2]) ** 2) ** 0.5
+        np.savetxt(f'{save_dir}/cotracker_3dist.txt', dist_array)
+
+        stdv = np.std(dist_array, axis=0)
+        min_val = np.min(dist_array, axis=0)
+        max_val = np.max(dist_array, axis=0)
+        mean = np.mean(dist_array, axis=0)
+        med = np.median(dist_array, axis=0)
+        stats_df = pd.DataFrame(
+            {"stdv": stdv,
+             "min": min_val,
+             "max": max_val,
+             "mean": mean,
+             "median": med},
+            index=[0]
+        )
+        stats_df.to_csv(f"{save_dir}/cotracker_stats.csv")
+        print(f"{stdv=}")
+
+        fig, ax = plt.subplots()
+        x = np.arange(np.shape(p3ds_upper)[0])
+        ax.plot(x, dist_array*1, linewidth=2.0, c='r', label="3d euc. diff")
+        legend = ax.legend(loc='upper right', shadow=True, fontsize='x-large')
+        ax.set_xlabel('frames')
+        ax.set_ylabel('3d Euclidean distance (mm)')
+        ax.set_title('Difference between upper lip and lower lip point estimation')
+        plt.savefig(f"{save_dir}/cotracker_3d_distance")
+
 if __name__ == "__main__":
     if sys.argv[1] == "triangulate":
         tracker = sys.argv[2]
@@ -317,7 +365,7 @@ if __name__ == "__main__":
         dist_array = np.ones(np.shape(p3ds_upper)[0])
         for i in range(np.shape(p3ds_upper)[0]):
             dist_array[i] = ((p3ds_upper[i][0] - p3ds_lower[i][0]) ** 2 + (p3ds_upper[i][1] - p3ds_lower[i][1]) ** 2 + (p3ds_upper[i][2] - p3ds_lower[i][2]) ** 2) ** 0.5
-        np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_3dist.txt',dist_array)
+        np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_3dist.txt', dist_array)
 
         stdv = np.std(dist_array, axis=0)
         min_val = np.min(dist_array, axis=0)
