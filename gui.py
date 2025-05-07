@@ -97,23 +97,23 @@ class App(ctk.CTk):
 
         # Tab 1 Column 2
         self.grid_label = ctk.CTkLabel(self.tab1,
-                                       text="2. Enter the first frame and last frame that the checkerboard fully appears on in the videos.",
+                                       text="2. Enter the first second and last second that the checkerboard fully appears on in the videos.",
                                        fg_color="transparent", font=(ctk.CTkFont, 20), wraplength=300)
         self.grid_label.grid(row=0, column=1, pady=(20, 20), padx=40, sticky="nw")
 
-        self.first_frame_label = ctk.CTkLabel(self.tab1, text="Enter First Frame", fg_color="transparent",
+        self.first_second_label = ctk.CTkLabel(self.tab1, text="Enter First Second", fg_color="transparent",
                                               font=(ctk.CTkFont, 16))
-        self.first_frame_label.grid(row=1, column=1, pady=5)
+        self.first_second_label.grid(row=1, column=1, pady=5)
 
-        self.first_grid_frame_entry = ctk.CTkEntry(self.tab1, placeholder_text="0", font=(ctk.CTkFont, 16))
-        self.first_grid_frame_entry.grid(row=2, column=1, pady=5)
+        self.first_grid_second_entry = ctk.CTkEntry(self.tab1, placeholder_text="0", font=(ctk.CTkFont, 16))
+        self.first_grid_second_entry.grid(row=2, column=1, pady=5)
 
-        self.last_frame_label = ctk.CTkLabel(self.tab1, text="Enter Last Frame", fg_color="transparent",
+        self.last_second_label = ctk.CTkLabel(self.tab1, text="Enter Last Second", fg_color="transparent",
                                              font=(ctk.CTkFont, 16))
-        self.last_frame_label.grid(row=3, column=1, pady=5)
+        self.last_second_label.grid(row=3, column=1, pady=5)
 
-        self.last_grid_frame_entry = ctk.CTkEntry(self.tab1, placeholder_text="100", font=(ctk.CTkFont, 16))
-        self.last_grid_frame_entry.grid(row=4, column=1, pady=5)
+        self.last_grid_second_entry = ctk.CTkEntry(self.tab1, placeholder_text="100", font=(ctk.CTkFont, 16))
+        self.last_grid_second_entry.grid(row=4, column=1, pady=5)
 
         self.grid_button = ctk.CTkButton(self.tab1, text="Extract Checkerboard Frames", command=self.checkerboard,
                                          font=(ctk.CTkFont, 16))
@@ -224,8 +224,8 @@ class App(ctk.CTk):
         messagebox.showerror("Error", error_message)
 
     def checkerboard(self):
-        first_frame = int(self.first_grid_frame_entry.get())
-        last_frame = int(self.last_grid_frame_entry.get())
+        first_frame = int(self.first_grid_second_entry.get()) * int(self.fps_entry.get())
+        last_frame = int(self.last_grid_second_entry.get()) * int(self.fps_entry.get())
         self.waiting(self.tab1, "Extracting checkerboard frames...")
         extract_checkerboard(self.left_video, self.right_video, first_frame, last_frame)
         self.finished()
@@ -242,10 +242,10 @@ class App(ctk.CTk):
     def display_rmse(self):
         with open(f"{self.data_dir}/rmse.json", "r") as file:
             data = json.load(file)
-        camera1_rmse = data["camera1_rmse"]
-        camera2_rmse = data["camera2_rmse"]
+        camera1_rmse = float(data["camera1_rmse"])
+        camera2_rmse = float(data["camera2_rmse"])
 
-        self.rmse_label = ctk.CTkLabel(self.tab1, text=f"Left Camera RMSE: {camera1_rmse}\nRight Camera RMSE: {camera2_rmse} ", font=(ctk.CTkFont, 16))
+        self.rmse_label = ctk.CTkLabel(self.tab1, text=f"Left Camera RMSE: {camera1_rmse:.3f}\nRight Camera RMSE: {camera2_rmse:.3f} ", font=(ctk.CTkFont, 16))
         self.rmse_label.grid(row=7, column=2, pady=5)
 
 

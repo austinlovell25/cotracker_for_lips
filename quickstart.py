@@ -104,8 +104,17 @@ if __name__ == "__main__":
     if torch.cuda.is_available():
         queries = queries.cuda()
 
+    # Select Cotracker model
+    # Cotracker 2
     cotracker = torch.hub.load("facebookresearch/co-tracker", "cotracker2_online", force_reload=True).to(device)
+
+    # Cotracker 3 default model
     # cotracker = CoTrackerOnlinePredictor("/home/kwangkim/Projects/cotracker_new/checkpoints/scaled_online.pth").to(device)
+
+    # Cotracker 3 Kubric dataset model
+    # cotracker = CoTrackerOnlinePredictor("/home/kwangkim/Projects/cotracker_new/checkpoints/baseline_online.pth").to(device)
+
+
     cotracker(video_chunk=video, is_first_step=True, queries=queries[None])
 
     # Process the video

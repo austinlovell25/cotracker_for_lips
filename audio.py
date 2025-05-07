@@ -8,10 +8,10 @@ import os
 
 def compute_pcm(vid, side, range_end):
     audio_file = AudioSegment.from_file(vid)
+    audio_file = audio_file[:range_end * 1000]
     data = audio_file._data
     pcm16_signed_integers = []
-    rng = 193090 * range_end
-    # rng = len(data) / 8
+    rng = len(data) // 2
     for sample_index in tqdm(range(int(rng))):
         sample = int.from_bytes(data[sample_index * 2:sample_index * 2 + 2], 'little', signed=True)
         pcm16_signed_integers.append(sample)
