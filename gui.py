@@ -1,8 +1,12 @@
+import shutil
+
 import customtkinter as ctk
 import json
 import os
 import subprocess
 import tkinter as tk
+
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import time
@@ -28,6 +32,11 @@ class App(ctk.CTk):
         self.running_message = None
         self.plt_canvas = None
         self.rmse_label = None
+        self.left_img_pts = [0, 0, 0, 0]
+        self.right_img_pts = [0, 0, 0, 0]
+        self.left_image_fig = None
+        self.right_image_fig = None
+
 
         self.title("CoTracker for lips")
         self.geometry("1200x1200")
@@ -99,7 +108,7 @@ class App(ctk.CTk):
         self.grid_label = ctk.CTkLabel(self.tab1,
                                        text="2. Enter the first second and last second that the checkerboard fully appears on in the videos.",
                                        fg_color="transparent", font=(ctk.CTkFont, 20), wraplength=300)
-        self.grid_label.grid(row=0, column=1, pady=(20, 20), padx=40, sticky="nw")
+        self.grid_label.grid(row=0, column=1, pady=(20, 20), padx=40)
 
         self.first_second_label = ctk.CTkLabel(self.tab1, text="Enter First Second", fg_color="transparent",
                                               font=(ctk.CTkFont, 16))
@@ -124,7 +133,7 @@ class App(ctk.CTk):
         self.grid_label = ctk.CTkLabel(self.tab1,
                                        text="3. Enter number of rows and columns on the checkerboard and the length of the squares in mm.",
                                        fg_color="transparent", font=(ctk.CTkFont, 20), wraplength=300)
-        self.grid_label.grid(row=0, column=2, pady=(20, 20), padx=40, sticky="nw")
+        self.grid_label.grid(row=0, column=2, pady=(20, 20), padx=40)
 
         self.rows_entry = ctk.CTkEntry(self.tab1, placeholder_text="rows", font=(ctk.CTkFont, 16))
         self.rows_entry.grid(row=1, column=2, pady=5)
@@ -145,13 +154,46 @@ class App(ctk.CTk):
                                         text="4. Create samples. For each sample, enter the sample start time and sample length in seconds in the format (1m35s, 2) (for a 2 second long snippet "
                                              "starting at 1 min 35 seconds in the video) separating entries by line.",
                                         font=(ctk.CTkFont, 20), wraplength=300)
-        self.times_label.grid(row=0, column=0, pady=(20, 20), sticky="nw", padx=(40, 0))
+        self.times_label.grid(row=0, column=0, pady=(20, 20), rowspan=2, sticky="nw", padx=(40, 0))
 
         self.times_textbox = ctk.CTkTextbox(self.tab2)
-        self.times_textbox.grid(row=1, column=0, rowspan=7, columnspan=3, sticky="nsew", padx=(40, 0))
+        self.times_textbox.grid(row=2, column=0, rowspan=7, sticky="nsew", padx=(40, 0))
 
         self.trim_button = ctk.CTkButton(self.tab2, text="Trim Samples", command=self.trim, font=(ctk.CTkFont, 16))
-        self.trim_button.grid(row=9, column=0, pady=5, padx=(40, 0))
+        self.trim_button.grid(row=10, column=0, pady=5, padx=(40, 0))
+
+
+        # Tab 2 Column 2
+        self.block_label = ctk.CTkLabel(self.tab2, text="(Optional) Select coordinates of video to erase.", font=(ctk.CTkFont, 20), wraplength=300)
+        self.block_label.grid(row=0, column=1, pady=(20, 20), padx=(40, 0))
+
+        self.block_open_button = ctk.CTkButton(self.tab2, text="Draw Black Box", command=self.open_block_video, font=(ctk.CTkFont, 16))
+        self.block_open_button.grid(row=1, column=1, pady=5, padx=(40, 0))
+
+        self.block_info_label = ctk.CTkLabel(self.tab2, text="Choose two points to erase a rectangle from the sample videos. "
+                                                             "Left click to select the top left point of the rectangle. "
+                                                             "Right click to select the bottom right point of the rectangle. ",
+                                             font=(ctk.CTkFont, 16), wraplength=300)
+        self.block_info_label.grid(row=10, column=1, pady=5, padx=(40, 0))
+
+        self.left_pt1_label = ctk.CTkLabel(self.tab2, text="Top Left Point: ", font=(ctk.CTkFont, 16))
+        self.left_pt1_label.grid(row=11, column=1, pady=5, padx=(40, 0))
+
+        self.left_pt2_label = ctk.CTkLabel(self.tab2, text="Bottom Right Point: ", font=(ctk.CTkFont, 16))
+        self.left_pt2_label.grid(row=12, column=1, pady=5, padx=(40, 0))
+
+        self.run_block_button = ctk.CTkButton(self.tab2, text="Block Selection", command=self.run_block,
+                                               font=(ctk.CTkFont, 16))
+        self.run_block_button.grid(row=13, column=1, pady=5, padx=(40, 0))
+
+
+        # Tab 2 Column 3
+        self.right_pt1_label = ctk.CTkLabel(self.tab2, text="Top Left Point: ", font=(ctk.CTkFont, 16))
+        self.right_pt1_label.grid(row=11, column=3, pady=5, padx=(40, 0))
+
+        self.right_pt2_label = ctk.CTkLabel(self.tab2, text="Bottom Right Point: ", font=(ctk.CTkFont, 16))
+        self.right_pt2_label.grid(row=12, column=3, pady=5, padx=(40, 0))
+
 
         # Tab 3 Column 1
         self.experiment_title_label = ctk.CTkLabel(self.tab3,
@@ -174,6 +216,118 @@ class App(ctk.CTk):
 
         self.run_button = ctk.CTkButton(self.tab3, text="Run Tracker", command=self.track, font=(ctk.CTkFont, 16))
         self.run_button.grid(row=12, column=1, pady=10, padx=(40, 0))
+
+
+    def on_enter(self, event):
+        self.tab2.configure(cursor="hand2")
+
+
+    def on_leave(self, event):
+        self.tab2.configure(cursor="")
+
+
+    def run_block(self):
+        if not (self.left_img_pts[0] and self.left_img_pts[2] and self.right_img_pts[0] and self.right_img_pts[2]):
+            tk.messagebox.showerror("Error", "Please select two points for the rectangle.")
+        else:
+            self.waiting(self.tab2, "Blocking parts of videos...")
+            os.makedirs(f"{self.data_dir}/samples/original", exist_ok=True)
+            videos = [f for f in os.listdir(f"{self.data_dir}/samples") if os.path.isfile(os.path.join(f"{self.data_dir}/samples", f))]
+            for video in videos:
+                if not os.path.exists(f"{self.data_dir}/samples/original{video}"):
+                    shutil.move(f"{self.data_dir}/samples/{video}", f"{self.data_dir}/samples/original/{video}")
+                cap = cv2.VideoCapture(f"{self.data_dir}/samples/original/{video}")
+                output_path = f"{self.data_dir}/samples/{video}"
+
+                # Get video properties
+                width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                fps = cap.get(cv2.CAP_PROP_FPS)
+                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+
+                # Create VideoWriter object
+                out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+                while True:
+                    success, frame = cap.read()
+                    if not success:
+                        break
+                    if video.startswith("left"):
+                        frame[self.left_img_pts[1]:self.left_img_pts[3], self.left_img_pts[0]:self.left_img_pts[2]] = 0
+                    elif video.startswith("right"):
+                        frame[self.right_img_pts[1]:self.right_img_pts[3], self.right_img_pts[0]:self.right_img_pts[2]] = 0
+                    out.write(frame)
+
+                cap.release()
+                out.release()
+            self.finished()
+
+
+    def left_image_click(self, event):
+        x_select = round(event.xdata)
+        y_select = round(event.ydata)
+        plt.plot(event.xdata, event.ydata, '.', color="y", markersize=15)
+        self.left_image_fig.canvas.draw()
+        # Left Click
+        if event.button == 1:
+            self.left_img_pts[0:2] = [x_select, y_select]
+            self.left_pt1_label.configure(text=f"Top Left Point: ({x_select}, {y_select})")
+        # Right Click
+        elif event.button == 3:
+            self.left_img_pts[2:4] = [x_select, y_select]
+            self.left_pt2_label.configure(text=f"Bottom Right Point: ({x_select}, {y_select})")
+
+
+    def right_image_click(self, event):
+        x_select = round(event.xdata)
+        y_select = round(event.ydata)
+        plt.plot(event.xdata, event.ydata, '.', color="y", markersize=15)
+        self.right_image_fig.canvas.draw()
+        # Left Click
+        if event.button == 1:
+            self.right_img_pts[0:2] = [x_select, y_select]
+            self.right_pt1_label.configure(text=f"Top Left Point: ({x_select}, {y_select})")
+        # Right Click
+        elif event.button == 3:
+            self.right_img_pts[2:4] = [x_select, y_select]
+            self.right_pt2_label.configure(text=f"Bottom Right Point: ({x_select}, {y_select})")
+
+
+    def open_block_video(self):
+        videos = [f for f in os.listdir(f"{self.data_dir}/samples") if
+                  os.path.isfile(os.path.join(f"{self.data_dir}/samples", f))]
+        left_video = next((s for s in videos if s.startswith("left")), None)
+        right_video = next((s for s in videos if s.startswith("right")), None)
+        left_video = os.path.join(f"{self.data_dir}/samples", left_video)
+        right_video = os.path.join(f"{self.data_dir}/samples", right_video)
+
+        left_cap = cv2.VideoCapture(left_video)
+        success, left_frame = left_cap.read()
+        left_cap.release()
+        if not success:
+            print("Reading failure")
+        self.left_image_fig = plt.figure()
+        left_frame = cv2.cvtColor(left_frame, cv2.COLOR_BGR2RGB)
+        plt.imshow(left_frame)
+        left_img_canvas = FigureCanvasTkAgg(self.left_image_fig, master=self.tab2)
+        left_img_canvas.get_tk_widget().grid(row=2, column=1, rowspan=7, columnspan=2, pady=5, padx=(40, 0))
+        self.left_image_fig.canvas.mpl_connect('button_press_event', self.left_image_click)
+        self.left_image_fig.canvas.mpl_connect("figure_enter_event", self.on_enter)
+        self.left_image_fig.canvas.mpl_connect("figure_leave_event", self.on_leave)
+
+        right_cap = cv2.VideoCapture(right_video)
+        success, right_frame = right_cap.read()
+        right_cap.release()
+        if not success:
+            print("Reading failure")
+        self.right_image_fig = plt.figure()
+        right_frame = cv2.cvtColor(right_frame, cv2.COLOR_BGR2RGB)
+        plt.imshow(right_frame)
+        right_img_canvas = FigureCanvasTkAgg(self.right_image_fig, master=self.tab2)
+        right_img_canvas.get_tk_widget().grid(row=2, column=3, rowspan=7, columnspan=2, pady=5, padx=(40, 0))
+        self.right_image_fig.canvas.mpl_connect('button_press_event', self.right_image_click)
+        self.right_image_fig.canvas.mpl_connect("figure_enter_event", self.on_enter)
+        self.right_image_fig.canvas.mpl_connect("figure_leave_event", self.on_leave)
 
 
     def open_json(self):
@@ -288,11 +442,8 @@ class App(ctk.CTk):
 
     def waiting(self, tab, message="Running... Please Wait."):
         self.running_message = ctk.CTkLabel(tab, text=message, font=(ctk.CTkFont, 30), text_color="DodgerBlue4")
-        if tab is self.tab1 or self.tab3:
-            col = 1
-        else:
-            col = 0
-        self.running_message.grid(row=13, column=col, pady=(40, 0))
+        col = 1
+        self.running_message.grid(row=14, column=col, pady=(40, 0))
         self.tabview.update()
 
     def finished(self):
