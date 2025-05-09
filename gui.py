@@ -266,7 +266,7 @@ class App(ctk.CTk):
     def left_image_click(self, event):
         x_select = round(event.xdata)
         y_select = round(event.ydata)
-        plt.plot(event.xdata, event.ydata, '.', color="y", markersize=15)
+        plt.plot(event.xdata, event.ydata, '.', color="black", markersize=15)
         self.left_image_fig.canvas.draw()
         # Left Click
         if event.button == 1:
@@ -281,7 +281,7 @@ class App(ctk.CTk):
     def right_image_click(self, event):
         x_select = round(event.xdata)
         y_select = round(event.ydata)
-        plt.plot(event.xdata, event.ydata, '.', color="y", markersize=15)
+        plt.plot(event.xdata, event.ydata, '.', color="black", markersize=15)
         self.right_image_fig.canvas.draw()
         # Left Click
         if event.button == 1:
