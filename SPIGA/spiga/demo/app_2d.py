@@ -1,7 +1,8 @@
 import os
 import cv2
-import pkg_resources
+# import pkg_resources
 import pandas as pd
+from pathlib import Path
 
 # My libs
 import spiga.demo.analyze.track.get_tracker as tr
@@ -30,7 +31,9 @@ class Suppressor():
 
 
 # Paths
-video_out_path_dft = pkg_resources.resource_filename('spiga', 'demo/outputs')
+# video_out_path_dft = pkg_resources.resource_filename('spiga', 'demo/outputs')
+video_out_path_dft = Path(__file__).parent / "demo" / "outputs"
+
 if not os.path.exists(video_out_path_dft):
     os.makedirs(video_out_path_dft)
 
@@ -54,7 +57,7 @@ def main():
     pars.add_argument('--fps', type=int, default=30, help='Frames per second')
     pars.add_argument('--shape', nargs='+', type=int, help='Visualizer shape (W,H)')
     pars.add_argument('--filename', type=str, default='tmp/Distance(2d).txt', help='file name')
-    pars.add_argument('--shake', type=str, default='none', help='use camera shake mode')
+    pars.add_argument('--shake', type=str, default='False', help='use camera shake mode')
     args = pars.parse_args()
 
     if args.shape:
@@ -150,12 +153,12 @@ def video_app(input_name, spiga_dataset=None, tracker=None, fps=30, save=False,
         while capture.isOpened():
             frame_count += 1
             # print(f"{frame_count=}")
-            if shake == "False" and not all and frame_count == 1:
-                break
-            elif shake != "False" and not all and frame_count == 1:
-                break
-            elif not all and frame_count == 5:
-                break
+            if not all:
+                if shake == "True" and frame_count == 1:
+                    break
+                elif frame_count == 1: ## 5pt avg vs 1pt avg
+                    break
+
             ret, frame = capture.read()
             if ret:
                 with Suppressor():
@@ -229,94 +232,131 @@ def video_app(input_name, spiga_dataset=None, tracker=None, fps=30, save=False,
         capture.release()
         # viewer.close()
 
+    df = pd.DataFrame(
+        list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
+        columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
+                 'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
     if shake == "False":
-        df = pd.DataFrame(list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
-                          columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
-                                   'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
-        # print(df.head())
-        if os.path.exists('2d_lip_coordinates.csv'):
-            df.to_csv('2d_lip_coordinates.csv', mode='a', header=False)
-            # print(f"Appending to 2d_lip_coordinates.csv")
-        else:
-            df.to_csv('2d_lip_coordinates.csv', mode='w', header=True)
-            # print(f"Creating 2d_lip_coordinates.csv")
-
+        df.to_csv('2d_lip_coordinates.csv', mode='w', header=True)
         np.savetxt("support_pts.csv", np.asarray(support_pts), delimiter=",")
-    else:
-        if shake == "none":
-            df = pd.DataFrame(
-                list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
-                columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
-                         'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
+    elif shake == "True":
+        with open("SPIGA/spiga/demo/analyze/track/retinasort/shake_opt.txt", "r") as f:
+            shake_opt = int(f.readline().strip())
+        # print(f"Shake is true. {shake_opt=}")
+        if shake_opt == 0:
             df.to_csv('2d_lip_coordinates.csv', mode='w', header=True)
             np.savetxt("support_pts.csv", np.asarray(support_pts), delimiter=",")
-        elif shake == "right":
-            x1[0] = x1[0] - 100
-            x2[0] = x2[0] - 100
-            x3[0] = x3[0] - 100
-            x4[0] = x4[0] - 100
-            x5[0] = x5[0] - 100
-            x6[0] = x6[0] - 100
-            x7[0] = x7[0] - 100
-            x8[0] = x8[0] - 100
-            x9[0] = x9[0] - 100
-            x10[0] = x10[0] - 100
-            df = pd.DataFrame(
-                list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
-                columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
-                         'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
-            df.to_csv('2d_lip_coordinates.csv', mode='a', header=False)
-        elif shake == "left":
-            x1[0] = x1[0] + 100
-            x2[0] = x2[0] + 100
-            x3[0] = x3[0] + 100
-            x4[0] = x4[0] + 100
-            x5[0] = x5[0] + 100
-            x6[0] = x6[0] + 100
-            x7[0] = x7[0] + 100
-            x8[0] = x8[0] + 100
-            x9[0] = x9[0] + 100
-            x10[0] = x10[0] + 100
-            df = pd.DataFrame(
-                list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
-                columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
-                         'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
-            df.to_csv('2d_lip_coordinates.csv', mode='a', header=False)
-        elif shake == "up":
-            y1[0] = y1[0] + 100
-            y2[0] = y2[0] + 100
-            y3[0] = y3[0] + 100
-            y4[0] = y4[0] + 100
-            y5[0] = y5[0] + 100
-            y6[0] = y6[0] + 100
-            y7[0] = y7[0] + 100
-            y8[0] = y8[0] + 100
-            y9[0] = y9[0] + 100
-            y10[0] = y10[0] + 100
-            df = pd.DataFrame(
-                list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
-                columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
-                         'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
-            df.to_csv('2d_lip_coordinates.csv', mode='a', header=False)
-        elif shake == "down":
-            y1[0] = y1[0] - 100
-            y2[0] = y2[0] - 100
-            y3[0] = y3[0] - 100
-            y4[0] = y4[0] - 100
-            y5[0] = y5[0] - 100
-            y6[0] = y6[0] - 100
-            y7[0] = y7[0] - 100
-            y8[0] = y8[0] - 100
-            y9[0] = y9[0] - 100
-            y10[0] = y10[0] - 100
-            df = pd.DataFrame(
-                list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
-                columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
-                         'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
-            df.to_csv('2d_lip_coordinates.csv', mode='a', header=False)
         else:
-            for i in range(10):
-                print("Something went wrong in app2d!")
+            df.to_csv('2d_lip_coordinates.csv', mode='a', header=False)
+    else:
+        print("Invalid option for shake variable in app_2d.py")
+
+
+
+
+
+
+#     if shake == "none":
+#         print("Shake is none")
+#         df = pd.DataFrame(
+#             list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
+#             columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
+#                      'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
+#         df.to_csv('2d_lip_coordinates.csv', mode='w', header=True)
+#         np.savetxt("support_pts.csv", np.asarray(support_pts), delimiter=",")
+
+
+
+    # if shake == "False":
+    #     print("Shake is false")
+    #     df = pd.DataFrame(list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
+    #                       columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
+    #                                'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
+    #     # print(df.head())
+    #     if os.path.exists('2d_lip_coordinates.csv'):
+    #         df.to_csv('2d_lip_coordinates.csv', mode='a', header=False)
+    #         # print(f"Appending to 2d_lip_coordinates.csv")
+    #     else:
+    #         df.to_csv('2d_lip_coordinates.csv', mode='w', header=True)
+    #         # print(f"Creating 2d_lip_coordinates.csv")
+    #
+    #     np.savetxt("support_pts.csv", np.asarray(support_pts), delimiter=",")
+    # else:
+    #     if shake == "none":
+    #         print("Shake is none")
+    #         df = pd.DataFrame(
+    #             list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
+    #             columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
+    #                      'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
+    #         df.to_csv('2d_lip_coordinates.csv', mode='w', header=True)
+    #         np.savetxt("support_pts.csv", np.asarray(support_pts), delimiter=",")
+    #     elif shake == "right":
+    #         x1[0] = x1[0] - 100
+    #         x2[0] = x2[0] - 100
+    #         x3[0] = x3[0] - 100
+    #         x4[0] = x4[0] - 100
+    #         x5[0] = x5[0] - 100
+    #         x6[0] = x6[0] - 100
+    #         x7[0] = x7[0] - 100
+    #         x8[0] = x8[0] - 100
+    #         x9[0] = x9[0] - 100
+    #         x10[0] = x10[0] - 100
+    #         df = pd.DataFrame(
+    #             list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
+    #             columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
+    #                      'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
+    #         df.to_csv('2d_lip_coordinates.csv', mode='a', header=False)
+    #     elif shake == "left":
+    #         x1[0] = x1[0] + 100
+    #         x2[0] = x2[0] + 100
+    #         x3[0] = x3[0] + 100
+    #         x4[0] = x4[0] + 100
+    #         x5[0] = x5[0] + 100
+    #         x6[0] = x6[0] + 100
+    #         x7[0] = x7[0] + 100
+    #         x8[0] = x8[0] + 100
+    #         x9[0] = x9[0] + 100
+    #         x10[0] = x10[0] + 100
+    #         df = pd.DataFrame(
+    #             list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
+    #             columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
+    #                      'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
+    #         df.to_csv('2d_lip_coordinates.csv', mode='a', header=False)
+    #     elif shake == "up":
+    #         y1[0] = y1[0] + 100
+    #         y2[0] = y2[0] + 100
+    #         y3[0] = y3[0] + 100
+    #         y4[0] = y4[0] + 100
+    #         y5[0] = y5[0] + 100
+    #         y6[0] = y6[0] + 100
+    #         y7[0] = y7[0] + 100
+    #         y8[0] = y8[0] + 100
+    #         y9[0] = y9[0] + 100
+    #         y10[0] = y10[0] + 100
+    #         df = pd.DataFrame(
+    #             list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
+    #             columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
+    #                      'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
+    #         df.to_csv('2d_lip_coordinates.csv', mode='a', header=False)
+    #     elif shake == "down":
+    #         y1[0] = y1[0] - 100
+    #         y2[0] = y2[0] - 100
+    #         y3[0] = y3[0] - 100
+    #         y4[0] = y4[0] - 100
+    #         y5[0] = y5[0] - 100
+    #         y6[0] = y6[0] - 100
+    #         y7[0] = y7[0] - 100
+    #         y8[0] = y8[0] - 100
+    #         y9[0] = y9[0] - 100
+    #         y10[0] = y10[0] - 100
+    #         df = pd.DataFrame(
+    #             list(zip(img_name, x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8, x9, y9, x10, y10)),
+    #             columns=['img_name', 'x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4', 'x5', 'y5', 'x6', 'y6', 'x7',
+    #                      'y7', 'x8', 'y8', 'x9', 'y9', 'x10', 'y10'])
+    #         df.to_csv('2d_lip_coordinates.csv', mode='a', header=False)
+    #     else:
+    #         for i in range(10):
+    #             print("Something went wrong in app2d!")
 
 
 

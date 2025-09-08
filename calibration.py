@@ -326,9 +326,9 @@ if __name__ == "__main__":
     if sys.argv[1] == "triangulate":
         tracker = sys.argv[2]
         exp_name = "exp"
-        if tracker != "spiga" and tracker != "cotracker":
+        if tracker != "spiga" and tracker != "cotracker" and tracker != "sapiens_cotracker":
             print("Invalid tracker option")
-            print("Correct usage: calibration.py test spiga/cotracker")
+            print("Correct usage: calibration.py test spiga/cotracker/sapiens_cotracker")
             exit(1)
         if len(sys.argv) > 3:
             exp_name = sys.argv[3]
@@ -336,8 +336,10 @@ if __name__ == "__main__":
             save_dir = sys.argv[5]
             if tracker == "spiga":
                 time = sys.argv[6]
-
-        Path(f"{save_dir}/cotracker_out/{exp_name}").mkdir(parents=True, exist_ok=True)
+        if tracker == 'cotracker':
+            Path(f"{save_dir}/cotracker_out/{exp_name}").mkdir(parents=True, exist_ok=True)
+        elif tracker == 'sapiens_cotracker':
+            Path(f"{save_dir}/sapiens_cotracker/{exp_name}").mkdir(parents=True, exist_ok=True)
 
         mtx1, dist1 = load_coefficients(f"{config_path}/camera1.yml")
         mtx2, dist2 = load_coefficients(f"{config_path}/camera2.yml")
@@ -345,27 +347,36 @@ if __name__ == "__main__":
 
         if tracker == "spiga":
             df = pd.read_csv(f"{os.getcwd()}/SPIGA/spiga/demo/spiga_pts.csv")
-        elif tracker == "cotracker":
+        elif tracker == "cotracker" or tracker == 'sapiens_cotracker':
             df = pd.read_csv("tmp/cotracker_pts.csv")
         df = flip_y(df)
 
         uvs1_lower = df[["f1_lower_x", "f1_lower_y"]].to_numpy()[0:600]
         uvs2_lower = df[["f2_lower_x", "f2_lower_y"]].to_numpy()[0:600]
         p3ds_lower = triangulate(mtx1, mtx2, R, T, uvs1_lower, uvs2_lower)
-        print(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_lower_3dpts.txt")
-        np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_lower_3dpts.txt', p3ds_lower)
+        if tracker == 'sapiens_cotracker':
+            print(f"{save_dir}/sapiens_cotracker/{exp_name}/{tracker}_lower_3dpts.txt")
+            np.savetxt(f'{save_dir}/sapiens_cotracker/{exp_name}/{tracker}_lower_3dpts.txt', p3ds_lower)
+        else: ## cotracker
+            print(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_lower_3dpts.txt")
+            np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_lower_3dpts.txt', p3ds_lower)
 
 
         uvs1_upper = df[["f1_upper_x", "f1_upper_y"]].to_numpy()[0:600]
         uvs2_upper = df[["f2_upper_x", "f2_upper_y"]].to_numpy()[0:600]
         p3ds_upper = triangulate(mtx1, mtx2, R, T, uvs1_upper, uvs2_upper)
-        np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_upper_3dpts.txt', p3ds_upper)
-
+        if tracker == 'sapiens_cotracker':
+            np.savetxt(f'{save_dir}/sapiens_cotracker/{exp_name}/{tracker}_upper_3dpts.txt', p3ds_upper)
+        else:
+            np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_upper_3dpts.txt', p3ds_upper)
 
         dist_array = np.ones(np.shape(p3ds_upper)[0])
         for i in range(np.shape(p3ds_upper)[0]):
             dist_array[i] = ((p3ds_upper[i][0] - p3ds_lower[i][0]) ** 2 + (p3ds_upper[i][1] - p3ds_lower[i][1]) ** 2 + (p3ds_upper[i][2] - p3ds_lower[i][2]) ** 2) ** 0.5
-        np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_3dist.txt', dist_array)
+        if tracker == 'sapiens_cotracker':
+            np.savetxt(f'{save_dir}/sapiens_cotracker/{exp_name}/{tracker}_3dist.txt', dist_array)
+        else:
+            np.savetxt(f'{save_dir}/cotracker_out/{exp_name}/{tracker}_3dist.txt', dist_array)
 
         stdv = np.std(dist_array, axis=0)
         min_val = np.min(dist_array, axis=0)
@@ -380,7 +391,10 @@ if __name__ == "__main__":
              "median": med},
             index=[0]
         )
-        stats_df.to_csv(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_stats.csv")
+        if tracker == 'sapiens_cotracker':
+            stats_df.to_csv(f"{save_dir}/sapiens_cotracker/{exp_name}/{tracker}_stats.csv")
+        else:
+            stats_df.to_csv(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_stats.csv")
         print(f"{stdv=}")
 
         fig, ax = plt.subplots()
@@ -390,7 +404,10 @@ if __name__ == "__main__":
         ax.set_xlabel('frames')
         ax.set_ylabel('3d Euclidean distance (mm)')
         ax.set_title('Difference between upper lip and lower lip point estimation')
-        plt.savefig(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_3d_distance")
+        if tracker == 'sapiens_cotracker':
+            plt.savefig(f"{save_dir}/sapiens_cotracker/{exp_name}/{tracker}_3d_distance")
+        else:
+            plt.savefig(f"{save_dir}/cotracker_out/{exp_name}/{tracker}_3d_distance")
         # print(f"Saving image to {save_dir}/cotracker_out/{exp_name}/{tracker}_3d_distance")
 
         # if tracker == "spiga":

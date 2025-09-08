@@ -19,8 +19,8 @@ def run_tracking(exp_name, video_dir, times):
             print(str)
             subprocess.run(str, shell=True)
 
-
-if __name__ == "main":
+if __name__ == "__main__":
+    print("===============================================================================")
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--is_multiple", default="Final")
     parser.add_argument("-f", "--file", default="None")
@@ -53,14 +53,13 @@ if __name__ == "main":
         Path(f"{save_dir}").mkdir(parents=True, exist_ok=True)
         for key, value in configs.items():
             str = f"bash spiga_pipeline.sh {vid1} {vid2} {title}_{key} {value} {save_dir} {cam_config_dir}"
-            print(str)
             subprocess.run(str, shell=True)
 
     elif is_mult == "Final":
         with open(file_path, 'r') as file:
             data = json.load(file)
             exp_name = data["experiment_name"]
-            video_dir = data["source_directory"]
+            video_dir = data["source_data_directory"]
             times = data["times"]
             for time in times:
                 vid1 = f"{video_dir}/samples/left_{time}.mp4"
@@ -89,13 +88,23 @@ if __name__ == "main":
                 cam_config_dir = data["cam_config_directory"]
                 video_name_type = data["trimmed_or_overlay"]
                 is_snap = data["is_use_snap"]
+                is_shift = data["is_crop_shift"]
+                is_cotracker_three = data["is_cotracker_three"]
                 times = data["times"]
+
+                # Save parameters to a new JSON file in the save directory
+                os.makedirs(save_dir, exist_ok=True)  # Ensure save_dir exists
+                cotracker_ver = "3" if is_cotracker_three else "2"
+                param_save_path = os.path.join(save_dir, f"cotracker{cotracker_ver}_spiga_parameters.json")
+                with open(param_save_path, 'w') as param_file:
+                    json.dump(data, param_file, indent=4)
+
                 for time in times:
                     vid1 = f"{video_dir}{time}/{exp_name}_left_sync_{time}_{video_name_type}.mp4"
                     vid2 = f"{video_dir}{time}/{exp_name}_right_sync_{time}_{video_name_type}.mp4"
 
                     for key, value in configs.items():
-                        str = f"bash spiga_pipeline.sh {vid1} {vid2} {exp_name}_{time}_{key} {value} {save_dir} {cam_config_dir} {is_snap}"
+                        str = f"bash spiga_pipeline.sh {vid1} {vid2} {exp_name}_{time}_{key} {value} {save_dir} {cam_config_dir} {is_snap} {is_shift} {is_cotracker_three}"
                         print(str)
                         subprocess.run(str, shell=True)
 

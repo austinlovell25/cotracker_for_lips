@@ -16,7 +16,6 @@ import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
 
-import config
 
 def read_video_from_path(path):
     try:
@@ -30,25 +29,28 @@ def read_video_from_path(path):
     return np.stack(frames)
 
 
-def draw_circle(rgb, coord, radius, color=(255, 0, 0), visible=True, color_alpha=None):
+def draw_circle(rgb, coord, radius, color=(255, 0, 0), visible=True):
+    # color = (204, 121, 167)
+    # color = (213, 94, 0)
+    # color = (230, 159, 0)
     # Create a draw object
     draw = ImageDraw.Draw(rgb)
     # Calculate the bounding box of the circle
     left_up_point = (coord[0] - radius, coord[1] - radius)
     right_down_point = (coord[0] + radius, coord[1] + radius)
     # Draw the circle
-    # color = tuple(list(color) + [color_alpha if color_alpha is not None else 255])
-    color = (86, 180, 233) #skyblue for inpainted
-
     draw.ellipse(
         [left_up_point, right_down_point],
         fill=tuple(color) if visible else None,
-        #outline=tuple(color),
+        outline=tuple(color),
     )
     return rgb
 
 
 def draw_line(rgb, coord_y, coord_x, color, linewidth):
+    # color = (204, 121, 167)
+    # color = (213, 94, 0)
+    # color = (230, 159, 0)
     draw = ImageDraw.Draw(rgb)
     draw.line(
         (coord_y[0], coord_y[1], coord_x[0], coord_x[1]),
@@ -98,10 +100,9 @@ class Visualizer:
         filename: str = "video",
         writer=None,  # tensorboard Summary Writer, used for visualization during training
         step: int = 0,
-        query_frame=0,
+        query_frame: int = 0,
         save_video: bool = True,
         compensate_for_camera_motion: bool = False,
-        opacity: float = 1.0,
         video_num: int = 42
     ):
         if compensate_for_camera_motion:
@@ -116,7 +117,6 @@ class Visualizer:
             "constant",
             255,
         )
-        color_alpha = int(opacity * 255)
         tracks = tracks + self.pad_value
 
         if self.grayscale:
@@ -132,7 +132,6 @@ class Visualizer:
             gt_tracks=gt_tracks,
             query_frame=query_frame,
             compensate_for_camera_motion=compensate_for_camera_motion,
-            color_alpha=color_alpha,
             video_num=video_num
         )
         if save_video:
@@ -164,7 +163,6 @@ class Visualizer:
 
             video_writer.close()
 
-            # print(f"Video saved to {save_path}")
 
     def draw_tracks_on_video(
         self,
@@ -173,9 +171,8 @@ class Visualizer:
         visibility: torch.Tensor = None,
         segm_mask: torch.Tensor = None,
         gt_tracks=None,
-        query_frame=0,
+        query_frame: int = 0,
         compensate_for_camera_motion=False,
-        color_alpha: int = 255,
         video_num: int = 42
     ):
         B, T, C, H, W = video.shape
@@ -184,6 +181,7 @@ class Visualizer:
         assert D == 2
         assert C == 3
         video = video[0].permute(0, 2, 3, 1).byte().detach().cpu().numpy()  # S, H, W, C
+        double_tracks = tracks[0].double().detach().cpu().numpy()
         tracks = tracks[0].long().detach().cpu().numpy()  # S, N, 2
         if gt_tracks is not None:
             gt_tracks = gt_tracks[0].detach().cpu().numpy()
@@ -207,15 +205,8 @@ class Visualizer:
                 )
                 norm = plt.Normalize(y_min, y_max)
                 for n in range(N):
-                    # if isinstance(query_frame, torch.Tensor):
-                    #     query_frame_ = query_frame[n]
-                    # else:
-                    #     query_frame_ = query_frame
-                    # color = self.color_map(norm(tracks[query_frame_, n, 1]))
-                    # color = np.array(color[:3])[None] * 255
-                    # vector_colors[:, n] = np.repeat(color, T, axis=0)
-
-                    color = np.array([86, 180, 233])[None]
+                    color = self.color_map(norm(tracks[query_frame, n, 1]))
+                    color = np.array(color[:3])[None] * 255
                     vector_colors[:, n] = np.repeat(color, T, axis=0)
             else:
                 # color changes with time
@@ -238,24 +229,18 @@ class Visualizer:
                         vector_colors[:, n] = np.repeat(color, T, axis=0)
 
             else:
-                # # color changes with segm class
-                # segm_mask = segm_mask.cpu()
-                # color = np.zeros((segm_mask.shape[0], 3), dtype=np.float32)
-                # color[segm_mask > 0] = np.array(self.color_map(1.0)[:3]) * 255.0
-                # color[segm_mask <= 0] = np.array(self.color_map(0.0)[:3]) * 255.0
-                # vector_colors = np.repeat(color[None], T, axis=0)
-
+                # color changes with segm class
                 segm_mask = segm_mask.cpu()
-                color = np.array([86, 180, 233])[None]
+                color = np.zeros((segm_mask.shape[0], 3), dtype=np.float32)
+                color[segm_mask > 0] = np.array(self.color_map(1.0)[:3]) * 255.0
+                color[segm_mask <= 0] = np.array(self.color_map(0.0)[:3]) * 255.0
                 vector_colors = np.repeat(color[None], T, axis=0)
 
         #  draw tracks
         if self.tracks_leave_trace != 0:
             for t in range(query_frame + 1, T):
                 first_ind = (
-                    max(0, t - self.tracks_leave_trace)
-                    if self.tracks_leave_trace >= 0
-                    else 0
+                    max(0, t - self.tracks_leave_trace) if self.tracks_leave_trace >= 0 else 0
                 )
                 curr_tracks = tracks[first_ind : t + 1]
                 curr_colors = vector_colors[first_ind : t + 1]
@@ -275,18 +260,17 @@ class Visualizer:
                     curr_colors,
                 )
                 if gt_tracks is not None:
-                    res_video[t] = self._draw_gt_tracks(
-                        res_video[t], gt_tracks[first_ind : t + 1]
-                    )
+                    res_video[t] = self._draw_gt_tracks(res_video[t], gt_tracks[first_ind : t + 1])
 
         # T = Total number frames, t = index of frame, i = index of point
         upper_pts = np.zeros((10, T))
         lower_pts = np.zeros((10, T))
         #  draw points
-        for t in range(T):
+        for t in range(query_frame, T):
             img = Image.fromarray(np.uint8(res_video[t]))
             for i in range(N):
                 coord = (tracks[t, i, 0], tracks[t, i, 1])
+                double_coord = (double_tracks[t, i, 0], double_tracks[t, i, 1])
                 visibile = True
                 if visibility is not None:
                     visibile = visibility[0, t, i]
@@ -297,51 +281,82 @@ class Visualizer:
                         if i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
                             img = draw_circle(
                                 img,
-                                coord=coord,
-                                radius=int(self.linewidth * 1),
+                                coord=double_coord,
+                                radius=int(self.linewidth * 1),#*2
                                 color=vector_colors[t, i].astype(int),
                                 visible=visibile,
-                                color_alpha=color_alpha,
                             )
-                    # 8 = Lower Middle
-                    # 9 = Upper Middle
-                    if i == 9:#9 8 6 0
-                        upper_pts[0, t] = coord[0]
-                        upper_pts[1, t] = coord[1]
-                    elif i == 1:
-                        upper_pts[2, t] = coord[0]
-                        upper_pts[3, t] = coord[1]
-                    elif i == 3:
-                        upper_pts[4, t] = coord[0]
-                        upper_pts[5, t] = coord[1]
-                    elif i == 5:
-                        upper_pts[6, t] = coord[0]
-                        upper_pts[7, t] = coord[1]
-                    elif i == 7:
-                        upper_pts[8, t] = coord[0]
-                        upper_pts[9, t] = coord[1]
-                    elif i == 8:# 8 9 1 7
-                        lower_pts[0, t] = coord[0]
-                        lower_pts[1, t] = coord[1]
-                    elif i == 0:
-                        lower_pts[2, t] = coord[0]
-                        lower_pts[3, t] = coord[1]
-                    elif i == 2:
-                        lower_pts[4, t] = coord[0]
-                        lower_pts[5, t] = coord[1]
-                    elif i == 4:
-                        lower_pts[6, t] = coord[0]
-                        lower_pts[7, t] = coord[1]
-                    elif i == 6:
-                        lower_pts[8, t] = coord[0]
-                        lower_pts[9, t] = coord[1]
+                    # double_coord = (double_tracks[t, i, 0], double_tracks[t, i, 1])
+                            # 8 = Lower Middle
+                            # 9 = Upper Middle
+                            if i == 9:  # 9 8 6 0
+                                upper_pts[0, t] = double_coord[0]
+                                upper_pts[1, t] = double_coord[1]
+                            elif i == 1:
+                                upper_pts[2, t] = double_coord[0]
+                                upper_pts[3, t] = double_coord[1]
+                            elif i == 3:
+                                upper_pts[4, t] = double_coord[0]
+                                upper_pts[5, t] = double_coord[1]
+                            elif i == 5:
+                                upper_pts[6, t] = double_coord[0]
+                                upper_pts[7, t] = double_coord[1]
+                            elif i == 7:
+                                upper_pts[8, t] = double_coord[0]
+                                upper_pts[9, t] = double_coord[1]
+                            elif i == 8:  # 8 9 1 7
+                                lower_pts[0, t] = double_coord[0]
+                                lower_pts[1, t] = double_coord[1]
+                            elif i == 0:
+                                lower_pts[2, t] = double_coord[0]
+                                lower_pts[3, t] = double_coord[1]
+                            elif i == 2:
+                                lower_pts[4, t] = double_coord[0]
+                                lower_pts[5, t] = double_coord[1]
+                            elif i == 4:
+                                lower_pts[6, t] = double_coord[0]
+                                lower_pts[7, t] = double_coord[1]
+                            elif i == 6:
+                                lower_pts[8, t] = double_coord[0]
+                                lower_pts[9, t] = double_coord[1]
+                    # print(f"{coord=}")
+                    # print(f"{double_coord=}")
+
             res_video[t] = np.array(img)
 
+        # x_diff = np.zeros(T)
+        # y_diff = np.zeros(T)
+        # x_diff = upper_pts[0] - lower_pts[0]
+        # y_diff = upper_pts[1] - lower_pts[1]
+        # x = np.arange(T)
+        #
+        # trial = "F"
+        # many_vs_one = "one"
+
+        # fig, ax = plt.subplots()
+        # ax.plot(x, y_diff, linewidth=2.0, c='r', label="y diff")
+        # legend = ax.legend(loc='lower right', shadow=True, fontsize='x-large')
+        # ax.set_xlabel('frames')
+        # ax.set_ylabel('y diff')
+        # ax.set_title('Difference between upper lip and lower lip point estimation')
+        # plt.savefig("/home/kwangkim/Projects/cotracker_new/test1")
+        # print("Saving image to /home/kwangkim/Projects/cotracker_new/test1")
+        #
+        # fig, ax = plt.subplots()
+        # ax.plot(x[0:120], upper_pts[1][0:120], linewidth=2.0, c='r', label="upper y")
+        # ax.plot(x, lower_pts[1], linewidth=2.0, c='r', label="lower y")
+        # legend = ax.legend(loc='lower right', shadow=True, fontsize='x-large')
+        # ax.set_xlabel('frames')
+        # ax.set_ylabel('y')
+        # ax.set_title('Variation in y value by frame on upper and lower pts')
+        # plt.savefig("/home/kwangkim/Projects/cotracker_new/test2")
+        # print("Saving image to /home/kwangkim/Projects/cotracker_new/test2")
+
         if not os.path.exists(f"tmp/vid{video_num}"):
-            os.makedirs(f"{config.upper_lower_tmp_csv_dir}/vid{video_num}")
-        with open(f"tmp/vid{video_num}/upper_pts.csv", "w") as f:
+            os.makedirs(f"tmp/vid{video_num}")
+        with open(f"tmp/vid{video_num}/upper_pts.csv", "wb") as f:
             np.savetxt(f, upper_pts, delimiter=",")
-        with open(f"tmp/vid{video_num}/lower_pts.csv", "w") as f:
+        with open(f"tmp/vid{video_num}/lower_pts.csv", "wb") as f:
             np.savetxt(f, lower_pts, delimiter=",")
         # out_df = pd.DataFrame(
         #     {'img_name': ["null"],
@@ -351,6 +366,7 @@ class Visualizer:
         #      'y2': [upper_pts[1, -1]]}
         # )
         # out_df.to_csv(f"/home/kwangkim/Projects/cotracker_new/tmp/cotracker_end{video_num}.csv")
+
 
         #  construct the final rgb sequence
         if self.show_first_frame > 0:
@@ -383,11 +399,7 @@ class Visualizer:
                     )
             if self.tracks_leave_trace > 0:
                 rgb = Image.fromarray(
-                    np.uint8(
-                        add_weighted(
-                            np.array(rgb), alpha, np.array(original), 1 - alpha, 0
-                        )
-                    )
+                    np.uint8(add_weighted(np.array(rgb), alpha, np.array(original), 1 - alpha, 0))
                 )
         rgb = np.array(rgb)
         return rgb
