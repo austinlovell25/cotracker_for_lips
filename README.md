@@ -95,7 +95,13 @@ python run_tests.py -f foo.json
 
 Where the json file is set up with the following fields:
  - "experiment_name": A String representing the chosen name of the experiment
- - "source_directory": The directory being used for the experiment
+ - "source_data_directory": The directory being used for the experiment
+ - "save_directory": Directory to save results to
+ - "cam_config_directory": Directory containing camera configuration files
+ - "trimmed_or_overlay":
+ - "is_use_snap": Toggle to use snapping for lip points to border
+ - "is_crop_shift": Toggle to use crop shifting option
+ - "is_cotracker_three": Toggle to use Cotracker 3 or Cotracker 2
  - "times": An Array of the times of the samples listed in the String format specified in step 4.
 
 See trial_example.json for an example of this formatting. \
