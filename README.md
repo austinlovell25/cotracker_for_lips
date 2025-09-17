@@ -6,7 +6,10 @@ Credit to Meta and their CoTracker project, which this repository is based on.
 
 
 ## Install
-Clone this repository and setup Conda within your environment. Repository was developed using Python 3.10
+Clone this repository and setup a Python virtual environment using 
+Python 3.10 within your environment. Ensure you have both PyTorch and TorchVision 
+installed on your system. Follow the instructions on PyTorch's website [here](https://pytorch.org/get-started/locally/) 
+for the installation.
 
 Install necessary packages
 ```
@@ -21,6 +24,7 @@ cd ..
 mkdir checkpoints
 cd checkpoints
 wget https://huggingface.co/facebook/cotracker/resolve/main/cotracker2.pth
+wget https://huggingface.co/facebook/cotracker3/resolve/main/scaled_online.pth
 ```
 
 Download the spiga_300wprivate.pt file from this [Google Drive](https://drive.google.com/drive/folders/1olrkoiDNK_NUCscaG9BbO3qsussbDi7I)
