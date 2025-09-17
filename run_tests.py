@@ -6,7 +6,7 @@ import os
 import json
 from pathlib import Path
 
-def run_tracking(exp_name, video_dir, times):
+def run_tracking(exp_name, video_dir, times, cotracker_ver, spiga_or_sapiens):
     configs = {
         "GlLp": "global_lip.json",
     }
@@ -15,7 +15,14 @@ def run_tracking(exp_name, video_dir, times):
         vid2 = f"{video_dir}/samples/right_{time}.mp4"
 
         for key, value in configs.items():
-            str = f"bash spiga_pipeline.sh {vid1} {vid2} {exp_name}_{time}_{key} {value} {video_dir} {video_dir} false"
+            print(f"{cotracker_ver=}")
+            print(f"{spiga_or_sapiens=}")
+            is_cotracker3 = "True" if cotracker_ver == "Cotracker3" else "false"
+            pipeline_script = "spiga_pipeline.sh" if spiga_or_sapiens == "Spiga" else "sapiens_cotracker.sh"
+
+            # Currently hardcoded to no snap, no shift
+            str = f"bash {pipeline_script} {vid1} {vid2} {exp_name}_{time}_{key} {value} {video_dir} {video_dir} false false {is_cotracker3}"
+
             print(str)
             subprocess.run(str, shell=True)
 

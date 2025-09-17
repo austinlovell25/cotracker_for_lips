@@ -107,7 +107,7 @@ def griddify(x, y):
         grid_loop(x, y, 1, 5, 1, 1, 5, 1)
     grid_loop(x, y, data["x1"], data["y2"], data["y3"], data["y1"], data["y2"], data["y3"])
 def contour_grid(x, y, isUpper):
-    gridSize = 30 #20 and 30 gave me the best ones, 10 for kids
+    gridSize = 20 #20 and 30 gave me the best ones, 10 for kids
     if isUpper:
         for i in range(0, gridSize, 5): #20 and 30 gave me the best ones, 10 for kids
             for z in range(0, gridSize, 5): #5, 30, 5, 10 for kids

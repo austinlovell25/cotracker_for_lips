@@ -36,6 +36,8 @@ class App(ctk.CTk):
         self.right_img_pts = [0, 0, 0, 0]
         self.left_image_fig = None
         self.right_image_fig = None
+        self.cotracker_ver = None
+        self.spiga_or_sapiens = None
 
 
         self.title("CoTracker for lips")
@@ -214,8 +216,16 @@ class App(ctk.CTk):
         self.run_textbox = ctk.CTkTextbox(self.tab3)
         self.run_textbox.grid(row=4, column=1, rowspan=7, sticky="nsew", padx=(40, 0))
 
+        self.cotracker_ver = ctk.StringVar(value="Cotracker3")
+        self.cotracker_option = ctk.CTkOptionMenu(self.tab3, values=["Cotracker2", "Cotracker3"], font=(ctk.CTkFont, 16), variable=self.cotracker_ver)
+        self.cotracker_option.grid(row=12, column=1, pady=10, padx=(40, 0))
+
+        self.spiga_or_sapiens = ctk.StringVar(value="Spiga")
+        self.spiga_sapiens_option = ctk.CTkOptionMenu(self.tab3, values=["Spiga", "Sapiens"], font=(ctk.CTkFont, 16), variable=self.spiga_or_sapiens)
+        self.spiga_sapiens_option.grid(row=13, column=1, pady=10, padx=(40, 0))
+
         self.run_button = ctk.CTkButton(self.tab3, text="Run Tracker", command=self.track, font=(ctk.CTkFont, 16))
-        self.run_button.grid(row=12, column=1, pady=10, padx=(40, 0))
+        self.run_button.grid(row=14, column=1, pady=10, padx=(40, 0))
 
 
     def on_enter(self, event):
@@ -430,13 +440,13 @@ class App(ctk.CTk):
             exp_name = self.json_run["experiment_name"]
             video_dir = self.json_run["source_directory"]
             times = self.json_run["times"]
-            run_tracking(exp_name=exp_name, video_dir=video_dir, times=times)
+            run_tracking(exp_name=exp_name, video_dir=video_dir, times=times, cotracker_ver=self.cotracker_ver.get(), spiga_or_sapiens=self.spiga_or_sapiens.get())
         else:
             exp_name = self.experiment_entry.get()
             times_str = self.run_textbox.get("1.0", tk.END)
             times_array = times_str.split('\n')
             times_array = [item for item in times_array if item != '']
-            run_tracking(exp_name=exp_name, video_dir=self.data_dir, times=times_array)
+            run_tracking(exp_name=exp_name, video_dir=self.data_dir, times=times_array, cotracker_ver=self.cotracker_ver.get(), spiga_or_sapiens=self.spiga_or_sapiens.get())
         self.finished()
 
 

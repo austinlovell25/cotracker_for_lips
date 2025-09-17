@@ -1,7 +1,14 @@
 {
-  "experiment_name": "mytrial",
-  "source_directory": "/home/skill/Projects/cotracker_for_lips2/videos/testing/videos",
-  "times": ["3m40s"]
+  "experiment_name": "experiment",
+  "source_data_directory": "/home/user/input/",
+  "save_directory": "/home/user/output/",
+  "cam_config_directory": "/home/user/camconfig/",
+  "trimmed_or_overlay": "trimmed",
+  "is_use_snap": false,
+  "is_crop_shift": false,
+  "is_cotracker_three": true,
+  "times": [
+    "2m46s",
+    "3m10s"
+  ]
 }
-
-
