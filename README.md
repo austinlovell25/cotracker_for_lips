@@ -11,6 +11,10 @@ Python 3.10 within your environment. Ensure you have both PyTorch and TorchVisio
 installed on your system. Follow the instructions on PyTorch's website [here](https://pytorch.org/get-started/locally/) 
 for the installation.
 
+#### Sapiens Installation
+NOTE: sapiens is not installed and will need to be downloaded locally to run cotracker with sapiens. Follow the installation instructions for sapiens_lite [here](https://github.com/facebookresearch/sapiens). We have included the files that were modified under /sapiens_files. We reccomend following the installation instructions for sapiens and then replacing the files we changed making sure to note the hard coded file paths to match your systems path. Make sure to keep the same directory structure that sapiens uses. The model checkpoint we used for sapiens is sapiens-pose-1b called sapiens_1b_goliath_best_goliath_AP_639_torchscript.pt2
+
+
 Install necessary packages
 ```
 pip install -r requirements.txt
