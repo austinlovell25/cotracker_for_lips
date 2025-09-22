@@ -25,6 +25,10 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
+        # Make tmp directory if it does not exist
+        if not os.path.exists("tmp"):
+            os.makedirs("tmp")
+
         self.data_dir = None
         self.left_video = None
         self.right_video = None
