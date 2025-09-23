@@ -25,10 +25,6 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        # Make tmp directory if it does not exist
-        if not os.path.exists("tmp"):
-            os.makedirs("tmp")
-
         self.data_dir = None
         self.left_video = None
         self.right_video = None
@@ -154,6 +150,13 @@ class App(ctk.CTk):
                                           font=(ctk.CTkFont, 16))
         self.calib_button.grid(row=6, column=2, pady=5)
 
+        self.inspect_label = ctk.CTkLabel(self.tab1, text="(Optional) Inspect video fps and resolution", font=(ctk.CTkFont, 20), wraplength=300)
+        self.inspect_label.grid(row=7, column=2, pady=(20, 20), padx=(40, 0))
+
+        self.inspect_button = ctk.CTkButton(self.tab1, text="Inspect Video", command=self.inspect,
+                                          font=(ctk.CTkFont, 16))
+        self.inspect_button.grid(row=8, column=2, pady=5)
+
 
         # Tab 2 Column 1
         self.times_label = ctk.CTkLabel(self.tab2,
@@ -230,6 +233,25 @@ class App(ctk.CTk):
 
         self.run_button = ctk.CTkButton(self.tab3, text="Run Tracker", command=self.track, font=(ctk.CTkFont, 16))
         self.run_button.grid(row=14, column=1, pady=10, padx=(40, 0))
+    
+
+    def inspect(self):
+        output_str = ""
+        cap = cv2.VideoCapture(self.left_video)
+
+        if not cap.isOpened():
+            output_str = "Error: Could not open video."
+        else:
+            fps = round((cap.get(cv2.CAP_PROP_FPS)))
+
+            width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+            output_str = f"FPS: {fps}\nResolution: {width}x{height}"
+
+        cap.release()
+        self.inspect_label = ctk.CTkLabel(self.tab1, text=output_str, font=(ctk.CTkFont, 20), wraplength=300)
+        self.inspect_label.grid(row=9, column=2, pady=(20, 20), padx=(40, 0))
 
 
     def on_enter(self, event):
