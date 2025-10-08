@@ -2,8 +2,7 @@
 
 ### [CoTracker](https://co-tracker.github.io/)
 
-Credit to Meta and their CoTracker project, which this repository is based on.
-
+Credit to Meta and their CoTracker project, which this repository relies on.
 
 ## Install
 Clone this repository and setup a Python virtual environment using 
