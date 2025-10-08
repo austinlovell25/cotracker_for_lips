@@ -11,9 +11,6 @@ Python 3.10 within your environment. Ensure you have both PyTorch and TorchVisio
 installed on your system. Follow the instructions on PyTorch's website [here](https://pytorch.org/get-started/locally/) 
 for the installation.
 
-#### Sapiens Installation
-NOTE: sapiens is not installed and will need to be downloaded locally to run cotracker with sapiens. Follow the installation instructions for sapiens_lite [here](https://github.com/facebookresearch/sapiens). We have included the files that were modified under /sapiens_files. We recomnend following the installation instructions for sapiens and then replacing the files we changed making sure that the hard coded file paths match your systems path. Make sure to use the same directory structure that sapiens uses. The model checkpoint we used for sapiens, sapiens-pose-1b, is called sapiens_1b_goliath_best_goliath_AP_639_torchscript.pt2
-
 
 Install necessary packages
 ```
@@ -34,6 +31,8 @@ wget https://huggingface.co/facebook/cotracker3/resolve/main/scaled_online.pth
 Download the spiga_300wprivate.pt file from this [Google Drive](https://drive.google.com/drive/folders/1olrkoiDNK_NUCscaG9BbO3qsussbDi7I)
 and move under SPIGA/spiga/models/weights/ (create the weights/ directory if needed).
 
+#### Note: Sapiens Installation
+The instructions above only support running CoTracker with the SPIGA model for facial landmark detection. In order to use Sapiens, you must install it as well. Follow the installation instructions for sapiens_lite [here](https://github.com/facebookresearch/sapiens). We have included the files that were modified under /sapiens_files. We recommend following the installation instructions for sapiens and then replacing the files we changed making sure that the hard coded file paths match your systems path. Make sure to use the same directory structure that sapiens uses. The model checkpoint we used for sapiens, sapiens-pose-1b, is called sapiens_1b_goliath_best_goliath_AP_639_torchscript.pt2
 
 
 ## GUI Guide
