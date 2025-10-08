@@ -12,7 +12,7 @@ installed on your system. Follow the instructions on PyTorch's website [here](ht
 for the installation.
 
 #### Sapiens Installation
-NOTE: sapiens is not installed and will need to be downloaded locally to run cotracker with sapiens. Follow the installation instructions for sapiens_lite [here](https://github.com/facebookresearch/sapiens). We have included the files that were modified under /sapiens_files. We reccomend following the installation instructions for sapiens and then replacing the files we changed making sure to note the hard coded file paths to match your systems path. Make sure to keep the same directory structure that sapiens uses. The model checkpoint we used for sapiens is sapiens-pose-1b called sapiens_1b_goliath_best_goliath_AP_639_torchscript.pt2
+NOTE: sapiens is not installed and will need to be downloaded locally to run cotracker with sapiens. Follow the installation instructions for sapiens_lite [here](https://github.com/facebookresearch/sapiens). We have included the files that were modified under /sapiens_files. We recomnend following the installation instructions for sapiens and then replacing the files we changed making sure that the hard coded file paths match your systems path. Make sure to use the same directory structure that sapiens uses. The model checkpoint we used for sapiens, sapiens-pose-1b, is called sapiens_1b_goliath_best_goliath_AP_639_torchscript.pt2
 
 
 Install necessary packages
