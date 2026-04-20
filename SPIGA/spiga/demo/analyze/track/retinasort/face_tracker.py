@@ -29,6 +29,10 @@ class RetinaSortTracker(tracker.Tracker):
         features = self.detector.inference(image)
         bboxes = features['bbox']
 
+        shake_opt_path = Path("SPIGA/spiga/demo/analyze/track/retinasort/shake_opt.txt")
+        if not Path(shake_opt_path).exists():
+            shake_opt_path.write_text("0")
+            
         with open("SPIGA/spiga/demo/analyze/track/retinasort/shake_opt.txt", "r") as f:
             shake_opt = int(f.readline().strip())
         print(f"{shake_opt=}")
