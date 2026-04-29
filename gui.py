@@ -261,6 +261,35 @@ class App(ctk.CTk):
     def on_leave(self, event):
         self.tab2.configure(cursor="")
 
+    def backup_and_block(self, video):
+        # videos = [f for f in os.listdir(f"{self.data_dir}/samples") if os.path.isfile(os.path.join(f"{self.data_dir}/samples", f))]
+
+        if not os.path.exists(f"{self.data_dir}/samples/original{video}"):
+            shutil.move(f"{self.data_dir}/samples/{video}", f"{self.data_dir}/samples/original/{video}")
+        cap = cv2.VideoCapture(f"{self.data_dir}/samples/original/{video}")
+        output_path = f"{self.data_dir}/samples/{video}"
+
+        # Get video properties
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+
+        # Create VideoWriter object
+        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+        while True:
+            success, frame = cap.read()
+            if not success:
+                break
+            if video.startswith("left"):
+                frame[self.left_img_pts[1]:self.left_img_pts[3], self.left_img_pts[0]:self.left_img_pts[2]] = 0
+            elif video.startswith("right"):
+                frame[self.right_img_pts[1]:self.right_img_pts[3], self.right_img_pts[0]:self.right_img_pts[2]] = 0
+            out.write(frame)
+
+        cap.release()
+        out.release()
 
     def run_block(self):
         if not (self.left_img_pts[0] and self.left_img_pts[2] and self.right_img_pts[0] and self.right_img_pts[2]):
@@ -268,34 +297,16 @@ class App(ctk.CTk):
         else:
             self.waiting(self.tab2, "Blocking parts of videos...")
             os.makedirs(f"{self.data_dir}/samples/original", exist_ok=True)
-            videos = [f for f in os.listdir(f"{self.data_dir}/samples") if os.path.isfile(os.path.join(f"{self.data_dir}/samples", f))]
-            for video in videos:
-                if not os.path.exists(f"{self.data_dir}/samples/original{video}"):
-                    shutil.move(f"{self.data_dir}/samples/{video}", f"{self.data_dir}/samples/original/{video}")
-                cap = cv2.VideoCapture(f"{self.data_dir}/samples/original/{video}")
-                output_path = f"{self.data_dir}/samples/{video}"
+            times_str = self.times_textbox.get("1.0", tk.END)
+            times_array = [line.split(', ') for line in times_str.split('\n')]
+            listed_videos_by_user = [uservid[0] for uservid in times_array]
 
-                # Get video properties
-                width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-                height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                fps = cap.get(cv2.CAP_PROP_FPS)
-                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-
-                # Create VideoWriter object
-                out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
-
-                while True:
-                    success, frame = cap.read()
-                    if not success:
-                        break
-                    if video.startswith("left"):
-                        frame[self.left_img_pts[1]:self.left_img_pts[3], self.left_img_pts[0]:self.left_img_pts[2]] = 0
-                    elif video.startswith("right"):
-                        frame[self.right_img_pts[1]:self.right_img_pts[3], self.right_img_pts[0]:self.right_img_pts[2]] = 0
-                    out.write(frame)
-
-                cap.release()
-                out.release()
+            for items in listed_videos_by_user:
+                if items:
+                    right_fname = "right_" +items + ".mp4"
+                    left_fname = "left_" + items + ".mp4"
+                    self.backup_and_block(right_fname)
+                    self.backup_and_block(left_fname)
             self.finished()
 
 
