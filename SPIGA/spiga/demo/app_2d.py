@@ -240,6 +240,9 @@ def video_app(input_name, spiga_dataset=None, tracker=None, fps=30, save=False,
         df.to_csv('2d_lip_coordinates.csv', mode='w', header=True)
         np.savetxt("support_pts.csv", np.asarray(support_pts), delimiter=",")
     elif shake == "True":
+        shake_opt_path = Path("SPIGA/spiga/demo/analyze/track/retinasort/shake_opt.txt")
+        if not Path(shake_opt_path).exists():
+            shake_opt_path.write_text("0")
         with open("SPIGA/spiga/demo/analyze/track/retinasort/shake_opt.txt", "r") as f:
             shake_opt = int(f.readline().strip())
         # print(f"Shake is true. {shake_opt=}")
