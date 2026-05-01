@@ -1,4 +1,5 @@
 import numpy as np
+from pathlib import Path
 
 # Third party algorithms. Implementation maintained by SPIGA authors.
 import sort_tracker
