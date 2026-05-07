@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cotracker_lips"
+version = "0.2.0"
+description = "3D markerless tracking of lip movements from synchronized stereo video using CoTracker + SPIGA or Sapiens."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Austin Lovell" }]
+keywords = ["computer-vision", "lip-tracking", "stereo", "cotracker", "spiga", "sapiens"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Operating System :: POSIX :: Linux",
+]
+
+dependencies = [
+    "customtkinter>=5.2",
+    "easygui>=0.98",
+    "einops>=0.7",
+    "imageio>=2.33",
+    "matplotlib>=3.8",
+    "moviepy>=1.0",
+    "numpy>=1.26,<2.0",
+    "opencv-python>=4.9",
+    "pandas>=2.2",
+    "pillow>=10.3",
+    "pyarrow>=15.0",
+    "pydub>=0.25",
+    "PyYAML>=6.0",
+    "retinaface-py>=0.0.2",
+    "scipy>=1.15",
+    "sort-tracker-py>=1.0.2",
+    "spiga>=0.0.6",
+    "timm>=0.9",
+    "torch>=2.1",
+    "torchvision>=0.16",
+    "tqdm>=4.67",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.1",
+    "mypy>=1.8",
+    "ruff>=0.3",
+]
+
+[project.scripts]
+cotracker-lips = "cotracker_lips.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+cotracker_lips = ["py.typed"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+ignore_missing_imports = true

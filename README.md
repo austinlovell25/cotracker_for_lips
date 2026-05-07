@@ -1,116 +1,152 @@
-# 3D markerless tracking of speech movements with sub-millimeter accuracy
+# cotracker-lips
 
-### [CoTracker](https://co-tracker.github.io/)
+**3D markerless tracking of lip movements from synchronized stereo video**, built on
+Meta's [CoTracker](https://co-tracker.github.io/) and either
+[SPIGA](https://github.com/andresprados/SPIGA) or
+[Sapiens](https://github.com/facebookresearch/sapiens) for facial landmark detection.
 
-Credit to Meta and their CoTracker project, which this repository relies on.
+Given a left and right camera recording the same speaker, the pipeline:
 
-## Install
-Clone this repository and setup a Python virtual environment using 
-Python 3.10 within your environment. Ensure you have both PyTorch and TorchVision 
-installed on your system. Follow the instructions on PyTorch's website [here](https://pytorch.org/get-started/locally/) 
-for the installation.
+1. **Synchronizes** the two videos using a shared clapperboard impulse.
+2. **Calibrates** the stereo pair from a checkerboard sequence.
+3. **Detects** 2D lip landmarks per frame using SPIGA or Sapiens.
+4. **Tracks** dense lip points through the cropped video with CoTracker.
+5. **Triangulates** matched left/right tracks into a 3D point cloud and
+   reports the upper-to-lower-lip distance over time with sub-millimeter
+   precision.
 
+## Quickstart
 
-Install necessary packages
-```
-pip install -r requirements.txt
-sudo apt 
-cd cotracker
+```bash
+git clone https://github.com/austinlovell25/cotracker_for_lips.git
+cd cotracker_for_lips
+
+# Python 3.10 venv. PyTorch + a CUDA-capable GPU is recommended.
+python -m venv .venv && source .venv/bin/activate
+
 pip install -e .
-cd ..
-cd SPIGA
-pip install -e .
-cd ..
-mkdir checkpoints
-cd checkpoints
-wget https://huggingface.co/facebook/cotracker/resolve/main/cotracker2.pth
-wget https://huggingface.co/facebook/cotracker3/resolve/main/scaled_online.pth
+pip install -e cotracker  # vendored CoTracker (Meta) — local mods preserved
+pip install -e SPIGA      # vendored SPIGA (UAM)     — local mods preserved
+
+scripts/download_checkpoints.sh
+# also fetch SPIGA model weights from the Drive link in docs/install.md
+
+cotracker-lips gui
 ```
 
-Download the spiga_300wprivate.pt file from this [Google Drive](https://drive.google.com/drive/folders/1olrkoiDNK_NUCscaG9BbO3qsussbDi7I)
-and move under SPIGA/spiga/models/weights/ (create the weights/ directory if needed).
+For first-time setup details (CUDA matrix, SPIGA weights, optional Sapiens
+install), see [docs/install.md](docs/install.md).
 
-#### Note: Sapiens Installation
-The instructions above only support running CoTracker with the SPIGA model for facial landmark detection. In order to use Sapiens, you must install it as well. Follow the installation instructions for sapiens_lite [here](https://github.com/facebookresearch/sapiens). We have included the files that were modified under /sapiens_files. We recommend following the installation instructions for sapiens and then replacing the files we changed making sure that the hard coded file paths match your systems path. Make sure to use the same directory structure that sapiens uses. The model checkpoint we used for sapiens, sapiens-pose-1b, is called sapiens_1b_goliath_best_goliath_AP_639_torchscript.pt2
+## Usage
 
+### Graphical workflow
 
-## GUI Guide
-We recommend using the GUI to run our software if you are not comfortable with command-line applications. Our GUI allows users to run every step of an experiment within an easy to use graphic interface. The steps for using it are listed below.
-1. Create an empty directory, and move your left and right-angled mp4 files to this directory. Intermediate files and the final output will be stored in this directory.
-2. Run the GUI.py script using the Python environment setup by following the install commands.
-3. Select your chosen directory, left video, and right video, and enter the video's FPS and what point of the video 
-   to end the search for the clap noise (e.g. if 100 is entered, then the program will 
-   search for the clap noise from the start of the video to 100 seconds into the video). Click "Sync Videos" and 
-   respond to the popup confirmation.
-4. Enter the first and last second that the checkerboard fully appears on in the video. It does not have to be 
-   perfect, however, the calibration will be more accurate the less occluded the checkerboard is. Click "Extract 
-   Checkerboard Frames." This step may take a few minutes.
-5. Enter the number of rows, number of columns, and length of the checkerboard in millimeters. Click "Calibrate Cameras"
-6. Move to the next tab to create samples. These are the small segments of the video that will be trimmed and then 
-   used for tracking in the next step. Follow the formatting guide in the GUI description and hit "Trim Samples."
-   Additionally, if there are other people in the video samples that could interfere with the facial dectection system,
-   we also have included a blocking functionally that allows you to cover up parts of the video so they are not tracked.
-   Use this after trimming the samples if needed.
-8. Move to the next tab to run the tracker. Enter an experiment name and line-separated start times based on the 
-   snippets created in the previous step. This information can also be entered from a JSON file (see trial_example.json).
-    Hit "Run Tracker". This step may take over 30 minutes if a large amount of samples are being processed.
-9. The final results with be saved and output in the directory chosen in step 2.
-
-## Command Line Interface Guide
-
-1. Create an empty directory, and move your left and right-angled mp4 files to this directory. Intermediate files 
-   and the final output will be stored in this directory.
-
-2. Prepare left and right-angled mp4 file videos to run CoTracker on. If the start times of the videos are not 
-   already synced, then run pipeline.py to sync them. Example:
-```
-python pipeline.py --fps 60 --left_vid left_video.mp4 --right_vid right_video.mp4
+```bash
+cotracker-lips gui
 ```
 
-3. Use grid_frames.py to extract the checkerboard frames from the videos for calibration. Example:
-Use relative paths for the videos.
-```
-python grid_frames.py -s 660 -e 1620 -l videos/left_sync_video.mp4 -r videos/right_sync_video.mp4
-```
-where -s is the first frame the checkerboard appears on, and -e is the last frame.
+A 3-tab wizard covers the full pipeline:
 
-4. Create the calibration matrices. Example:
-```
-python calibration.py --rows 17 --columns 24 --scaling 15 --dir /home/user/directory/
-```
-Where --rows is the number of rows on the checkerboard, --columns is the number of columns, and --scaling is the world 
-scaling (default is 15)
+| Tab | Purpose |
+| --- | --- |
+| **Calibrate Cameras** | Sync the videos via clap detection; sample checkerboard frames; run stereo calibration. |
+| **Create Samples**    | Trim the synchronized footage into the short clips you want analyzed; optionally black-box regions you want hidden from the tracker. |
+| **Run Tracker**       | Choose SPIGA or Sapiens, enter sample timestamps (or upload a JSON spec), and run the pipeline. |
 
- 
-5. Using ffmpeg, trim the videos to be under 10 seconds of length to make the program run faster. This can be done 
-   by specifying the start and end time of the snippet. Example:
-```
-ffmpeg -ss 00:09:28 -to 00:09:34 -i right_video -c copy right_9m28s.mp4
-```
-Or by specifying the start time in seconds and length of snippet in frames. Example:
-```
-ffmpeg -ss 191 -i right_video.mp4 -c:v libx264 -c:a aac -frames:v 120 right_9m28s.mp4
-```
-Rename the files following the format of "right_9m28s.mp4" or "left_9m28s.mp4" and move these videos to a 
-subdirectory called "samples"
+A second window (`cotracker-lips refine`) lets you click-correct individual
+frames and re-run CoTracker over only the trailing portion of a clip.
 
-6. Create a json file with your experiment details, and then use run_tests.py on that file to estimate the lip 
-   coordinates. Example:
+### Command-line workflow
+
+Each subcommand maps to one stage so you can script the pipeline piece by
+piece:
+
+```bash
+# Stereo audio sync.
+cotracker-lips sync --left left.mp4 --right right.mp4 --fps 60
+
+# Sample 50 random checkerboard frames into D2/, J2/, synced/.
+cotracker-lips frames \
+  --left left_sync.mp4 --right right_sync.mp4 \
+  --start-sec 11 --end-sec 27 --fps 60 \
+  --out ./calibration_data
+
+# Solve intrinsics + stereo extrinsics.
+cotracker-lips calibrate --rows 17 --cols 24 --scaling 15 --dir ./calibration_data
+
+# Trim each sample with ffmpeg before this step (see docs/cli.md). Then:
+cotracker-lips track --spec examples/trial_example.json --tracker spiga
 ```
-python run_tests.py -f foo.json
+
+`cotracker-lips <subcommand> --help` documents every flag.
+
+### JSON spec for `track`
+
+The full pipeline can be driven by a single JSON file (the GUI's
+"Upload JSON" button uses the same format):
+
+```jsonc
+{
+  "experiment_name": "subject_42",
+  "source_data_directory": "/data/subject_42",
+  "save_directory":        "/data/subject_42/out",
+  "cam_config_directory":  "/data/subject_42",
+  "trimmed_or_overlay":    "trimmed",
+  "is_use_snap":           false,
+  "is_crop_shift":         false,
+  "is_cotracker_three":    true,
+  "times": ["1m35s", "2m10s"]
+}
 ```
 
-Where the json file is set up with the following fields:
- - "experiment_name": A String representing the chosen name of the experiment
- - "source_data_directory": The directory being used for the experiment
- - "save_directory": Directory to save results to
- - "cam_config_directory": Directory containing camera configuration files
- - "trimmed_or_overlay":
- - "is_use_snap": Toggle to use snapping for lip points to border
- - "is_crop_shift": Toggle to use crop shifting option
- - "is_cotracker_three": Toggle to use Cotracker 3 or Cotracker 2
- - "times": An Array of the times of the samples listed in the String format specified in step 4.
+See [examples/trial_example.json](examples/trial_example.json).
 
-See trial_example.json for an example of this formatting. \
-After the script is finished running, the output will be saved in the directory under the cotracker_out subdirectory
+## Configuration
 
+Runtime settings live in YAML and resolve in this order:
+
+1. CLI flags (highest priority)
+2. `COTRACKER_LIPS_*` environment variables
+3. The YAML file at `--config` or `$COTRACKER_LIPS_CONFIG`
+4. Bundled [`configs/default.yaml`](configs/default.yaml)
+
+Edit a copy of the default to set portable paths:
+
+```bash
+cp configs/default.yaml my_config.yaml
+$EDITOR my_config.yaml
+cotracker-lips track --config my_config.yaml --spec examples/trial_example.json
+```
+
+## Project layout
+
+```
+src/cotracker_lips/        # the installable package
+  cli.py                   # `cotracker-lips` entry point
+  config.py                # Config dataclass + YAML loader
+  pipeline/                # full-pipeline orchestrator (replaces shell scripts)
+  trackers/                # SpigaTracker, SapiensTracker, CoTrackerRunner
+  calibration/             # checkerboard sampling, stereo calibration, triangulation
+  postprocess/             # crop offsets, edge-snap helpers
+  sync/                    # audio clap detection
+  gui/                     # customtkinter front-end (app + refiner)
+  io/                      # ffmpeg, video, CSV, path helpers
+configs/                   # default.yaml + grid_configs/*.json
+examples/                  # trial_example.json + sample CSV data
+tests/                     # pytest suite (math/config; no GPU required)
+docs/                      # install / CLI / GUI / architecture
+scripts/                   # download_checkpoints.sh
+cotracker/                 # vendored CoTracker (Meta, with local mods)
+SPIGA/                     # vendored SPIGA (UAM, with local mods)
+sapiens_files/             # patches applied during Sapiens install
+```
+
+## Citing
+
+If this work supports a publication, please cite the upstream projects:
+**CoTracker** (Karaev et al., Meta), **SPIGA** (Prados-Torreblanca et al.),
+and **Sapiens** (Khirodkar et al., Meta).
+
+## License
+
+MIT. See [LICENSE](LICENSE) (vendored libraries retain their own licenses).

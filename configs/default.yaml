@@ -1,0 +1,52 @@
+# Default configuration for cotracker-lips.
+#
+# Override individual keys via:
+#   * --config /path/to/your.yaml on the CLI
+#   * COTRACKER_LIPS_<KEY>=<value> environment variables
+#   * keyword arguments to cotracker_lips.load_config()
+#
+# Paths support ~ expansion and may be relative to the current working dir.
+
+# Where intermediate files (tmp/, sample crops, sync clips) are written. The
+# pipeline also reads sample videos from <work_dir>/samples/ unless overridden.
+work_dir: "."
+
+# Directory holding cotracker2.pth and scaled_online.pth (CoTracker3).
+# Use scripts/download_checkpoints.sh to populate this.
+cotracker_checkpoints: "./checkpoints"
+
+# Directory containing the JSON grid configurations selected by the GUI/CLI.
+# Resolved automatically to <repo>/configs/grid_configs by default.
+grid_configs_dir: null
+
+# CoTracker model version to load. 3 uses the newer "scaled_online.pth"; 2
+# falls back to the torch.hub release.
+cotracker_version: 3
+
+# CUDA, CPU, or auto-detect.
+device: auto
+
+# SPIGA model name passed to app_2d.py.
+spiga_model: "300wprivate"
+
+# Crop window applied to source videos before CoTracker tracking. Centered on
+# the SPIGA/Sapiens-detected lip region.
+crop_width: 704
+crop_height: 512
+
+# Sapiens-only: square crop fed to the pose model.
+sapiens_crop_size: 700
+
+# --- Sapiens (optional) -------------------------------------------------
+#
+# Only needed if you intend to run the Sapiens tracker. See docs/install.md.
+# Leave unset to make Sapiens unavailable; the SPIGA tracker will still work.
+sapiens_scripts_dir: null
+sapiens_conda_env: "sapiens_lite"
+
+# --- Audio sync ---------------------------------------------------------
+
+audio_sample_rate_hz: 48000
+# Multiplier applied to (max(left) + max(right)) when picking the clap
+# threshold automatically. The GUI lets the user override interactively.
+clap_threshold_ratio: 0.375  # 6/16
